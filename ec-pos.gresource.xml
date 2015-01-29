@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/ec-pos">
+		<file>sql/database.mysql.sql</file>
+		<file>sql/sqlite3.database.sql</file>
+		<file>ui/setup.glade</file>
+	</gresource>
+</gresources>
