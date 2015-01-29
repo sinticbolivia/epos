@@ -1,0 +1,9 @@
+using GLib;
+using Gee;
+
+namespace SinticBolivia
+{
+	public class SBTransaction : Object
+	{
+	}
+}
