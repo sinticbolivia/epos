@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Customers">
+		<!--
+		<file>images/nobody.png</file>
+		<file>images/system-users-64x64.png</file>
+		<file>images/roles-icon-64x64.png</file>
+		<file>images/user-icon-64x64.png</file>
+		<file compressed="true">ui/roles.glade</file>
+		<file compressed="true">ui/users.glade</file>
+		<file compressed="true">ui/new-user.glade</file>
+		<file compressed="true">ui/edit-user.glade</file>
+		-->
+	</gresource>
+</gresources>
