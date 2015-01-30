@@ -506,7 +506,7 @@ namespace Woocommerce
 			string[] init_modules = {"Modules", "Users"};
 			foreach(string mod in init_modules)
 			{
-				SBModules.GetModule(mod).Enabled();
+				//SBModules.GetModule(mod).Enabled();
 				SBModules.GetModule(mod).Init();
 			}
 			
