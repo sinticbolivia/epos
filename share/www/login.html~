@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Ecommerce Point of Sale - Login</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<script type="text/javascript">
+	window.onload = function()
+	{
+		document.body.style.height = window.innerHeight + 'px';
+		document.getElementById('quick-icons').style.height = window.innerHeight + 'px';
+	};
+	window.onresize = function()
+	{
+		document.getElementById('quick-icons').style.height = window.innerHeight + 'px';
+	}
+	</script>
+</head>
+<body>
+<div id="container">
+	<menu id="menubar">
+		<ul>
+			<li><a href="register.html">Register</a></li>
+			<li><a href="about.html">About</a></li>
+		</ul>
+		<div class="clear"></div>
+	</menu>
+	<div id="content" class="full-width">
+		<form action="process.vala">
+			<input type="hidden" name="task" value="do_login" />
+			<p>
+				<label>Username:</label>
+				<input type="text" name="username" value="" />
+			</p>
+			<p>
+				<label>Password:</label>
+				<input type="password" name="password" value="" />
+			</p>
+			<p>
+				<button type="submit" class="button">Login</button>
+			</p>
+		</form>
+	</div>
+	<div class="clear"></div>
+</div><!-- id="container" -->
+</body>
+</html>

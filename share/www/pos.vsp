@@ -1,0 +1,79 @@
+<?vala
+Handler=WebPos.vala
+?>
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Ecommerce Point of Sale</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
+</head>
+<body>
+<div id="container">
+	[menu]
+	[sidebar]
+	<div id="top-wrap">
+		<div id="content">
+			<form id="form-order" action="pos.vsp" method="post">
+				<div id="products-container">
+					<p>
+						<input type="text" name="search_keyword" value="" placeholder="Search for products" class="full-width" />
+					</p>
+					<div id="products-listing">
+						<table>
+						<thead>
+						<tr>
+							<th>Image</th>
+							<th>ID</th>
+							<th>Product</th>
+							<th>Qty</th>
+							<th>Price</th>
+							<th>Add</th>
+						</tr>
+						</thead>
+						<tbody>
+						[products_listing]
+						</tbody>
+						</table>
+					</div>
+				</div><!-- end id="products-container" -->
+				<div id="order-container">
+					<p>
+						<input type="text" name="barcode" value="" placeholder="Barcode" class="full-width" />
+					</p>
+					<table>
+					<thead>
+					<tr>
+						<th>Qty</th>
+						<th>Product</th>
+						<th>Price</th>
+						<th>Total</th>
+						<th>Remove</th>
+					</tr>
+					</thead>
+					<tbody id="order-items">
+					
+					</tbody>
+					</table>
+					<div id="payment-customer"></div>
+					<div id="order-total-container">
+						<table>
+						<tr><th>Sub total:</th><td>0.00</td></tr>
+						<tr><th>Tax:</th><td>0.00</td></tr>
+						<tr><th>Discount:</th><td>0.00</td></tr>
+						<tr><th>Total:</th><td>0.00</td></tr>
+						</table>
+					</div>
+				</div><!-- end id="order-container" -->
+				<div class="clear"></div>
+			</form>
+		</div><!-- end id="content" -->
+		[footer]
+		<div class="clear"></div>
+	</div>
+</div><!-- end id="container" -->
+</body>
+<?vala footer(); ?>
+</html>

@@ -1,0 +1,45 @@
+<?vala
+Handler=HandlerLogin.vala
+?>
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Ecommerce Point of Sale - Login</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script src="js/common.js"></script>
+</head>
+<body>
+<div id="container">
+	<menu id="menubar">
+		<ul>
+			<li><a href="register.html">Register</a></li>
+			<li><a href="about.html">About</a></li>
+		</ul>
+		<div class="clear"></div>
+	</menu>
+	<div id="content" class="full-width">
+		<div id="login-form-wrap">
+			<div class="align-center"><img src="images/CheckoutIcon-200x200.png" alt="" /></div>
+			<form action="login.vsp" method="post">
+				<input type="hidden" name="task" value="do_login" />
+				<p>
+					<label>Username:</label>
+					<input type="text" name="username" value="" />
+				</p>
+				<p>
+					<label>Password:</label>
+					<input type="password" name="password" value="" />
+				</p>
+				<p class="align-center">
+					<button type="submit" class="button button-green">Login</button>
+				</p>
+			</form>
+		</div><!-- end id="login-form-wrap" -->
+	</div>
+	<div class="clear"></div>
+	[footer]
+</div><!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,74 @@
+body{font-size:12px;font-family: Arial, Verdana;padding:0;margin:0;}
+a{text-decoration:none;}
+a img{border:0;}
+img{max-width:100%;}
+ul{list-style:none;padding:0;margin:0;}
+p{margin:0 0 8px 0;}
+.full-width{width:100%;}
+.align-center{text-align:center;}
+input[type=text], input[type=password], textarea{background:#fff;border:1px solid #bbb;padding:5px;}
+input[type=text]:focus, input[type=text]:focus, textarea:focus{border:1px solid #0088cc;}
+.clear{clear:both;width:100%;}
+table{border-collapse:collapse;/*border:1px solid #bbbbbb;*/width:100%;}
+table thead th{border:1px solid #b3b3b3;padding:5px 6px;background-image:linear-gradient(#ffffff,#e6e6e6);text-align:center;}
+#container{float:left;width:100%;}
+menu{padding:0;margin:0;background:#4A4545;color:#fff;width:100%;}
+menu ul li{background:#4A4545;float:left;position:relative;}
+menu ul li a{display:block;color:#fff;padding:6px 13px;}
+menu ul li a:hover{background:#3e9b33;}
+menu ul li ul{display:none;min-width:150px;position:absolute;background:#4A4545;}
+menu ul li ul li{clear:both;float:none;}
+#quick-icons{background:#4A4545;color:#fff;width:7%;height:100%;overflow:auto;float:left;}
+#quick-icons .button
+{
+	background-image: linear-gradient(#888, #4A4545);
+	padding: 5px;
+	border-radius:8px;
+	border-color:#5F5F5F;
+	display:block;
+	margin:8px;
+	height:70px;
+	text-align:center;
+}
+#top-wrap{float:left;width:93%;}
+#content{width:_100%;}
+#form-order{padding:8px;}
+#form-order table thead th{text-align:center;}
+#products-container{float:left;width:49%;}
+#products-listing{overflow:auto;}
+#products-listing .product-image img{width:80px;}
+#order-container{float:right;width:49%;}
+#order-total-container{float:right;width:40%;font-size:23px;}
+#order-total-container th{text-align:right;}
+#order-total-container th, #order-total-container td{padding:0px 4px;}
+#footer{clear:both;text-align:center;}
+/******************************/
+/******** Button styles *******/
+/******************************/
+.button
+{
+	/*box-shadow: initial;*/
+	background-image: linear-gradient(#ffffff, #e6e6e6);
+	color:#333333;
+	border: 1px solid #b3b3b3;
+	padding: 4px 4px;
+	cursor:pointer;
+	color: #222;
+	padding: 5px 8px;
+}
+.button:active{background:#ccc;}
+.button-green
+{
+	color: #ffffff;
+	background-image: linear-gradient(#9FE209,#7db500);
+	border:0;
+}
+
+/******************************/
+/******************************/
+/****** Login styles **********/
+ /*****************************/
+#login-form-wrap{width:210px;margin:6% auto;border:1px solid #bbb;padding:10px;}
+#login-form-wrap form{}
+#login-form-wrap form label{display:block;font-size:15px;font-weight:bold;}
+#login-form-wrap form input{width:94%;}

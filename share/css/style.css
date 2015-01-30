@@ -1,0 +1,585 @@
+
+/* Apply this CSS to get the default values for every property.
+ * This is useful when writing special CSS tests that should not be
+ * inluenced by themes - not even the default ones.
+ * Keep in mind that the output will be very ugly and not look like
+ * anything GTK.
+ */
+
+* 
+{
+	engine: none/*initial*/;
+  color: inherit;
+  font-size: inherit;
+  background-color: initial;
+  font-family: inherit;
+  font-style: inherit;
+  font-variant: inherit;
+  font-weight: inherit;
+  text-shadow: inherit;
+  icon-shadow: inherit;
+  box-shadow: initial;
+  margin-top: initial;
+  margin-left: initial;
+  margin-bottom: initial;
+  margin-right: initial;
+  padding-top: initial;
+  padding-left: initial;
+  padding-bottom: initial;
+  padding-right: initial;
+  border-top-style: initial;
+  border-top-width: initial;
+  border-left-style: initial;
+  border-left-width: initial;
+  border-bottom-style: initial;
+  border-bottom-width: initial;
+  border-right-style: initial;
+  border-right-width: initial;
+  border-top-left-radius: initial;
+  border-top-right-radius: initial;
+  border-bottom-right-radius: initial;
+  border-bottom-left-radius: initial;
+  outline-style: initial;
+  outline-width: initial;
+  outline-offset: initial;
+  background-clip: initial;
+  background-origin: initial;
+  background-size: initial;
+  background-position: initial;
+  border-top-color: initial;
+  border-right-color: initial;
+  border-bottom-color: initial;
+  border-left-color: initial;
+  outline-color:  initial;
+  background-repeat: initial;
+  background-image: initial;
+  border-image-source: initial;
+  border-image-repeat: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  transition-property: initial;
+  transition-duration: initial;
+  transition-timing-function: initial;
+  transition-delay: initial;
+  gtk-key-bindings: initial;
+
+  -GtkWidget-focus-line-width: 0;
+  -GtkWidget-focus-padding: 0;
+  -GtkNotebook-initial-gap: 0;
+}
+/* Default Color Scheme */
+@define-color border_color #bbbbbb;
+@define-color entry_border_color #0088cc;
+@define-color dark_bg_color #4A4545;
+@define-color menu_item_hover_color #3e9b33;
+/**********************/
+/*** common classes ***/
+/**********************/
+.no-border{border:0;}
+*
+{
+	/*font: condensed 10;
+	font: Comic Sans 9;
+	*/
+	font: Arial Normal 10;
+}
+*:insensitive{color:#ececec;text-shadow: 1px 1px 0 #fcfcfc;}
+GtkWindow, GtkContainer, GtkBox, GtkHBox, GtkVBox
+{
+	/*background-color: Gainsboro;*/
+	/*background-color: #898989;*/
+	background-color: #fff;
+	border:1px solid @border_color;
+}
+GtkPaned{border:none;}
+GtkTreeView{color:#222;border:none;}
+
+/*
+GtkTreeView GtkCellLayout{border:none;}
+GtkTreeView GtkCellRenderer{color:#222;}
+GtkTreeView GtkVBox,GtkTreeView GtkHBox, GtkTreeView GtkContainer{border:1px solid green;}
+*/
+/** scroll styles **/
+GtkScrollbar
+{
+	background:#e6e6e6;
+	-GtkScrollbar-has-forward-stepper: 1;
+	-GtkScrollbar-has-backward-stepper: 1;
+	-GtkRange-stepper-size: 15;
+	-GtkRange-slider-width: 10;
+	/*border-radius: 20px;
+    border-image: none;*/
+}
+GtkScrollbar.button 
+{
+    border-width: 0;
+
+    /* Override any background with
+     * a full transparent color
+     */
+    background-image: none;
+    background-color: rgba (0, 0, 0, 0);
+}
+.slider.vertical 
+{
+	/*
+    background-image: -gtk-gradient (linear,
+                                     left top, right top,
+                                     from (mix (shade (@bg_color, 0.9), @selected_bg_color, 0.3)),
+                                     to (mix (@bg_color, @selected_bg_color, 0.3)));
+    */
+    /*background-color:#7F7F7F;*/
+    
+}
+.slider.vertical:hover 
+{
+	/*
+    background-image: -gtk-gradient (linear,
+                                     left top, right top,
+                                     from (shade (@selected_bg_color, 0.9)),
+                                     to (@selected_bg_color));
+    */
+}
+.slider{background-color: #B2B0B0;border-radius: 6px;}
+.slider:hover{background-color: #0044CC;border-radius: 6px;}
+/** switch styles **/
+GtkSwitch 
+{
+    font: bold condensed 10;
+    color: #222;
+}
+/*GtkSwitch.trough {border:5px solid red;background:#ececec;}*/
+GtkSwitch.trough {border:1px solid #aaa;}
+GtkSwitch.slider{background-image: -gtk-gradient (linear, left top, left bottom, from (#ffffff), to (#e6e6e6));border:0.5px solid #999;border-radius:0;}
+GtkSwitch.trough:active{background:#3e9b33;color:#fff;font-weight:bold;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.35);}
+
+#windowMain:hover:active{/*transtion-event: show;transition-duration: 1s;*/background-color:rgba(255,255,255,0);transition:1s easy-in;}
+GtkNotebook 
+{                      
+	-GtkWidget-focus-line-width: 0;    /* Remove focus line (dotted line) around text on all tabs */
+	-GtkNotebook-tab-overlap: 0; 
+	-GtkNotebook-initial-gap: 0;
+    -GtkNotebook-arrow-spacing: 5;
+	padding: 3px 10px;
+	border-radius: 8px; 
+	border-width: 1px;               
+}   
+GtkNotebook tab
+{
+	background-color: #e6e6e6;
+}
+GtkNotebook tab:active
+{
+	background-color: #ffffff;
+}
+GtkNotebook.arrow {
+    color: black;
+}
+GtkNotebook.arrow:prelight {
+    color: #0088CC;
+}
+GtkNotebook.arrow:insensitive {
+    color: gray;
+}
+/*                                                  
+GtkNotebook tab:nth-child(first) {  
+background-color: blue;             
+color: red;                         
+font: Sans 12;                      
+}
+
+GtkNotebook tab:nth-child(even) {  
+background-color: orange;         
+color: white;                     
+font: Serif 18;               
+}
+
+GtkNotebook tab:nth-child(last) {  
+background-color: red;
+font: Serif italic 10;
+}
+*/
+/*
+GtkBin GtkButton *,GtkBin GtkButton *:active
+{
+	color:#ffffff;
+	border-radius: 5px;
+	background-image: -gtk-gradient (linear, left top, left bottom, from (#7db500), to (#c5e386));
+	-unico-border-gradient: -gtk-gradient (linear, left top, left bottom, from (shade (#7db500, 1.00)), to (shade (#7db500, 1.00)));
+	-unico-inner-stroke-style: custom;
+	-unico-inner-stroke-gradient: -gtk-gradient (linear, left top, left bottom, from (alpha (#7db500, 0.2)), to (alpha (shade (#7db500, 1.26), 0.0)));
+}
+*/
+/** main menu bar styles **/
+GtkMenuBar{background-color: @dark_bg_color;border:0;}
+GtkMenuBar GtkMenuItem{background-color: @dark_bg_color;border:0;}
+GtkMenuBar GtkMenuItem GtkAccelLabel{color:#fff;}
+GtkMenuBar GtkMenuItem GtkMenu{padding:0px;border:0;background-color: @dark_bg_color;}
+GtkMenuBar GtkMenuItem GtkMenu GtkMenuItem{background:@dark_bg_color;padding:4px;border:0;}
+GtkMenuBar GtkMenuItem, GtkMenuBar GtkImageMenuItem{transition-property: background-color;transition-duration:0.5s;background:@dark_bg_color;}
+GtkMenuBar GtkMenuItem:hover, GtkMenuBar GtkImageMenuItem:hover{background:@menu_item_hover_color;}
+
+/*
+GtkMenuBar, 
+GtkMenu GtkMenuItem, 
+GtkMenu GtkImageMenuItem
+{background-color: #4A4545;transition-property:background-color;transition-duration:1s;}
+GtkMenuBar GtkMenuItem:hover, GtkMenuBar GtkImageMenuItem:hover{background-color:#ececec;}
+GtkMenuItem .label, GtkImageMenuItem .label{color:#fff;}
+*/
+.menubar .menuitem *:backdrop{/*color:#fff;*/}
+.menubar > .menuitem{padding:3px 5px;}
+
+/*********************/
+/** gtklabel styles **/
+/*********************/
+GtkLabel{color:#222;}
+/*********************/
+/** gtkentry styles **/
+/*********************/
+GtkEntry{border:1px solid @border_color;color:#222;padding:4px;}
+GtkEntry:selected, GtkTextView:selected{background-color:#B5B5B5;}
+GtkEntry:focus, GtkTextView:focus{border:1px solid @entry_border_color;box-shadow:inset 0px 5px 5px alpha(#0088CC, 0.1);}
+/************************/
+/** GtkTextView styles **/
+/************************/
+GtkTextView{background-color: #fff;color:#000;}
+
+/********************/
+/** buttons styles **/
+/********************/
+GtkButton
+{
+	box-shadow: initial;
+	background-image: -gtk-gradient (linear, left top, left bottom, from (#ffffff), to (#e6e6e6));
+	color:#333333;
+	border: 1px solid #b3b3b3;
+	padding: 4px 4px;
+	margin: 5px 5px 5px 5px;
+}
+GtkButton.rounded{border-radius: 8px;}
+.button:hover 
+{
+	/*padding: 12px 48px;*/
+	/*background-color: #7db500;*/
+	transition: 200ms ease-in-out;
+    background-color: yellow;
+}
+.button:active{background:#ccc;}
+.button:focus{border:1px solid #0088cc;box-shadow:inset 0px 5px 5px alpha(#0088CC, 0.1)}
+.button GtkLabel{color:#222;}
+/*.button:active{border:red;} button clicked*/
+GtkButton:insensitive{background:#ddd;border:1px solid #b3b3b3;}
+
+.button-blue
+{
+	color: #ffffff;
+	/*background-color: #bbb;*/
+	/*background-color: #7db500;*/
+	background-image: -gtk-gradient (linear, left top, left bottom, from (#01B9E9), to (#00a1cb));
+	/*background-color: #00a1cb;*/
+	/*border-color: #008db2;*/
+	border:0;
+}
+.button-blue GtkLabel{color:#fff;}
+GtkButton.button-register-sale, 
+.button-green, 
+.button-accept
+{
+	color: #ffffff;
+	background-image: -gtk-gradient (linear, left top, left bottom, from (#9FE209), to (#7db500/*c5e386*/));
+	/*border-color:#6b9c00;*/
+	border:0;
+}
+GtkButton.button-register-sale GtkLabel, 
+.button-green GtkLabel, 
+.button-accept GtkLabel{color:#fff;}
+GtkButton.button-cancel, 
+.button-red
+{
+	background-image: -gtk-gradient(linear,left top, left bottom, from(#FF9485), to(#e54028));
+	/*border-color: #d9331a;*/
+	border:0;
+	color:#ffffff;
+}
+GtkButton.button-cancel GtkLabel, .button-red GtkLabel{color:#fff;}
+/*
+.button:hover:active,
+.button:active 
+{
+	background-color: #7db500;
+}
+*/
+
+/*****************/
+/** GTkSpinButton*/
+/*****************/
+GtkSpinButton{}
+GtkSpinButton .button{border-radius:0px;}
+
+/*****************/
+/* Check buttons */
+/*****************/
+GtkCheckButton{border:1px solid @entry_border_color;background:transparent;}
+.check {
+    background-color: transparent;
+    /*background-image: -gtk-gradient (linear, left top, left bottom, from (#4A4545), to (#4A4545));*/
+    border-width: 1px;
+    /*
+    transition-property:border-color, background-image;
+    transition-duration:3s;
+    */
+}
+
+.check:insensitive {
+    /*background-image: -gtk-win32-theme-part(button, 3 4);*/
+}
+GtkButton.check:prelight { /** hover **/
+    /*background-image: -gtk-win32-theme-part(button, 3 2);*/
+}
+
+.check:active, GtkButton.check:active:prelight {
+	background-image: -gtk-gradient(linear, left center, left bottom, from(#0088CC), to(#0088CC));
+}
+.check:hover{border-color:#0088CC;}
+.check:active:insensitive {
+    background-image: -gtk-win32-theme-part(button, 3 8);
+}
+.check:inconsistent {
+    background-image: -gtk-win32-theme-part(button, 3 9);
+}
+
+.check:inconsistent:insensitive {
+    background-image: -gtk-win32-theme-part(button, 3 12);
+}
+
+.check:inconsistent:prelight {
+    background-image: -gtk-win32-theme-part(button, 3 10);
+}
+/*********************************/
+/******** GtkRadioButton *********/
+/*********************************/
+GtkRadioButton:active, 
+GtkRadioButton:active:prelight
+{background-image: -gtk-gradient(linear, left center, left bottom, from(#0088CC), to(#0088CC));}
+
+/** sidebar style **/
+GtkEventBox#eventboxQuickIcons{background-color: #4A4545;background-image:-gtk-gradient (linear, left top, left bottom, from (#4A4545), to (#4A4545));}
+.quick-icons{background-color:inherit;}
+.quick-icons GtkButton
+{
+	background-color:inherit;
+	background-image: linear-gradient(#888, @dark_bg_color);
+	padding: 5px;
+	border-radius:8px;
+	border-color:#5F5F5F;
+	-GtkButton-image-spacing: 0px;
+	-GtkButton-inner-border: 0px;
+	/*transition-property: color, border-color, background-color, background-image, padding, border-width;*/
+	transition-property: background-color, background-image;
+	transition-duration: 0.8s;
+}
+.quick-icons GtkButton:hover{background-color: #ececec;background-image: linear-gradient(#ececec,#ececec);}
+/*********************/
+/** treeview styles **/
+/*********************/
+GtkTreeView .button
+{
+	border-radius: 0px;
+}
+GtkTreeView row:nth-child(even) {
+	background-color: #ececec;
+}
+GtkTreeView row:nth-child(odd) {
+       /*background-color: shade(@base_color, 1.0);*/
+}
+GtkTreeView row:active, GtkTreeView row:focus, GtkTreeView row:selected{background-color:#5454FB;color:#fff;}
+GtkTreeView GtkButton GtkBox GtkAlignment GtkLabel{font-weight:bold;}
+GtkTreeView GtkEntry{background:#fff;color:#000;}
+
+GtkButton.button-view-list{border-radius:8px 0px 0px 8px;}
+GtkButton.button-view-grid{border-radius:0px 8px 8px 0px;}
+.yellow-background{background-color:#FFFEC9;}
+#entry-discount{-GtkWidget-width:80px;color:#FF0000;background-color:#FFFF67;}
+#gtk-tooltip{background-color:#FFFF67;border-radius:10px;}
+#dialog-loading{background-color:#FFFF67;border-radius:10px;}
+/*****************************/
+/******* GtkInfoBar styles ***/
+/*****************************/
+GtkInfoBar{border:0;}
+GtkInfoBar.error{background-color:#D90909;color:#fff;}
+GtkInfoBar.error GtkLabel{color:inherit;font-weight:bold;}
+
+GtkMenu.white-menu{background:#fff;}
+GtkMenu.white-menu GtkMenuItem, GtkMenu.white-menu GtkImageMenuItem{background:#fff;color:#000;}
+
+/******************************/
+/**** SBDashboard styles ******/
+/******************************/
+.sb-dashboard{background:#fff;/*background-image:-gtk-gradient (linear, left top, left bottom, from (#ececec), to (#ececec));*/}
+.sb-dashboard *{}
+.sb-dashboard GtkEventBox{border-radius:15px;border: 1px solid red;/*background-color:#F3F3FB;*//*background-image:-gtk-gradient (linear, left top, left bottom, from (#ececec), to (#ececec));*/}
+.sb-dashboard GtkEventBox GtkBox{border: 1px solid red;}
+.dashboard-widget-title{padding:5px;border:1px solid #CCCCCC;border-radius:8px 8px 0 0;font: Arial Normal 11;color:/*#0088CC*/#535353;font-weight:bold;text-shadow:0 1px 0 #FFFFFF;/*background-image:-gtk-gradient(linear, left top, left bottom, from(#F7F7F7), to (#EDEDED));*/background-image:linear-gradient(#F7F7F7, #EDEDED);}
+.dashboard-widget-body{padding:5px;border:1px solid green;}
+.dashboard-widget-body .box-inner{margin:5px;}
+.sb-dashboard GtkEventBox GtkBox GtkGrid GtkLabel{font: Arial Normal 11;color:#555555;}
+.sb-dashboard GtkEventBox GtkBox GtkGrid .label-number{color:#04BC04;/*#FFBF47*/}
+GtkEventBox GtkViewport{padding:5px}
+.sb-dashboard GtkEventBox GtkViewport GtkGrid{background:transparent;border:0px;}
+/*
+.button-ops .button, .button-ops .button:active, .button-ops .button:prelight
+{background: url("../images/mobilecolor: #272929;
+     background-image: none;
+     background-color: transparent; }
++    GtkCalendar.button:hover {
++      background-image: none;
++      color: #eeeeec; }
++    GtkCalendar.button:backdrop, GtkCalendar.button:backdrop:hover {
++      color: #212222;
++      background-image: none;-menu-icon-red-24x24.png") no-repeat center center;}
+*/
+/********************************/
+/***** GtkCalendar Styles *******/
+/********************************/
+GtkCalendar
+{
+	color: #272929;
+    background-image: none;
+    background-color: transparent; 
+    border:2px solid #bbbbbb;
+}
+GtkCalendar.view{background-color: #8B6914;}
+GtkCalendar.header
+{
+	background-color:red;
+}
+.highlight, GtkCalendar.highlight
+{
+	background-color:green;
+}
+GtkCalendar.button:insensitive {
+    background-color: blue;
+    background-image: none;
+}
+
+GtkCalendar.button:hover 
+{
+	background-color: #ececec;
+	background-image: none;
+	color: #000; 
+	padding:14px;
+}
+GtkCalendar.button:backdrop, GtkCalendar.button:backdrop:hover 
+{
+	color: #212222;
+	background-image: none;
+}
+/********************/
+/***** .box-total ***/
+/********************/
+.box-total GtkLabel
+{
+	font-size:25;
+	padding:0px 10px;
+	/*background:#1c1f1b;color:green;*/
+}
+.box-total GtkLabel:nth-child(last){/*color:#0088cc;*/}
+/**********************/
+/***** Widget Title ***/
+/**********************/
+GtkLabel.widget-title{font-size:15;font-weight:bold;}
+/*********************/
+/** combobox styles **/
+/*********************/
+GtkComboBox{color:#222;}
+GtkComboBox .menu
+{
+	background:#999;
+	padding:3px;
+}
+GtkComboBox .menu .menuitem{color:#222;border:0;}
+GtkComboBox .menu .menuitem:hover{background:#5454FB;color:#fff;}
+GtkComboBox GtkButton{border-radius:0;}
+GtkComboBox.radius{border-radius:8px;}
+GtkComboBox.right-radius GtkButton{border-radius:0px 8px 8px 0px;}
+GtkComboBox.left-radius GtkButton{border-radius:8px 0px 0px 8px;}
+
+
+.widget-container{padding:5px;}
+.widget-container GtkViewport{border:0;}
+.widget-container .wrap{padding:8px;}
+.widget-container .box-widget{border:0;padding:5px;}
+.widget-container .box-widget .title{border:1px solid #ccc;background-image:linear-gradient(#f6f6f6, #ececee);padding:5px;border-radius:5px 5px 0px 0px;color:#535353;text-shadow:0 1px 0 #fff;font-weight:bold;}
+.widget-container .box-widget .body{padding:0px;border-right:1px solid @border_color;border-bottom:1px solid @border_color;border-left:1px solid @border_color;}
+
+/***********************/
+/**** window controls **/
+/***********************/
+.window-controls{background:@dark_bg_color;}
+.window-controls GtkButton{border-radius:0px;}
+
+GtkScrolledWindow GtkViewport{border:0;}
+
+.pos-grid-totals{border:0;}
+.pos-grid-totals GtkLabel, .pos-grid-totals GtkEntry{font-size:15;}
+/**********************************/
+/********* info dialog styles *****/
+/**********************************/
+.info-dialog
+{
+	background:#fff;
+	border:1px solid #cccccc;
+}
+.info-dialog .header
+{
+	border:0;
+}
+.info-dialog.info .header
+{
+	background-color:red;
+	background-image: -gtk-gradient (linear, left top, left bottom, from (#01B9E9), to (#00a1cb));
+}
+.info-dialog.error .header
+{
+	background-color:red;
+	background-image: linear-gradient(#e63e40, #b4282a);
+}
+
+.info-dialog .header GtkLabel{color:#fff;font-size:16;padding:10px;border:0;}
+.info-dialog .body{font-size:12;padding:10px;}
+.info-dialog .button-close{border:0;padding:5px 10px}
+.info-dialog .button-close GtkLabel{color:#fff;font-weight:bold;border:1px solid #6e1416;border:0;}
+
+.info-dialog.info .button-close{background-image: -gtk-gradient(linear, left top, left bottom, from (#01B9E9), to (#00a1cb));}
+.info-dialog.info .button-close:active{background-image: linear-gradient(#00a1cb, #00a1cb);}
+
+.info-dialog.error .button-close{background-image: linear-gradient(#e63e40, #b4282a);}
+.info-dialog.error .button-close:active{background-image: linear-gradient(#b4282a, #b4282a);}
+
+/*****************************/
+/**** login2 styles **********/
+/*****************************/
+/*GtkFixed.login-fixed*/
+#window-login{transition:background-image 0.8s linear;}
+#window-login.woman0{background:url('../images/woman-checking-inventory.jpg') round;}
+#window-login.woman1{background:url('../images/woman1.jpg') round;}
+#window-login.woman2{background:url('../images/woman2.jpg') round;}
+#window-login GtkFixed{background-color:red;}
+#window-login GtkFixed GtkEventBox{background: rgba(213, 213, 213, 0.85);padding:20px;}
+#window-login GtkFixed GtkEventBox .login-title{font-size:30;}
+#window-login GtkFixed GtkEventBox GtkEntry{font-size:15;}
+#window-login GtkFixed GtkEventBox GtkButton#button-signin{background:#246ba6 linear-gradient(#287bbc, #23639a);border:1px solid #1b5480;}
+#window-login GtkFixed GtkEventBox GtkButton#button-signin:hover, 
+#window-login GtkFixed GtkEventBox GtkButton#button-signin:active
+{background-image:linear-gradient(#2672ae 0%, #1e4f7e 100%);}
+#window-login GtkFixed GtkEventBox GtkButton GtkLabel{color:#fff;font-weight:bold;font-size:15;}
+#window-login GtkFixed GtkEventBox GtkButton#button-cancel
+{background-image:linear-gradient(#f2f2f2 0%, #e9e9e9 32%, #d8d8d8 74%, #d1d1d1 100%);border:1px solid #a7a7a7;}
+#window-login GtkFixed GtkEventBox GtkButton#button-cancel GtkLabel{color:#444;}
+#window-login GtkFixed GtkEventBox GtkButton#button-cancel:hover
+{background-image:linear-gradient(#e8e8e8 0%, #e3e3e3 13%, #d7d7d7 32%, #b9b9b9 71%, #a9a9a9 100%)}
+
+#window-login GtkFixed GtkEventBox GtkEntry{background:#fff;}
+#window-login .box-footer{}
+#window-login .box-footer GtkLabel{background:@dark_bg_color;color:#fff;font-weight:bold;}
