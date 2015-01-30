@@ -28,15 +28,10 @@ namespace Woocommerce
 		public		Button		buttonLogo;
 		public		Image		imageLogo;
 		
-		public		ComboBox	comboboxShopType;
 		public		ComboBox	comboboxPrinter;
 		public		ComboBox	comboboxPageSizes;
-		public		Entry		entryShopUrl;
-		
-		
-		public		Label		labelLastSync;
+			
 		public 		Dialog 		dialogConfig;
-		public		Button		buttonResetData;
 		public		Button		buttonTestPrinter;
 		public		Button		buttonCancel;
 		public		Button		buttonSave;
@@ -44,7 +39,7 @@ namespace Woocommerce
 		public		CheckButton	checkbuttonShowPrintDialog;
 		public		Image		imageSettings;
 		public		string		cfgFile = "config.xml";
-		public		string		logoFilename;
+		public		string		logoFilename = "";
 		
 		public DialogConfig()
 		{
@@ -71,13 +66,9 @@ namespace Woocommerce
 				this.buttonLogo				= (Button)this._builder.get_object("buttonLogo");
 				this.imageLogo				= (Image)this._builder.get_object("imageLogo");
 				
-				this.comboboxShopType		= (ComboBox)this._builder.get_object("comboboxShopType");
 				this.comboboxPrinter		= (ComboBox)this._builder.get_object("comboboxPrinter");
 				this.comboboxPageSizes		= (ComboBox)this._builder.get_object("comboboxPageSizes");
 				
-				this.entryShopUrl			= (Entry)this._builder.get_object("entryShopUrl");
-				this.labelLastSync			= (Label)this._builder.get_object("labelLastSync");
-				this.buttonResetData		= (Button)this._builder.get_object("buttonResetData");
 				this.buttonTestPrinter		= (Button)this._builder.get_object("buttonTestPrinter");
 				this.buttonCancel 			= (Button)this._builder.get_object("buttonCancel");
 				this.buttonSave				= (Button)this._builder.get_object("buttonSave");
@@ -85,11 +76,13 @@ namespace Woocommerce
 				this.checkbuttonShowPrintDialog	= (CheckButton)this._builder.get_object("checkbuttonShowPrintDialog");
 				
 				this.imageSettings.set_from_icon_name("preferences-desktop", IconSize.DIALOG);
+				TreeIter iter;
+				/*
 				this.comboboxShopType.model = new ListStore(2, typeof(string), typeof(string));
 				var cell = new CellRendererText();
 				this.comboboxShopType.pack_start(cell, false);
 				this.comboboxShopType.set_attributes(cell, "text", 0);
-				TreeIter iter;
+				
 				(this.comboboxShopType.model as ListStore).append(out iter);
 				(this.comboboxShopType.model as ListStore).set(iter, 0, "Woocommerce", 1, "woocommerce");
 				(this.comboboxShopType.model as ListStore).append(out iter);
@@ -98,9 +91,10 @@ namespace Woocommerce
 				(this.comboboxShopType.model as ListStore).set(iter, 0, "OsCommerce", 1, "oscommerce");
 				(this.comboboxShopType.model as ListStore).append(out iter);
 				(this.comboboxShopType.model as ListStore).set(iter, 0, "WP-ecoomerce (get shopped)", 1, "wp-ecoomerce");
-				this.dialogConfig.title = "Settings";
+				*/
+				this.dialogConfig.title = SBText.__("Settings");
 				//setup combobox printer
-				cell = new CellRendererText();
+				var cell = new CellRendererText();
 				this.comboboxPageSizes.pack_start(cell, false);
 				this.comboboxPageSizes.set_attributes(cell, "text", 0);
 				
@@ -132,11 +126,9 @@ namespace Woocommerce
 		{
 			//##connect signals
 			this.buttonLogo.clicked.connect(this.OnButtonLogoClicked);
-			this.buttonResetData.clicked.connect(this.OnButtonResetDataClicked);
 			this.buttonTestPrinter.clicked.connect(this.OnButtonTestPrinterClicked);
 			this.buttonCancel.clicked.connect(this.OnButtonCancelClicked);
 			this.buttonSave.clicked.connect(this.OnButtonSaveClicked);
-			this.comboboxShopType.changed.connect(this.OnComboBoxShopTypeChanged);
 		}
 		public void LoadData()
 		{
@@ -161,18 +153,6 @@ namespace Woocommerce
 			TreeIter iter;
 			//set default data from config file
 			this._config = new SBConfig(this.cfgFile, "point_of_sale");
-			string shop_type = (string)this._config.GetValue("shop_type");
-			this.comboboxShopType.model.get_iter_first(out iter);
-			do
-			{
-				Value current_shop_type;
-				this.comboboxShopType.model.get_value(iter, 1, out current_shop_type);
-				if( shop_type == (string)current_shop_type )
-				{
-					this.comboboxShopType.set_active_iter(iter);
-					break;
-				}
-			}while(this.comboboxShopType.model.iter_next(ref iter));
 			(this.comboboxPrinter.get_child() as Entry).text = (string)this._config.GetValue("printer");
 			string page_size = (string)this._config.GetValue("page_size");
 			/*
@@ -188,7 +168,6 @@ namespace Woocommerce
 			this.comboboxPageSizes.active_id = page_size;
 			this.entryAddress.text 	= (string)this._config.GetValue("address");
 			this.entryCity.text		= (string)this._config.GetValue("city");
-			this.entryShopUrl.text 	= (string)this._config.GetValue("shop_url");
 			this.checkbuttonShowPreview.active = ((string)this._config.GetValue("print_preview") == "yes");
 			this.checkbuttonShowPrintDialog.active = ((string)this._config.GetValue("show_print_dialog") == "yes");
 		}
@@ -243,6 +222,7 @@ namespace Woocommerce
 		}
 		protected void OnComboBoxShopTypeChanged()
 		{
+			/*
 			TreeIter iter;
 			Value shop_type;
 			this.comboboxShopType.get_active_iter(out iter);
@@ -284,6 +264,7 @@ namespace Woocommerce
 				this.boxEcommerceSettings.pack_start(box);
 			}
 			this.boxEcommerceSettings.show_all();
+			*/
 		}
 		protected void OnButtonTestPrinterClicked()
 		{
@@ -413,20 +394,22 @@ namespace Woocommerce
 		}
 		protected void OnButtonSaveClicked(Button sender)
 		{
+			/*
 			TreeIter iter;
 			Value shop_type;
 			if( !this.comboboxShopType.get_active_iter(out iter) )
 			{
-				MessageDialog msg = new MessageDialog(this.dialogConfig, 
-														DialogFlags.MODAL, 
-														MessageType.ERROR, 
-														ButtonsType.CLOSE, 
-													"Invalid shop type");
+				var msg = new InfoDialog()
+				{
+					Title = SBText.__("Error"),
+					Message = SBText.__("Invalid shop type")
+				};
 				msg.run();
 				msg.destroy();
 				return;
 			}
 			this.comboboxShopType.model.get_value(iter, 1, out shop_type);
+			*/
 			if( this._config == null )
 			{
 				this._config = new SBConfig(this.cfgFile, "point_of_sale");
@@ -456,10 +439,9 @@ namespace Woocommerce
 			//stderr.printf("%s => %s\n", "textchild", (string)cfg.GetValue("textchild"));			
 			//this._config.SetValue("address", this.entryAddress.text);
 			//this._config.SetValue("city", this.entryCity.text);
-			
-			this._config.SetValue("shop_type", (string)shop_type);
-			this._config.SetValue("shop_url", this.entryShopUrl.text.strip());
-			
+			//this._config.SetValue("shop_type", (string)shop_type);
+			//this._config.SetValue("shop_url", this.entryShopUrl.text.strip());
+			/*
 			if( (string)shop_type == "woocommerce" )
 			{
 				Entry entry = (Entry)((HashMap<string,Widget>)this._ecommerceWidgets)["wc_entry_api_key"];
@@ -467,7 +449,8 @@ namespace Woocommerce
 				entry = (Entry)((HashMap<string,Widget>)this._ecommerceWidgets)["wc_entry_api_secret"];
 				this._config.SetValue("wc_api_secret", entry.text.strip());
 			}
-			//set printing settings
+			*/
+			//##set printing settings
 			this._config.SetValue("printer", (this.comboboxPrinter.get_child() as Entry).text.strip());
 			this._config.SetValue("page_size", this.comboboxPageSizes.active_id);
 			this._config.SetValue("print_preview", this.checkbuttonShowPreview.active ? "yes" : "no");
