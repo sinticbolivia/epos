@@ -1,0 +1,47 @@
+VLIBS=--pkg gmodule-2.0\
+		--pkg gee-1.0\
+		--pkg libxml-2.0\
+		--pkg gtk+-3.0\
+		--pkg sqlite3\
+		--pkg mysql\
+		--pkg SinticBolivia\
+		--pkg GtkSinticBolivia
+		
+VFLAGS=--vapidir=../../../SinticBolivia\
+		--vapidir=../../../SinticBolivia/widgets
+		
+CFLAGS=-X -I/mingw/include \
+		-X -I/mingw/include/gee-1.0 \
+		-X -I/mingw/include/json-glib-1.0 \
+		-X -I/mingw/include/libsoup-2.4 \
+		-X -I. \
+		-X -D__LCC__\
+		-X -I../../../libs/libmysqlclient-5.6.20/include\
+		-X -I../../../SinticBolivia \
+		-X -I../../../SinticBolivia/widgets \
+		-X -L../../../SinticBolivia/bin \
+		-X -L../../../SinticBolivia/widgets
+		
+CLIBS=-X -lgee \
+		-X -lSinticBolivia \
+		-X -lGtkSinticBolivia
+
+SOURCES=module.users.vala  $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)  $(wildcard helpers/*.vala)
+		
+MODULE_NAME=Users
+LIB_NAME=lib$(MODULE_NAME).dll
+
+all:
+	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
+	glib-compile-resources users.gresource.xml
+install:
+	install $(LIB_NAME) ../../bin/modules/
+	install users.gresource ../../bin/modules/
+clean: 
+	rm $(LIB_NAME)
+	rm users.gresource
+	rm *.h
+	rm *.c
+	rm widgets/*.c
+	rm classes/*.c
+	rm *.vapi
