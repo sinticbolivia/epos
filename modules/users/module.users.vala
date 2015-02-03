@@ -16,16 +16,6 @@ namespace Woocommerce
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Users";}}
 				
-		//protected string 	resourceFile = "./modules/users.gresource";
-		/*
-		public	static		Resource	res_data;
-		
-		//##declare glade interfaces
-		public	static		Builder	ui_roles;
-		public	static		Builder ui_users;
-		public	static		Builder ui_new_user;
-		public	static		Builder ui_edit_user;
-		*/
 		construct
 		{
 			this._moduleId 		= "mod_users";
@@ -72,8 +62,6 @@ namespace Woocommerce
 		public void Load()
 		{
 			
-		
-			
 		}
 		public void Unload()
 		{
@@ -81,77 +69,9 @@ namespace Woocommerce
 		public void Init()
 		{
 			this.LoadResources();
-			/*
-			try
-			{
-				if( FileUtils.test(this.resourceFile, FileTest.EXISTS) )
-				{
-					this.res_data = Resource.load(this.resourceFile);
-					size_t ui_size;
-					uint32 flags;
-					
-					this.res_data.get_info("/net/sinticbolivia/Users/ui/roles.glade", 
-															ResourceLookupFlags.NONE, 
-															out ui_size,
-															out flags);
-					InputStream ui_stream = SB_ModuleUsers.res_data.open_stream("/net/sinticbolivia/Users/ui/roles.glade", ResourceLookupFlags.NONE);
-					uint8[] data = new uint8[ui_size];
-					size_t length;
-					ui_stream.read_all(data, out length);
-					
-					SB_ModuleUsers.ui_roles = new Builder();
-					SB_ModuleUsers.ui_roles.add_from_string((string)data, length);
-					
-					//##get users glade file
-					SB_ModuleUsers.res_data.get_info("/net/sinticbolivia/Users/ui/users.glade", 
-															ResourceLookupFlags.NONE, 
-															out ui_size,
-															out flags);
-					ui_stream = SB_ModuleUsers.res_data.open_stream("/net/sinticbolivia/Users/ui/users.glade", 
-																		ResourceLookupFlags.NONE);
-					data = new uint8[ui_size];
-					ui_stream.read_all(data, out length);
-					SB_ModuleUsers.ui_users = new Builder();
-					SB_ModuleUsers.ui_users.add_from_string((string)data, length);
-					
-					//##get new users glade file
-					SB_ModuleUsers.res_data.get_info("/net/sinticbolivia/Users/ui/new-user.glade", 
-															ResourceLookupFlags.NONE, 
-															out ui_size,
-															out flags);
-					ui_stream = SB_ModuleUsers.res_data.open_stream("/net/sinticbolivia/Users/ui/new-user.glade", 
-																		ResourceLookupFlags.NONE);
-					data = new uint8[ui_size];
-					ui_stream.read_all(data, out length);
-					SB_ModuleUsers.ui_new_user = new Builder();
-					SB_ModuleUsers.ui_new_user.add_from_string((string)data, length);
-					
-					//##get edit users glade file
-					SB_ModuleUsers.res_data.get_info("/net/sinticbolivia/Users/ui/edit-user.glade", 
-															ResourceLookupFlags.NONE, 
-															out ui_size,
-															out flags);
-					
-					ui_stream = SB_ModuleUsers.res_data.open_stream("/net/sinticbolivia/Users/ui/edit-user.glade", 
-																		ResourceLookupFlags.NONE);
-					data = new uint8[ui_size];
-					ui_stream.read_all(data, out length);
-					SB_ModuleUsers.ui_edit_user = new Builder();
-					SB_ModuleUsers.ui_edit_user.add_from_string((string)data, length);
-					
-				}
-				else
-				{
-					stderr.printf("Resource file for %s does not exists\n", this.Name);
-				}
-			}
-			catch(GLib.Error e)
-			{
-				stderr.printf("ERROR: %s\n", e.message);
-			}
-			*/
+			
 			var hook = new SBModuleHook(){HookName = "init_menu_management", handler = init_menu_management};
-			var hook1 = new SBModuleHook(){HookName = "init_menu_management", handler = local_authentication};
+			var hook1 = new SBModuleHook(){HookName = "authenticate", handler = local_authentication};
 			var hook2 = new SBModuleHook(){HookName = "login_dialog", handler = login_dialog};
 			SBModules.add_action("init_menu_management", ref hook);
 			SBModules.add_action("authenticate", ref hook1);

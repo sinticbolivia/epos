@@ -4,23 +4,22 @@ CFLAGS=-X -I/mingw/include \
 		-X -I/mingw/include/json-glib-1.0 \
 		-X -I/mingw/include/libsoup-2.4 \
 		-X -L/mingw/lib \
-		-X -I$(SB_LIBS)/printpreview \
+		-X -I../libs/libmysqlclient-5.6.20/include\
+		-X -D__LCC__\
 		-X -I./$(SB_LIBS)/widgets\
-		-X -L$(SB_LIBS)/printpreview \
 		-X -L./$(SB_LIBS)/widgets
 		
 CLIBS=-X -lgee \
 		-X -ljson-glib-1.0 \
 		-X -lsoup-2.4 \
 		-X -lSinticBolivia \
-		-X -lprintpreview \
 		-X -lGtkSinticBolivia
 		
 VFLAGS=--vapidir=$(SB_LIBS) \
 		--vapidir=$(SB_LIBS)/widgets \
-		--vapidir=$(SB_LIBS)/printpreview \
 		-X -I. \
 		-X -I$(SB_LIBS)
+		
 VLIBS=--pkg gtk+-3.0 \
 		--pkg gmodule-2.0 \
 		--pkg gio-2.0 \
@@ -29,35 +28,15 @@ VLIBS=--pkg gtk+-3.0 \
 		--pkg json-glib-1.0 \
 		--pkg libxml-2.0 \
 		--pkg sqlite3 \
+		--pkg mysql\
 		--pkg SinticBolivia \
-		--pkg PrintPreview \
 		--pkg GtkSinticBolivia \
 		-X -lSinticBolivia \
-		-X -lprintpreview \
 		-X -lGtkSinticBolivia
 VC=valac
-SOURCES=main.vala \
-		widgets/widget-pos.vala \
-		classes/class.hmac.vala \
-		classes/woocommerce-api-client.vala \
-		classes/class.web.vala \
-		dialogs/dialog-config.vala \
-		classes/class.config.vala \
-		dialogs/dialog-create-customer.vala \
-		dialogs/dialog-login.vala \
-		classes/class.invoice.vala \
-		classes/class.product.vala \
-		classes/class.synchronizer.vala \
-		classes/class.wc-sync.vala \
-		classes/class.user.vala \
-		classes/class.store.vala \
-		classes/class.customer.vala \
-		classes/class.dashboard-widget.vala \
-		classes/class.turn.vala \
-		classes/class.hooks.vala \
-		helpers/helper.ec-pos.vala \
-		widgets/widget.pending-to-sync-orders.vala\
-		widgets/widget.daily-report.vala
+SOURCES=main.vala $(wildcard classes/*.vala) $(wildcard dialogs/*.vala) $(wildcard widgets/*.vala) \
+		$(wildcard helpers/*.vala)
+		
 OBJECTS=$(SOURCES:.vala=.o)
 DEST_EXEC=woocommerce_pos.exe
 LIBRARY_NAME=SinticBolivia
@@ -72,9 +51,8 @@ $(DEST_EXEC): $(SOURCES)
 	glib-compile-resources ec-pos.gresource.xml
 	mv ec-pos.gresource share/resources
 	
-$(OBJECTS): $(SOURCES)
-	$(VC) --define=__WIN32__ -c $(VFLAGS) $(VLIBS) $^ -o $@
-	
+#$(OBJECTS): $(SOURCES)
+#	$(VC) --define=__WIN32__ -c $(VFLAGS) $(VLIBS) $^ -o $@
 #	$(VC) $(VFLAGS) -c $(SOURCES)
 ##modules section
 #$(MODULES): 
@@ -83,12 +61,19 @@ $(OBJECTS): $(SOURCES)
 #	$(VC) $(VFLAGS) $< -o $@
 #test: test.vala
 #	$(VC) -X -I. -X -L./bin $(VLIBS) -X -l$(LIBRARY_NAME) $(LIBRARY_NAME).vapi  test.vala -o bin/test 
+
+modules: modules/modules/libModules.dll modules/users/libUsers.dll modules/inventory/libInventory.dll
+	make -C modules/modules/ -f Makefile.win
+	make -C modules/users/ -f Makefile.win
+	
 install:
-	install bin/woocommerce_pos.exe "C:\Program Files\Ecommerce POS"
-	cp -fr bin/share/* "C:\Program Files\Ecommerce POS\share"
-	install $(SB_LIBS)/bin/libSinticBolivia.dll "C:\Program Files\Ecommerce POS"
-	install $(SB_LIBS)/widgets/libGtkSinticBolivia.dll "C:\Program Files\Ecommerce POS"
-	install $(SB_LIBS)/printpreview/libprintpreview.dll "C:\Program Files\Ecommerce POS"
+	install	-d /c/EPOS/share
+	install	-d /c/EPOS/libs
+	install bin/woocommerce_pos.exe /c/EPOS
+	cp -frv bin/share/* /c/EPOS/share
+	install ../SinticBolivia/bin/libSinticBolivia.dll /c/EPOS\libs
+	install ../SinticBolivia/widgets/libGtkSinticBolivia.dll /c/EPOS/libs
+	
 clean:
 	rm -fv bin/$(DEST_EXEC)
 	rm *.o

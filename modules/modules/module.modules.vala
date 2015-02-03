@@ -61,6 +61,7 @@ namespace Woocommerce
 			string query = "SELECT * FROM modules WHERE status = 'enabled'";
 			foreach(SBDBRow row in dbh.GetResults(query))
 			{
+				if( row.Get("module_key") == "mod_users" ) continue;
 				ISBModule mod = SBModules.GetModule(row.Get("library_name"));
 				stdout.printf("Inititalizing module %s\n", mod.Name);
 				mod.Init();
