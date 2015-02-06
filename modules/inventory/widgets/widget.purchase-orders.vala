@@ -1,0 +1,252 @@
+using GLib;
+using Gtk;
+using Gee;
+using SinticBolivia;
+using SinticBolivia.Gtk;
+using SinticBolivia.Database;
+
+namespace Woocommerce
+{
+	public class WidgetPurchaseOrders : Gtk.Box
+	{
+		protected Builder		ui;
+		protected Box			boxPurchaseOrders;
+		protected Image			image1;
+		protected Label			labelTitle;
+		protected Button		buttonNew;
+		protected Button		buttonEdit;
+		protected Button        buttonReceive;
+		protected Button		buttonCancel;
+		protected ComboBox		comboboxStores;
+		protected ComboBox		comboboxStatus;
+		protected TreeView		treeviewOrders;
+		protected enum			Columns
+		{
+			COUNT,
+			STORE,
+			ITEMS,
+			TOTAL,
+			DELIVERY_DATE,
+			STATUS,
+			CREATION_DATE,
+			ORDER_ID,
+			N_COLS
+		}
+		public WidgetPurchaseOrders()
+		{
+			this.orientation = Orientation.VERTICAL;
+			
+			//this.ui = SB_ModuleInventory.GetGladeUi("purchase-orders.glade");
+			this.ui = (SBModules.GetModule("Inventory") as SBGtkModule).GetGladeUi("purchase-orders.glade");
+			this.boxPurchaseOrders		= (Box)this.ui.get_object("boxPurchaseOrders");
+			this.buttonNew				= (Button)this.ui.get_object("buttonNew");
+			this.buttonEdit				= (Button)this.ui.get_object("buttonEdit");
+			this.buttonReceive          = (Button)this.ui.get_object("buttonReceive");
+			this.buttonCancel			= (Button)this.ui.get_object("buttonCancel");
+			this.comboboxStores			= (ComboBox)this.ui.get_object("comboboxStores");
+			this.comboboxStatus			= (ComboBox)this.ui.get_object("comboboxStatus");
+			this.treeviewOrders			= (TreeView)this.ui.get_object("treeviewOrders");
+			this.boxPurchaseOrders.reparent(this);
+			this.Build();
+			this.FillForm();
+			this.SetEvents();
+			
+		}
+		protected void Build()
+		{
+			TreeIter iter;
+			var cell0 = new CellRendererText();
+			this.comboboxStores.pack_start(cell0, true);
+			this.comboboxStores.add_attribute(cell0, "text", 0);
+			this.comboboxStores.model = new ListStore(2, typeof(string), typeof(string));
+			(this.comboboxStores.model as ListStore).append(out iter);
+			(this.comboboxStores.model as ListStore).set(iter, 0, SBText.__("-- stores --"), 1 , "-1");
+			this.comboboxStores.id_column = 1;
+			cell0 = new CellRendererText();
+			this.comboboxStatus.pack_start(cell0, true);
+			this.comboboxStatus.add_attribute(cell0, "text", 0);
+			this.comboboxStatus.model = new ListStore(2, typeof(string), typeof(string));
+			(this.comboboxStatus.model as ListStore).append(out iter);
+			(this.comboboxStatus.model as ListStore).set(iter, 0, SBText.__("-- status --"), 1 , "-1");
+			this.comboboxStatus.id_column = 1;
+			//##build treeview
+			this.treeviewOrders.model = new ListStore(Columns.N_COLS,
+				typeof(int), //count
+				typeof(string), //store
+				typeof(int), //items
+				typeof(string), //total,
+				typeof(string), //delivery date
+				typeof(string), //status
+				typeof(string), //creation date
+				typeof(int)
+			);
+			string[,] columns = 
+			{
+				{"#", "text", "70", "center", ""},
+				{SBText.__("Store"), "text", "250", "left", ""},
+				{SBText.__("Items"), "text", "50", "center", ""},
+				{SBText.__("Total"), "text", "50", "right", ""},
+				{SBText.__("Delivery date"), "text", "100", "right", ""},
+				{SBText.__("Status"), "markup", "80", "center", ""},
+				{SBText.__("Creation Date"), "text", "100", "right", ""}
+			};
+			GtkHelper.BuildTreeViewColumns(columns, ref this.treeviewOrders);
+			
+			this.treeviewOrders.rules_hint = true;
+			
+		}
+		protected void FillForm()
+		{
+			TreeIter iter;
+			//##fill stores
+			var stores = (ArrayList<SBStore>)InventoryHelper.GetStores();
+			
+			foreach(SBStore store in stores)
+			{
+				(this.comboboxStores.model as ListStore).append(out iter);
+				(this.comboboxStores.model as ListStore).set(iter, 0, store.Name, 1, store.Id.to_string());
+			}
+			this.comboboxStores.active_id = "-1";
+			string[,] statuses = 
+			{
+			    {SBText.__("Waiting Orders"), "waiting"},
+			    {SBText.__("Received Orders"), "received"},
+			    {SBText.__("Cancelled Orders"), "cancelled"},
+			};
+			for(int i = 0; i < statuses.length[0]; i++)
+			{
+			    (this.comboboxStatus.model as ListStore).append(out iter);
+			    (this.comboboxStatus.model as ListStore).set(iter, 0, statuses[i,0], 1, statuses[i,1]);
+			}
+			this.comboboxStatus.active_id = "-1";
+		}
+		protected void SetEvents()
+		{
+		    this.comboboxStores.changed.connect(this.OnComboBoxStoresChanged);
+		    this.comboboxStatus.changed.connect(this.OnComboBoxStatusChanged);
+			this.buttonNew.clicked.connect(this.OnButtonNewClicked);
+			this.buttonEdit.clicked.connect(this.OnButtonEditClicked);
+			this.buttonReceive.clicked.connect(this.OnButtonReceiveClicked);
+			this.buttonCancel.clicked.connect(this.OnButtonCancelClicked);
+		}
+		protected void OnComboBoxStoresChanged()
+		{
+		    if( this.comboboxStores.active_id == null || this.comboboxStores.active_id == "-1")
+		    {
+		        (this.treeviewOrders.model as ListStore).clear();
+		        return;
+		    }
+		    int store_id = int.parse(this.comboboxStores.active_id);
+		    string? status = null;
+		    if( this.comboboxStatus.active_id != null & this.comboboxStatus.active_id != "-1")
+		    {
+		        status = this.comboboxStatus.active_id;
+		    }
+		    this.GetOrders(store_id, status);
+		}
+		protected void OnComboBoxStatusChanged()
+		{
+		    if( this.comboboxStores.active_id == null || this.comboboxStores.active_id == "-1")
+		    {
+		        (this.treeviewOrders.model as ListStore).clear();
+		        return;
+		    }
+		    int store_id = int.parse(this.comboboxStores.active_id);
+		    string? status = null;
+		    if( this.comboboxStatus.active_id != "-1")
+		    {
+		        status = this.comboboxStatus.active_id;
+		    }
+		    this.GetOrders(store_id, status);
+		}
+		protected void OnButtonNewClicked()
+		{
+			
+			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
+			if( notebook.GetPage("new-purchase-order") == null )
+			{
+				var w = new WidgetPurchaseOrder();
+				w.show();
+				notebook.AddPage("new-purchase-order", SBText.__("Purchase Order"), w);
+			}
+			notebook.SetCurrentPageById("new-purchase-order");
+		}
+		protected void OnButtonEditClicked()
+		{
+		    TreeModel model;
+		    TreeIter iter;
+		    
+		    if( !this.treeviewOrders.get_selection().get_selected(out model, out iter) )
+		    {
+		        return;
+		    }
+		    Value v_oid;
+		    model.get_value(iter, Columns.ORDER_ID, out v_oid);
+		    var order = new PurchaseOrder.from_id((int)v_oid);
+		    var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
+			if( notebook.GetPage("edit-purchase-order") == null )
+			{
+				var w = new WidgetPurchaseOrder(){Title = SBText.__("Edit Purchase Order")};
+				w.SetOrder(order);
+				w.show();
+				notebook.AddPage("edit-purchase-order", SBText.__("Edit Purchase Order"), w);
+			}
+			notebook.SetCurrentPageById("edit-purchase-order");
+		}
+		protected void OnButtonReceiveClicked()
+		{
+		}
+		protected void OnButtonCancelClicked()
+		{
+		}
+		protected void GetOrders(int store_id, string? status = null, int page = 1, int limit = 100)
+		{
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			string query = "SELECT o.*, s.store_name "+
+			                "FROM purchase_orders o, stores s "+
+							"WHERE o.store_id = %d "+
+							"AND o.store_id = s.store_id ";
+			if( status != null )
+			{
+			    query += "AND o.status = '%s' ".printf(status);
+			}
+							
+			query += "ORDER BY o.creation_date DESC";
+			query = query.printf(store_id);
+			stdout.printf("%s\n", query);
+			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
+			(this.treeviewOrders.model as ListStore).clear();
+			TreeIter iter;
+			int i = 1;
+			foreach(var row in rows)
+			{
+			    string _status = row.Get("status");
+			    string status_color = "#000";
+			    if(_status == "waiting")
+			    {
+			        status_color = "#e0e470";
+			    }
+			    else if(_status == "received")
+			    {
+			        status_color = "#64ae51";
+			    }
+			    else if(_status == "cancelled")
+			    {
+			        status_color = "red";
+			    }
+				(this.treeviewOrders.model as ListStore).append(out iter);
+				(this.treeviewOrders.model as ListStore).set(iter,
+				    Columns.COUNT, i,
+				    Columns.STORE, row.Get("store_name"),
+				    Columns.ITEMS, row.GetInt("items"),
+				    Columns.TOTAL, "%.2f".printf(row.GetDouble("total")),
+				    Columns.DELIVERY_DATE, "",
+				    Columns.STATUS, "<span color=\"%s\" font_weight=\"bold\">%s</span>".printf(status_color, _status),
+				    Columns.CREATION_DATE, row.Get("creation_date"),
+				    Columns.ORDER_ID, row.GetInt("order_id")
+				);
+				i++;
+			}
+		}
+	}
+}

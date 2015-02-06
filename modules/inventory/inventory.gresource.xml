@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Inventory">
+		<file>images/products-icon-48x48.png</file>
+		<file>images/store-64x48.png</file>
+		<file>images/inventory-icon-64x64.png</file>
+		<file>images/categories-icon-64x64.png</file>
+		<file>images/placeholder-64x64.png</file>
+		<file>images/placeholder-80x80.png</file>
+		<file>images/catalog-icon-24x24.png</file>
+		<file>images/transaction-icon-64x64.png</file>
+		<file>images/blue_led-icon-10x10.png</file>
+		<file>images/green_led-icon-10x10.png</file>
+		<file>images/label-icon-24x24.png</file>
+		<file>images/excel-icon-24x24.png</file>
+		<file>images/inventory-report-icon-64x64.png</file>
+		<file>images/remove-20x20.png</file>
+		<file>images/supplier-icon-48x48.png</file>
+		<file>images/unit-measure-64x64.png</file>
+		<file>images/icon_transaction_type-64x64.png</file>
+		<file>images/currencies02-64x64.png</file>
+		<file compressed="true">ui/products.glade</file>
+		<file compressed="true">ui/new-product.glade</file>
+		<file compressed="true">ui/transactions.glade</file>
+		<file compressed="true">ui/inventory-report.glade</file>
+		<file compressed="true">ui/purchase-orders.glade</file>
+		<file compressed="true">ui/purchase-order.glade</file>
+		<file compressed="true">ui/suppliers.glade</file>
+		<file compressed="true">ui/new-supplier.glade</file>
+		<file compressed="true">ui/transaction-types.glade</file>
+		<file compressed="true">ui/view-transaction.glade</file>
+		<file compressed="true">ui/unit-measurement.glade</file>
+		<file compressed="true">ui/product-lines.glade</file>
+		<file compressed="true">ui/departments.glade</file>
+		<file compressed="true">ui/currencies.glade</file>
+		<file compressed="true">ui/item-types.glade</file>
+		<file compressed="true">sql/inventory.sqlite3.sql</file>
+		<file compressed="true">sql/inventory.mysql.sql</file>
+		<!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->
+	</gresource>
+</gresources>
