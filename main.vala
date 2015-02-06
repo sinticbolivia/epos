@@ -544,7 +544,8 @@ namespace Woocommerce
 				string dbname 	= (string)cfg.GetValue("db_name", "");
 				string user 	= (string)cfg.GetValue("db_user", "");
 				string pass 	= (string)cfg.GetValue("db_pass");
-				dbh = new SBMySQL(db_server, dbname, user, pass);
+				int port		= int.parse((string)cfg.GetValue("db_port", "3306"));
+				dbh = new SBMySQL(db_server, dbname, user, pass, port);
 			}
 			else
 			{

@@ -17,6 +17,7 @@ namespace Woocommerce
 		protected	RadioButton	radiobuttonMysql;
 		protected	RadioButton	radiobuttonSqlite3;
 		protected	Entry		entryServer;
+		protected	Entry		entryPort;
 		protected	Entry		entryDatabase;
 		protected	Entry		entryUsername;
 		protected	Entry		entryPassword;
@@ -44,6 +45,7 @@ namespace Woocommerce
 			this.radiobuttonSqlite3		= (RadioButton)this.ui.get_object("radiobuttonSqlite3");
 			
 			this.entryServer			= (Entry)this.ui.get_object("entryServer");
+			this.entryPort				= (Entry)this.ui.get_object("entryPort");
 			this.entryDatabase			= (Entry)this.ui.get_object("entryDatabase");
 			this.entryUsername			= (Entry)this.ui.get_object("entryUsername");
 			this.entryPassword			= (Entry)this.ui.get_object("entryPassword");
@@ -91,6 +93,7 @@ namespace Woocommerce
 		{
 			//stdout.printf("testing connection\n");
 			string server = this.entryServer.text.strip();
+			int	port		= int.parse(this.entryPort.text.strip());
 			string db	  = this.entryDatabase.text.strip();
 			string user		= this.entryUsername.text.strip();
 			string pass		= this.entryPassword.text.strip();
@@ -99,7 +102,7 @@ namespace Woocommerce
 			
 			if( this.radiobuttonMysql.active )
 			{
-				dbh = new SBMySQL(server, db, user, pass);
+				dbh = new SBMySQL(server, db, user, pass, port);
 			}
 			else if( this.radiobuttonSqlite3.active )
 			{
@@ -156,6 +159,7 @@ namespace Woocommerce
 		protected void OnButtonFinishClicked()
 		{
 			string server 		= this.entryServer.text.strip();
+			int port			= int.parse(this.entryPort.text.strip());
 			string db	  		= this.entryDatabase.text.strip();
 			string user			= this.entryUsername.text.strip();
 			string pass			= this.entryPassword.text.strip();
@@ -167,7 +171,7 @@ namespace Woocommerce
 			if( this.radiobuttonMysql.active )
 			{
 				db_engine = "mysql";
-				dbh = new SBMySQL(server, null, user, pass);
+				dbh = new SBMySQL(server, null, user, pass, port);
 				res_path = "/net/sinticbolivia/ec-pos/sql/database.mysql.sql";
 			}
 			else if( this.radiobuttonSqlite3.active )
@@ -239,6 +243,7 @@ namespace Woocommerce
 			var cfg = new SBConfig("config.xml", "point_of_sale");
 			cfg.SetValue("database_engine", db_engine);
 			cfg.SetValue("db_server", server);
+			cfg.SetValue("db_port", port.to_string());
 			cfg.SetValue("db_name", db);
 			cfg.SetValue("db_user", user);
 			cfg.SetValue("db_pass", pass);

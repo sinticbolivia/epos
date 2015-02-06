@@ -42,7 +42,7 @@ DEST_EXEC=woocommerce_pos.exe
 LIBRARY_NAME=SinticBolivia
 #include Database/Makefile
 
-all: $(SOURCES) $(DEST_EXEC)
+all: $(SOURCES) $(DEST_EXEC) setup
 
 #$(DEST_EXEC): $(OBJECTS)
 $(DEST_EXEC): $(SOURCES)
@@ -50,7 +50,8 @@ $(DEST_EXEC): $(SOURCES)
 	#strip bin/$@
 	glib-compile-resources ec-pos.gresource.xml
 	mv ec-pos.gresource share/resources
-	
+setup:
+	valac -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin -o bin/setup.exe 
 #$(OBJECTS): $(SOURCES)
 #	$(VC) --define=__WIN32__ -c $(VFLAGS) $(VLIBS) $^ -o $@
 #	$(VC) $(VFLAGS) -c $(SOURCES)
@@ -65,14 +66,35 @@ $(DEST_EXEC): $(SOURCES)
 modules: modules/modules/libModules.dll modules/users/libUsers.dll modules/inventory/libInventory.dll
 	make -C modules/modules/ -f Makefile.win
 	make -C modules/users/ -f Makefile.win
+	make -C modules/inventory/ -f Makefile.win
 	
 install:
 	install	-d /c/EPOS/share
 	install	-d /c/EPOS/libs
+	install	-d /c/EPOS/modules
+	install	-d /c/EPOS/mysql
 	install bin/woocommerce_pos.exe /c/EPOS
+	install bin/setup.exe /c/EPOS
 	cp -frv bin/share/* /c/EPOS/share
-	install ../SinticBolivia/bin/libSinticBolivia.dll /c/EPOS\libs
-	install ../SinticBolivia/widgets/libGtkSinticBolivia.dll /c/EPOS/libs
+	cp -frv mysql_server/* /c/EPOS/mysql
+	cp -frv gtk+-3.0-runtime/bin/* /c/EPOS
+	cp -frv gtk+-3.0-runtime/share/* /c/EPOS/share
+	install ../SinticBolivia/bin/libSinticBolivia.dll /c/EPOS
+	install ../SinticBolivia/widgets/libGtkSinticBolivia.dll /c/EPOS
+	install modules/modules/libModules.dll /c/EPOS/modules
+	install modules/modules/modules.gresource /c/EPOS/modules
+	install modules/users/libUsers.dll /c/EPOS/modules
+	install modules/users/users.gresource /c/EPOS/modules
+	install modules/inventory/libInventory.dll /c/EPOS/modules
+	install modules/inventory/inventory.gresource /c/EPOS/modules
+	install /mingw/bin/libgcc_s_dw2-1.dll /c/EPOS
+	install /mingw/bin/libgee-2.dll /c/EPOS/
+	install /mingw/bin/libjson-glib-1.0-0.dll /c/EPOS/
+	install /mingw/bin/libsoup-2.4-1.dll /c/EPOS/
+	install /mingw/bin/libsqlite3-0.dll /c/EPOS/
+	install ../libs/libmysqlclient-5.6.20/libmysql.dll /c/EPOS/
+	install ../libs/libharu/libharu-2.0.8/libhpdf.dll /c/EPOS
+	install ../libs/libxlsxwriter-win32/lib/libxlsxwriter.dll /c/EPOS
 	
 clean:
 	rm -fv bin/$(DEST_EXEC)
