@@ -39,7 +39,7 @@ namespace Woocommerce
 		}
 		protected void Build()
 		{
-			this.tv = new DbTableTreeView("lines",
+			this.tv = new DbTableTreeView("product_lines",
 				{"line_id => ID", "name => Line", "description => Description", "creation_date => Created at"},
 				(SBGlobals.GetVar("dbh") as SBDatabase)
 			);
@@ -101,7 +101,7 @@ namespace Woocommerce
 			this.lineId = int.parse((string)v_id);
 			
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			dbh.Select("*").From("lines").Where("line_id = %d".printf(this.lineId));
+			dbh.Select("*").From("product_lines").Where("line_id = %d".printf(this.lineId));
 			var row = dbh.GetRow(null);
 			if( row == null )
 				return;
@@ -140,7 +140,7 @@ namespace Woocommerce
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			var w = new HashMap<string, Value?>();
 			w.set("line_id", int.parse((string)v_id));
-			dbh.Delete("lines", w);
+			dbh.Delete("product_lines", w);
 			var msg = new InfoDialog()
 			{
 				Title	= SBText.__("Product Line Deleted"),
@@ -174,7 +174,7 @@ namespace Woocommerce
 			if( this.lineId <= 0 )
 			{
 				data.set("creation_date", cdate);
-				dbh.Insert("lines", data);
+				dbh.Insert("product_lines", data);
 				msg = SBText.__("The product line has been added.");
 			}
 			else
@@ -182,7 +182,7 @@ namespace Woocommerce
 				msg = SBText.__("The product line has been updated.");
 				var w = new HashMap<string, Value?>();
 				w.set("line_id", this.lineId);
-				dbh.Update("lines", data, w);
+				dbh.Update("product_lines", data, w);
 			}
 			var dmsg = new InfoDialog(){
 				Title = SBText.__("Product Line"),

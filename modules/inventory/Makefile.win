@@ -50,8 +50,8 @@ all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources inventory.gresource.xml
 install:
-	install $(LIB_NAME) ../../bin/modules/
-	install inventory.gresource ../../bin/modules/
+	install $(LIB_NAME) /c/EPOS/modules
+	install inventory.gresource /c/EPOS/modules
 clean: 
 	rm $(LIB_NAME)
 	rm inventory.gresource
