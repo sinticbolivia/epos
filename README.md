@@ -45,9 +45,25 @@ To compile all modules run the next command.
 
 make -f Makefile.win modules
 
-All files are compiled into each directory, so in order to get a release you need to copy all libs into same directory and then run 
 
-./woocommerce_pos
+make -f Makefile.win install
+
+This last command, will install the system including mysql server engine into c:\EPOS directory.
+
+In order to initialize the mysql server, you just need to execute the next command.
+
+c:\EPOS\mysql\mysql_start.bat
+
+To stop the server.
+
+c:\EPOS\mysql\mysql_stop.bat
+
+
+Now you need to setup the system.
+
+cd \EPOS
+setup.exe
+woocommerce_pos.exe
 
 
 Contacts
