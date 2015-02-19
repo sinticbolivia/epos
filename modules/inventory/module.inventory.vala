@@ -304,6 +304,20 @@ namespace Woocommerce
 				notebook.SetCurrentPageById("item-types");
 			});
 			menuitem_inventory.submenu.add(mi_itypes);
+			
+			var mi_assemblies = new Gtk.MenuItem.with_label(SBText.__("Assemblies"));
+			mi_assemblies.show();
+			mi_assemblies.activate.connect( () => 
+			{
+				if( notebook.GetPage("assemblies") == null )
+				{
+					var w = new EPos.WidgetAssemblies();
+					w.show();
+					notebook.AddPage("assemblies", SBText.__("Assemblies"), w);
+				}
+				notebook.SetCurrentPageById("assemblies");
+			});
+			menuitem_inventory.submenu.add(mi_assemblies);
 		}
 		public static void hook_reports_menu(SBModuleArgs<Gtk.Menu> args)
 		{

@@ -185,3 +185,26 @@ CREATE TABLE IF NOT EXISTS product2suppliers(
 	supplier_id				integer not null,
 	creation_date			datetime
 );
+CREATE TABLE IF NOT EXISTS product2category ( 
+    id            INTEGER  NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    product_id    INTEGER  NOT NULL,
+    category_id   INTEGER  NOT NULL,
+    creation_date DATETIME 
+);
+CREATE TABLE IF NOT EXISTS assemblies(
+	assembly_id				INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	code					varchar(128),
+	name					varchar(128),
+	description				varchar(256),
+	store_id				integer,
+	last_modification_date	datetime,
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS assemblie2product(
+	id						integer not null primary key auto_increment,
+	assembly_id				integer not null,
+	product_id				integer not null,
+	qty_required			integer,
+	unit_measure_id			integer not null,
+	creation_date			datetime
+);

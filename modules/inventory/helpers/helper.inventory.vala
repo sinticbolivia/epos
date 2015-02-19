@@ -2,6 +2,7 @@ using GLib;
 using Gee;
 using SinticBolivia;
 using SinticBolivia.Database;
+using EPos;
 
 namespace Woocommerce
 {
@@ -47,9 +48,9 @@ namespace Woocommerce
 			
 			return records;
 		}
-		public static ArrayList<SBProduct> GetProducts(int page, int rows_per_page, out long total_records)
+		public static ArrayList<EProduct> GetProducts(int page, int rows_per_page, out long total_records)
 		{
-			var records = new ArrayList<SBProduct>();
+			var records = new ArrayList<EProduct>();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			int offset = (page == 1) ? 0 : (page - 1);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM products";
@@ -63,21 +64,21 @@ namespace Woocommerce
 							"ORDER BY creation_date "+
 							"DESC LIMIT $offset, $rows_per_page";
 							
-			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
+			var rows = dbh.GetResults(query);
 			
 			foreach(var row in rows)
 			{
 				//var product = new SBProduct.with_db_data(row);
-				var product = new SBProduct();
+				var product = new EProduct();
 				product.SetDbData(row, false, true);
 				records.add(product);
 			}
 			
 			return records;
 		}
-		public static ArrayList<SBProduct> GetStoreProducts(int store_id, int page, int rows_per_page, out long total_records)
+		public static ArrayList<EProduct> GetStoreProducts(int store_id, int page, int rows_per_page, out long total_records)
 		{
-			var records = new ArrayList<SBProduct>();
+			var records = new ArrayList<EProduct>();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			int offset = (page == 1) ? 0 : (page - 1);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM products WHERE store_id = %d".printf(store_id);
@@ -88,21 +89,21 @@ namespace Woocommerce
 			total_records = _row.GetInt("total_rows");
 			
 			string query = @"SELECT * FROM products WHERE store_id = $store_id ORDER BY creation_date DESC LIMIT $offset, $rows_per_page";
-			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
+			var rows = dbh.GetResults(query);
 			
 			foreach(var row in rows)
 			{
 				//var product = new SBProduct.with_db_data(row);
-				var product = new SBProduct();
+				var product = new EProduct();
 				product.SetDbData(row, false, true);
 				records.add(product);
 			}
 			
 			return records;
 		}
-		public static ArrayList<SBProduct> GetCategoryProducts(int cat_id, int page, int rows_per_page, out long total_records)
+		public static ArrayList<EProduct> GetCategoryProducts(int cat_id, int page, int rows_per_page, out long total_records)
 		{
-			var records = new ArrayList<SBProduct>();
+			var records = new ArrayList<EProduct>();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			int offset = (page == 1) ? 0 : (page - 1);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM product2category WHERE category_id = %d".printf(cat_id);
@@ -125,7 +126,7 @@ namespace Woocommerce
 			foreach(var row in rows)
 			{
 				//var product = new SBProduct.with_db_data(row);
-				var product = new SBProduct();
+				var product = new EProduct();
 				product.SetDbData(row, false, true);
 				records.add(product);
 			}
@@ -222,6 +223,57 @@ namespace Woocommerce
 			}
 			
 			return orders;
+		}
+		public static ArrayList<HashMap<string, Value?>> GetDepartments()
+		{
+			var deps = new ArrayList<HashMap>();
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("departments");
+			foreach(var row in dbh.GetResults(null))
+			{
+				var dep = new HashMap<string, Value?>();
+				dep.set("department_id", row.GetInt("department_id"));
+				dep.set("store_id", row.GetInt("store_id"));
+				dep.set("name", row.Get("name"));
+				dep.set("description", row.GetInt("description"));
+				deps.add(dep);
+			}
+			
+			return deps;
+		}
+		public static ArrayList<HashMap<string, Value?>> GetUnitOfMeasures()
+		{
+			var items = new ArrayList<HashMap>();
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("unit_measures");
+			foreach(var row in dbh.GetResults(null))
+			{
+				var item = new HashMap<string, Value?>();
+				item.set("measure_id", row.GetInt("measure_id"));
+				item.set("name", row.Get("name"));
+				item.set("code", row.Get("code"));
+				item.set("quantity", row.GetInt("quantity"));
+				item.set("creation_date", row.Get("creation_date"));
+				items.add(item);
+			}
+			
+			return items;
+		}
+		public static HashMap<string, Value?>? GetUnitOfMeasure(int id)
+		{
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("unit_measures").Where("measure_id = %d".printf(id));
+			var row = dbh.GetRow(null);
+			if( row == null)
+				return null;
+			var uom = new HashMap<string, Value?>();
+			uom.set("measure_id", row.GetInt("measure_id"));
+			uom.set("name", row.Get("name"));
+			uom.set("code", row.Get("code"));
+			uom.set("quantity", row.GetInt("quantity"));
+			uom.set("creation_date", row.Get("creation_date"));
+			
+			return uom;
 		}
 	}
 }

@@ -97,6 +97,7 @@ namespace Woocommerce
 			this.entrySearchProduct.completion.pack_start(cell, false);
 			this.entrySearchProduct.completion.add_attribute(cell, "markup", 2);
 			//##end entry completion
+			
 			//##build search type combobox
 			cell0 = new CellRendererText();
 			this.comboboxSearchType.pack_start(cell0, true);
@@ -199,7 +200,7 @@ namespace Woocommerce
 		}
 		protected bool OnCompletionMatchSelected(TreeModel model, TreeIter iter)
 		{
-			TreeIter p_iter;
+			//TreeIter p_iter;
 			Value v_pid, v_pname;
 			model.get_value(iter, 0, out v_pid);
 			model.get_value(iter, 1, out v_pname);

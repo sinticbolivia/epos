@@ -4,8 +4,9 @@ using Gee;
 using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
+using Woocommerce;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetNewProduct : Box
 	{
@@ -15,6 +16,7 @@ namespace Woocommerce
 		protected	Box			boxNewProduct;
 		protected 	Notebook	notebook1;
 		protected	ComboBox	comboboxCategories;
+		protected	ComboBox	comboboxDepartment;
 		protected	TextView	textviewDescription;
 		protected	Entry		entryCode;
 		protected	Button		buttonGenerateCode;
@@ -30,20 +32,21 @@ namespace Woocommerce
 		protected	Entry		entryQuantity;
 		protected	Entry		entryMinQuantity;
 		protected	CheckButton	checkbuttonUsesStock;
-		protected	Viewport	viewport1;
+		protected	Viewport			viewport1;
 		protected	Fixed				fixedImages;
 		protected	ScrolledWindow		scrolledwindowSn;
 		protected	Entry				entrySn;
 		protected	TreeView			treeviewSn;
 		protected	TreeView			treeviewSuppliers;
 		protected	Entry				entrySearchSupplier;
+		protected	Button				buttonAddSupplier;
 		protected	Button				buttonAddSn;
 		protected	Button				buttonRemoveSn;
 		protected	Button				buttonAddImage;
 		protected	Button				buttonCancel;
 		protected	Button				buttonSave;
 		
-		protected	SBProduct	product = null;
+		protected	EProduct	product = null;
 		protected	int			fixedWidth = 0;
 		protected	int			fixedX = 0;
 		protected	int 		fixedY = 0;
@@ -63,6 +66,7 @@ namespace Woocommerce
 			this.entryName				= (Entry)this.ui.get_object("entryName");
 			this.notebook1				= (Notebook)this.ui.get_object("notebook1");
 			this.comboboxCategories		= (ComboBox)this.ui.get_object("comboboxCategories");
+			this.comboboxDepartment		= (ComboBox)this.ui.get_object("comboboxDepartment");
 			this.textviewDescription	= (TextView)this.ui.get_object("textviewDescription");
 			this.entryBarcode			= (Entry)this.ui.get_object("entryBarcode");
 			this.comboboxItemType		= (ComboBox)this.ui.get_object("comboboxItemType");
@@ -82,6 +86,7 @@ namespace Woocommerce
 			this.entrySn				= (Entry)this.ui.get_object("entrySn");
 			this.treeviewSuppliers		= (TreeView)this.ui.get_object("treeviewSuppliers");
 			this.entrySearchSupplier	= (Entry)this.ui.get_object("entrySearchSupplier");
+			this.buttonAddSupplier		= (Button)this.ui.get_object("buttonAddSupplier");
 			this.buttonAddSn			= (Button)this.ui.get_object("buttonAddSn");
 			this.buttonRemoveSn			= (Button)this.ui.get_object("buttonRemoveSn");
 			this.buttonAddImage			= (Button)this.ui.get_object("buttonAddImage");
@@ -93,15 +98,16 @@ namespace Woocommerce
 			this.SetEvents();
 			this.fixedWidth = this.viewport1.get_allocated_width();
 		}
-		public WidgetNewProduct.with_product(owned SBProduct prod)
+		public WidgetNewProduct.with_product(owned EProduct prod)
 		{
 			this();
 			this.product = prod;
 			
 			this.entryCode.text = this.product.Code;
 			this.entryName.text = this.product.Name;
-			this.textviewDescription.buffer.text = this.product.Description;
 			this.entryBarcode.text = this.product.Barcode;
+			this.textviewDescription.buffer.text = this.product.Description;
+			
 			//this.entrySerialNumber.text = this.product.SerialNumber;
 			this.entryCost.text = "%.2lf".printf(this.product.Cost);
 			this.entryPrice.text = "%.2lf".printf(this.product.Price);
@@ -115,11 +121,47 @@ namespace Woocommerce
 				stdout.printf("cat_id: %s\n", this.product.CategoriesIds.get(0).to_string());
 				this.comboboxCategories.active_id = this.product.CategoriesIds.get(0).to_string();
 			}
-			//set images
+			this.comboboxDepartment.active_id = this.product.DepartmentId.to_string();
+			this.comboboxUnitofMeasure.active_id = this.product.UnitMeasureId.to_string();
+			this.comboboxStatus.active_id		= this.product.Status;
+			//##set serial numbers
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("product_sn").Where("product_id = %d".printf(this.product.Id));
+			TreeIter iter;
+			int i = 1;
+			foreach(var row in dbh.GetResults(null))
+			{
+				(this.treeviewSn.model as ListStore).append(out iter);
+				(this.treeviewSn.model as ListStore).set(iter, 
+					0, i,
+					1, row.Get("sn")
+				);
+				i++;
+			}
+			//##set images
 			foreach(var attach in this.product.Attachments)
 			{
 				this.addImage(SBFileHelper.SanitizePath("images/%s".printf(attach.Get("file"))), 
 								attach.GetInt("attachment_id"));
+			}
+			//##Set suppliers
+			dbh.Select("s.*").
+				From("suppliers s, product2suppliers p2s").
+				Where("p2s.product_id = %d".printf(this.product.Id)).
+				And("p2s.supplier_id = s.supplier_id");
+				
+			i = 1;
+			foreach(var s in dbh.GetResults(null))
+			{
+				(this.treeviewSuppliers.model as ListStore).append(out iter);
+				(this.treeviewSuppliers.model as ListStore).set(iter,
+					0, i,
+					1, s.Get("supplier_name"),
+					2, s.Get("supplier_email"),
+					3, s.Get("supplier_telephone_1"),
+					4, s.GetInt("supplier_id")
+				);
+				i++;
 			}
 		}
 		~WidgetNewProduct()
@@ -225,6 +267,27 @@ namespace Woocommerce
 				(this.comboboxStoreBranch.model as ListStore).set(iter, 0, store.Name, 1, store.Id.to_string());
 			}
 			this.comboboxStoreBranch.active_id = "-1";
+			//##build combobox departments
+			cell = new CellRendererText();
+			this.comboboxDepartment.pack_start(cell, false);
+			this.comboboxDepartment.set_attributes(cell, "text", 0);
+			this.comboboxDepartment.id_column = 1;
+			this.comboboxDepartment.model = new ListStore(2, typeof(string), typeof(string));
+			(this.comboboxDepartment.model as ListStore).append(out iter);
+				(this.comboboxDepartment.model as ListStore).set(iter, 
+					0, SBText.__("-- department --"),
+					1, "-1"
+			);
+			this.comboboxDepartment.active_id = "-1";
+			foreach(var dep in InventoryHelper.GetDepartments())
+			{
+				(this.comboboxDepartment.model as ListStore).append(out iter);
+				(this.comboboxDepartment.model as ListStore).set(iter, 
+					0, (string)dep["name"],
+					1, ((int)dep["department_id"]).to_string()
+				);
+			}
+			
 			//##build serial numbers treeview
 			this.treeviewSn.model = new ListStore(2, typeof(int), typeof(string));
 			string[,] cols = 
@@ -249,9 +312,17 @@ namespace Woocommerce
 				{SBText.__("Phone"), "text", "200", "left", "", ""}
 			};
 			GtkHelper.BuildTreeViewColumns(cols1, ref this.treeviewSuppliers);
+			//##build suppliers completion
 			this.entrySearchSupplier.completion = new EntryCompletion();
-			this.entrySearchSupplier.completion.model = new ListStore(2, typeof(string), typeof(int));
-			
+			this.entrySearchSupplier.completion.model = new ListStore(2, typeof(int), typeof(string));
+			this.entrySearchSupplier.completion.text_column = 1;
+			this.entrySearchSupplier.completion.clear(); //remove all cellrenderers
+			cell = new CellRendererText();
+			this.entrySearchSupplier.completion.pack_start(cell, false);
+			this.entrySearchSupplier.completion.add_attribute(cell, "text", 0);
+			cell = new CellRendererText();
+			this.entrySearchSupplier.completion.pack_start(cell, true);
+			this.entrySearchSupplier.completion.add_attribute(cell, "text", 1);
 		}
 		protected void SetEvents()
 		{
@@ -270,6 +341,8 @@ namespace Woocommerce
 			this.buttonCancel.clicked.connect(this.OnButtonCancelClicked);
 			this.buttonSave.clicked.connect(this.OnButtonSaveClicked);
 			this.entrySearchSupplier.key_release_event.connect(this.OnEntrySearchSupplierKeyReleaseEvent);
+			this.entrySearchSupplier.completion.match_selected.connect(this.OnSearchSupplierCompletionMatchSelected);
+			this.buttonAddSupplier.clicked.connect(this.OnButtonAddSupplierClicked);
 		}
 		protected void FillCategories(int store_id)
 		{
@@ -443,10 +516,13 @@ namespace Woocommerce
 		}
 		protected void OnButtonSaveClicked()
 		{
+			string product_code	= this.entryCode.text.strip();
 			string product_name = this.entryName.text.strip();
-			string description	= this.textviewDescription.buffer.text.strip();
 			string barcode		= this.entryBarcode.text.strip();
-			//string sn			= this.entrySerialNumber.text.strip();
+			string description	= this.textviewDescription.buffer.text.strip();
+			int	department_id	= (this.comboboxDepartment.active_id != null) ? int.parse(this.comboboxDepartment.active_id) : -1;
+			int unit_measure_id	= this.comboboxUnitofMeasure.active_id != null ? int.parse(this.comboboxUnitofMeasure.active_id) : -1;
+			string status		= this.comboboxStatus.active_id != null ? this.comboboxStatus.active_id : "active";
 			double cost, price, price2;
 			
 			int store_id 		= (this.comboboxStoreBranch.active_id == null || this.comboboxStoreBranch.active_id == "-1") ? -1 :  int.parse(this.comboboxStoreBranch.active_id);
@@ -494,16 +570,19 @@ namespace Woocommerce
 			var date = new DateTime.now_local();
 			string cdate = date.format("%Y-%m-%d %H:%M:%S");
 			var data = new HashMap<string, Value?>();
+			data.set("product_code", product_code);
 			data.set("product_name", product_name);
 			data.set("product_description", description);
 			data.set("product_barcode", barcode);
-			//data.set("product_serial_number", sn);
+			data.set("product_unit_measure", unit_measure_id);
 			data.set("product_cost", cost);
 			data.set("product_price", price);
 			data.set("product_price_2", price2);
 			data.set("store_id", store_id);
 			data.set("product_quantity", (int)quantity);
 			data.set("min_stock", (int)min_quantity);
+			data.set("department_id", department_id);
+			data.set("status", status);
 			data.set("last_modification_date", cdate);
 			dbh.BeginTransaction();
 			
@@ -568,7 +647,7 @@ namespace Woocommerce
 					}
 				}
 			});
-			//delete categories
+			//##delete categories
 			string query = @"DELETE FROM product2category WHERE product_id = $pid";
 			dbh.Execute(query);
 			if( this.comboboxCategories.active_id != null && this.comboboxCategories.active_id != "-1" )
@@ -582,6 +661,7 @@ namespace Woocommerce
 			}
 			//##delete all serial numbers
 			query = "DELETE FROM product_sn WHERE product_id = %ld".printf(pid);
+			dbh.Execute(query);
 			this.treeviewSn.model.foreach( (_model, _path, _iter) => 
 			{
 				Value sn;
@@ -593,6 +673,21 @@ namespace Woocommerce
 				dsn.set("last_modification_date", cdate);
 				dsn.set("creation_date", cdate);
 				dbh.Insert("product_sn", dsn);
+				return false;
+			});
+			//##delete all product suppliers
+			query = "DELETE FROM product2suppliers WHERE product_id = %ld".printf(pid);
+			dbh.Execute(query);
+			this.treeviewSuppliers.model.foreach( (_model, _path, _iter) => 
+			{
+				Value sid;
+				_model.get_value(_iter, 4, out sid);
+				
+				var p2s = new HashMap<string, Value?>();
+				p2s.set("product_id", pid);
+				p2s.set("supplier_id", (int)sid);
+				p2s.set("creation_date", cdate);
+				dbh.Insert("product2suppliers", p2s);
 				return false;
 			});
 			dbh.EndTransaction();
@@ -629,6 +724,12 @@ namespace Woocommerce
 		}
 		protected bool OnEntrySearchSupplierKeyReleaseEvent(Gdk.EventKey event)
 		{
+			//skip up, down keys
+			if( event.keyval == 65364 || event.keyval == 65362)
+			{
+				return true;
+			}
+			
 			(this.entrySearchSupplier.completion.model as ListStore).clear();
 			string keyword = this.entrySearchSupplier.text.strip();
 			if( keyword.length <= 0 )
@@ -636,13 +737,86 @@ namespace Woocommerce
 				return false;
 			}
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			string query = "SELECT * FROM suppliers WHERE supplier_name LIKE = '%s'".printf(keyword);
+			string query = "SELECT * FROM suppliers WHERE supplier_name LIKE '%s'".printf("%"+keyword+"%");
+			TreeIter iter;
 			foreach(var row in dbh.GetResults(query))
 			{
-				
+				(this.entrySearchSupplier.completion.model as ListStore).append(out iter);
+				(this.entrySearchSupplier.completion.model as ListStore).set(iter, 
+					0, row.GetInt("supplier_id"),
+					1, row.Get("supplier_name")
+				);
 			}
 			
 			return true;
+		}
+		protected bool OnSearchSupplierCompletionMatchSelected(TreeModel model, TreeIter iter)
+		{
+			Value supplier_id, supplier;
+			
+			model.get_value(iter, 0, out supplier_id);
+			model.get_value(iter, 1, out supplier);
+			this.entrySearchSupplier.set_data<int>("supplier_id", (int)supplier_id);
+			this.entrySearchSupplier.text = (string)supplier;
+			
+			return true;
+		}
+		protected void OnButtonAddSupplierClicked()
+		{
+			int? supplier_id = this.entrySearchSupplier.get_data<int>("supplier_id");
+			if( supplier_id == null || supplier_id <= 0 )
+			{
+				return;
+			}
+			/*
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("supplier_id").
+				From("product2suppliers").
+				Where("supplier_id = %d".printf(supplier_id)).
+				And("product_id = %d".printf());
+			*/
+			var supplier = new ESupplier.from_id(supplier_id);
+			this.AddSupplier(supplier);
+			this.entrySearchSupplier.set_data<int>("supplier_id", 0);
+			this.entrySearchSupplier.text = "";
+			this.entrySearchSupplier.grab_focus();
+		}
+		protected void AddSupplier(ESupplier supplier)
+		{
+			TreeIter iter;
+			bool exists = false;
+			int i = 0;
+			
+			this.treeviewSuppliers.model.foreach((model, path, _iter) => 
+			{
+				Value sid;
+				model.get_value(_iter, 4, out sid);
+				if( supplier.Id == (int)sid )
+				{
+					exists = true;
+				}
+				i++;
+				return false;
+			});
+			if( exists )
+			{
+				var msg = new InfoDialog("error")
+				{
+					Title = SBText.__("Error adding supplier"),
+					Message = SBText.__("The supplier is already assigned to this product")
+				};
+				msg.run();
+				msg.destroy();
+				return;
+			}
+			(this.treeviewSuppliers.model as ListStore).append(out iter);
+			(this.treeviewSuppliers.model as ListStore).set(iter,
+				0, i + 1,
+				1, supplier.Name,
+				2, supplier.Email,
+				3, supplier.Telephone1,
+				4, supplier.Id
+			);
 		}
 	}
 }

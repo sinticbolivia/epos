@@ -97,6 +97,10 @@ namespace Woocommerce
 				var w = new WidgetNewSupplier();
 				w.show();
 				notebook.AddPage("new-supplier", "Add Supplier", w);
+				w.destroy.connect( () => 
+				{
+					this.FillSuppliers();
+				});
 			}
 			notebook.SetCurrentPageById("new-supplier");
 		}

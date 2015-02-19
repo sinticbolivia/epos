@@ -4,6 +4,7 @@ using Gee;
 using SinticBolivia;
 using SinticBolivia.Database;
 using SinticBolivia.Gtk;
+using EPos;
 
 namespace Woocommerce
 {
@@ -1089,7 +1090,7 @@ namespace Woocommerce
 			}
 			Value v_pid;
 			this.treeviewProducts.model.get_value(iter, ProductColumns.ID, out v_pid);
-			var prod = new SBProduct.from_id((int)v_pid);
+			var prod = new EProduct.from_id((int)v_pid);
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
 			if( notebook.GetPage("edit-product") == null )
 			{
