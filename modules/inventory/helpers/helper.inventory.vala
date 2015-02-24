@@ -275,5 +275,18 @@ namespace Woocommerce
 			
 			return uom;
 		}
+		public static ArrayList<ESupplier> GetSuppliers()
+		{
+			var items = new ArrayList<ESupplier>();
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("suppliers").OrderBy("supplier_name", "ASC");
+			foreach(var row in dbh.GetResults(null))
+			{
+				var supplier = new ESupplier.with_db_data(row);
+				items.add(supplier);
+			}
+			
+			return items;
+		}
 	}
 }

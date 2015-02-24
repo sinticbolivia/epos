@@ -442,47 +442,40 @@ GtkEventBox GtkViewport{padding:5px}
 /********************************/
 /***** GtkCalendar Styles *******/
 /********************************/
-GtkCalendar
-{
-	color: #272929;
-    background-image: none;
-    background-color: transparent; 
-    border:2px solid #bbbbbb;
-}
-GtkCalendar.view{background-color: #8B6914;}
+GtkCalendar{padding:10px;color:#000; -GtkWidget-focus-line-width: 3;-GtkCalendar-vertical-separation: 5;}
+GtkCalendar.view{background-color: #fff;background-image:none;border:1px solid #bbb;border-radius:10px;}
 GtkCalendar.header
 {
-	background-color:red;
+	background:-gtk-gradient (linear, left top, left bottom, from (#ffffff), to (#e6e6e6));
+	border:1px solid #bbb;
 }
 .highlight, GtkCalendar.highlight
 {
-	background-color:green;
+	background-color: #0101f8;
+	color: #fff;
+	font-weight:bold;
 }
+GtkCalendar.button,
 GtkCalendar.button:insensitive {
-    background-color: blue;
-    background-image: none;
-}
-
-GtkCalendar.button:hover 
-{
-	background-color: #ececec;
-	background-image: none;
-	color: #000; 
-	padding:14px;
+    background-color: transparent;
+    background-image:none;
 }
 GtkCalendar.button:backdrop, GtkCalendar.button:backdrop:hover 
 {
 	color: #212222;
 	background-image: none;
 }
+GtkCalendar:selected{background:#0101f8;color:#fff;font-weight:bold;}
 /********************/
 /***** .box-total ***/
 /********************/
-.box-total GtkLabel
+.grid-total{border:0;}
+.grid-total GtkLabel, .box-total GtkLabel
 {
 	font-size:25;
 	padding:0px 10px;
 	/*background:#1c1f1b;color:green;*/
+	
 }
 .box-total GtkLabel:nth-child(last){/*color:#0088cc;*/}
 /**********************/
@@ -583,3 +576,8 @@ GtkScrolledWindow GtkViewport{border:0;}
 #window-login GtkFixed GtkEventBox GtkEntry{background:#fff;}
 #window-login .box-footer{}
 #window-login .box-footer GtkLabel{background:@dark_bg_color;color:#fff;font-weight:bold;}
+
+.button-print GtkLabel,.button-preview GtkLabel{font-size:0;color:transparent;padding:12px 12px;}
+.button-print GtkLabel{background-image: url("../images/print-icon-24x24.png");background-repeat: space;}
+.button-preview GtkLabel{background-image: url('../images/preview-icon-24x24.png');background-repeat: space;}
+

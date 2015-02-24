@@ -25,6 +25,7 @@ namespace EPos
 		protected	ComboBox	comboboxItemType;
 		protected	ComboBox	comboboxUnitofMeasure;
 		protected	ComboBox	comboboxStatus;
+		protected	ComboBox	comboboxTaxRates;
 		protected	Entry		entryCost;
 		protected	Entry		entryPrice;
 		protected	Entry		entryPrice2;
@@ -72,6 +73,7 @@ namespace EPos
 			this.comboboxItemType		= (ComboBox)this.ui.get_object("comboboxItemType");
 			this.comboboxUnitofMeasure	= (ComboBox)this.ui.get_object("comboboxUnitofMeasure");
 			this.comboboxStatus			= (ComboBox)this.ui.get_object("comboboxStatus");
+			this.comboboxTaxRates		= (ComboBox)this.ui.get_object("comboboxTaxRates");
 			this.entryCost				= (Entry)this.ui.get_object("entryCost");
 			this.entryPrice				= (Entry)this.ui.get_object("entryPrice");
 			this.entryPrice2			= (Entry)this.ui.get_object("entryPrice2");
@@ -107,7 +109,12 @@ namespace EPos
 			this.entryName.text = this.product.Name;
 			this.entryBarcode.text = this.product.Barcode;
 			this.textviewDescription.buffer.text = this.product.Description;
+			string? tax_rate_id = EProduct.GetMeta(prod.Id, "tax_rate_id");
 			
+			if( tax_rate_id != null )
+			{
+				this.comboboxTaxRates.active_id = tax_rate_id;
+			}
 			//this.entrySerialNumber.text = this.product.SerialNumber;
 			this.entryCost.text = "%.2lf".printf(this.product.Cost);
 			this.entryPrice.text = "%.2lf".printf(this.product.Price);
@@ -180,8 +187,30 @@ namespace EPos
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			
 			TreeIter iter;
-			this.comboboxItemType.model = new ListStore(2, typeof(string), typeof(string));
+			this.comboboxTaxRates.model = new ListStore(2, typeof(string), typeof(string));
 			var cell0 = new CellRendererText();
+			this.comboboxTaxRates.pack_start(cell0, true);
+			this.comboboxTaxRates.set_attributes(cell0, "text", 0);
+			this.comboboxTaxRates.id_column = 1;
+			(this.comboboxTaxRates.model as ListStore).append(out iter);
+			(this.comboboxTaxRates.model as ListStore).set(iter, 
+				0, SBText.__("-- tax rate --"),
+				1, "-1"
+			);
+			dbh.Select("*").From("tax_rates");
+			foreach(var rate in dbh.GetResults(null))
+			{
+				(this.comboboxTaxRates.model as ListStore).append(out iter);
+				(this.comboboxTaxRates.model as ListStore).set(iter, 
+					0, rate.Get("name"),
+					1, rate.Get("tax_id")
+				);
+			}
+			this.comboboxTaxRates.active_id = "-1";
+			//TODO: set default tax rate from store
+			
+			this.comboboxItemType.model = new ListStore(2, typeof(string), typeof(string));
+			cell0 = new CellRendererText();
 			this.comboboxItemType.pack_start(cell0, false);
 			this.comboboxItemType.set_attributes(cell0, "text", 0); 
 			this.comboboxItemType.id_column = 1;
@@ -588,6 +617,8 @@ namespace EPos
 			
 			var meta = new HashMap<string, Value?>();
 			meta.set("uses_stock", this.checkbuttonUsesStock.active ? "yes" : "no");
+			meta.set("tax_rate_id", (this.comboboxTaxRates.active_id != null) ? this.comboboxTaxRates.active_id : "-1");
+			
 			//##insert a new product
 			if( this.product == null )
 			{

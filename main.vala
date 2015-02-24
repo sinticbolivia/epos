@@ -153,7 +153,7 @@ namespace Woocommerce
 			}
 			catch(GLib.Error e)
 			{
-				stderr.printf("ERROR: Error loading styles\n%s", e.message);
+				stderr.printf("ERROR: Error loading styles\n%s\n", e.message);
 			}
 		}
 		protected void Build()
@@ -637,6 +637,8 @@ namespace Woocommerce
 		public static int main(string[] args)
 		{
 			//stdout.printf("Working directory: %s\n", Environment.get_current_dir());
+			GLib.Environment.set_variable("LC_NUMERIC", "en_GB.UTF-8", true);
+			
 			string cfg_file = "config.xml";
 			/*
 			if( args.length > 1 )

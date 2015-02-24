@@ -17,6 +17,8 @@ namespace Woocommerce
 		protected Button		buttonEdit;
 		protected Button        buttonReceive;
 		protected Button		buttonCancel;
+		protected Button		buttonPrint;
+		protected	Button		buttonPreview;
 		protected ComboBox		comboboxStores;
 		protected ComboBox		comboboxStatus;
 		protected TreeView		treeviewOrders;
@@ -39,10 +41,13 @@ namespace Woocommerce
 			//this.ui = SB_ModuleInventory.GetGladeUi("purchase-orders.glade");
 			this.ui = (SBModules.GetModule("Inventory") as SBGtkModule).GetGladeUi("purchase-orders.glade");
 			this.boxPurchaseOrders		= (Box)this.ui.get_object("boxPurchaseOrders");
+			this.image1					= (Image)this.ui.get_object("image1");
 			this.buttonNew				= (Button)this.ui.get_object("buttonNew");
 			this.buttonEdit				= (Button)this.ui.get_object("buttonEdit");
 			this.buttonReceive          = (Button)this.ui.get_object("buttonReceive");
 			this.buttonCancel			= (Button)this.ui.get_object("buttonCancel");
+			this.buttonPrint			= (Button)this.ui.get_object("buttonPrint");
+			this.buttonPreview			= (Button)this.ui.get_object("buttonPreview");
 			this.comboboxStores			= (ComboBox)this.ui.get_object("comboboxStores");
 			this.comboboxStatus			= (ComboBox)this.ui.get_object("comboboxStatus");
 			this.treeviewOrders			= (TreeView)this.ui.get_object("treeviewOrders");
@@ -54,6 +59,9 @@ namespace Woocommerce
 		}
 		protected void Build()
 		{
+			this.image1.pixbuf = (SBModules.GetModule("Inventory") as SBGtkModule).GetPixbuf("purchase-order-icon-64x64.png");
+			this.buttonPrint.label = "";
+			this.buttonPreview.label = "";
 			TreeIter iter;
 			var cell0 = new CellRendererText();
 			this.comboboxStores.pack_start(cell0, true);
@@ -86,9 +94,9 @@ namespace Woocommerce
 				{SBText.__("Store"), "text", "250", "left", ""},
 				{SBText.__("Items"), "text", "50", "center", ""},
 				{SBText.__("Total"), "text", "50", "right", ""},
-				{SBText.__("Delivery date"), "text", "100", "right", ""},
+				{SBText.__("Delivery date"), "text", "130", "right", ""},
 				{SBText.__("Status"), "markup", "80", "center", ""},
-				{SBText.__("Creation Date"), "text", "100", "right", ""}
+				{SBText.__("Creation Date"), "text", "130", "right", ""}
 			};
 			GtkHelper.BuildTreeViewColumns(columns, ref this.treeviewOrders);
 			
@@ -128,6 +136,7 @@ namespace Woocommerce
 			this.buttonEdit.clicked.connect(this.OnButtonEditClicked);
 			this.buttonReceive.clicked.connect(this.OnButtonReceiveClicked);
 			this.buttonCancel.clicked.connect(this.OnButtonCancelClicked);
+			this.buttonPreview.clicked.connect(this.OnButtonPreviewClicked);
 		}
 		protected void OnComboBoxStoresChanged()
 		{
@@ -199,6 +208,211 @@ namespace Woocommerce
 		protected void OnButtonCancelClicked()
 		{
 		}
+		protected void OnButtonPreviewClicked()
+		{
+			TreeModel model;
+			TreeIter iter;
+			
+			if( !this.treeviewOrders.get_selection().get_selected(out model, out iter) )
+			{
+				var err = new InfoDialog("error")
+				{
+					Title = SBText.__("Preview error"),
+					Message = SBText.__("You need to select atleast one purchase order.")
+				};
+				err.run();
+				err.destroy();
+				return;
+			}
+			Value order_id;
+			model.get_value(iter, Columns.ORDER_ID, out order_id);
+			//##get company data
+			string company_data = SBParameter.Get("company");
+			HashMap<string, Value?> company = SinticBolivia.Utils.JsonDecode(company_data);
+			
+			var order = new PurchaseOrder.from_id((int)order_id);
+			float font_size = 8;
+			//##create new report instance
+			var catalog = new EPos.Catalog();
+			stdout.printf("page available width: %.2f\n", catalog.pageAvailableSpace);
+			catalog.WriteText(SBText.__("Purchase Order"), "center", 17);
+			var table = new EPos.PdfTable(catalog.pdf, catalog.page, catalog.font, 
+											catalog.pageAvailableSpace, 
+											catalog.XPos, 
+											catalog.YPos);
+			table.SetColumnsWidth({25,50,25});
+			
+			string nums = "%s (P), %s (P), %s (F)".printf((string)company["phone_1"], (string)company["phone_2"], (string)company["fax"]);
+			string company_info = "%s\n%s\n\n%s\n%s".
+									printf((string)company["company"], (string)company["address"], nums, (string)company["email"]);
+									
+			string order_data = "PO#: 0000000\n"+
+								"Page: Page 0 of 0\n"+
+								"Order date: date here\n"+
+								"Delivery date: date here\n"+
+								"Cancel date: date here\n"+
+								"Terms code: xxxx";
+			
+			string logo_path = "images/%s".printf((company["logo"] != null ) ? (string)company["logo"] : "company_logo.png");
+			var cell = table.AddCell();
+			cell.Border = false;
+			//cell.FontSize = 6;
+			cell.SetImage(catalog.pdf.LoadJpegImageFromFile(SBFileHelper.SanitizePath(logo_path)));
+			
+			cell = table.AddCell();
+			cell.Border = false;
+			cell.FontSize = font_size;
+			cell.SetText(company_info);
+			
+			cell = table.AddCell();
+			cell.Border = false;
+			cell.FontSize = font_size;
+			cell.SetText(order_data);
+			
+			table.Draw();
+			
+			var table1 = new EPos.PdfTable(catalog.pdf, catalog.page, catalog.font, 
+											catalog.pageAvailableSpace, 
+											catalog.XPos, 
+											catalog.YPos - table.Height - 10);
+			table1.SetColumnsWidth({5,45,5,45});
+			cell = table1.AddCell();
+			cell.FontSize = font_size;
+			cell.SetText("To:");
+			cell = table1.AddCell();
+			cell.FontSize = font_size;
+			cell.SetText("MR EASTON BENNETT\nCOBBLA P.A\nMANCHESTER");
+			cell = table1.AddCell();
+			cell.FontSize = font_size;
+			cell.SetText("Ship To:");
+			cell = table1.AddCell();
+			cell.FontSize = font_size;
+			cell.SetText("MAIN STORE\n233 MARCUS GARVEY DRIVE\nKINGSTON 11");
+			table1.Draw();
+			
+			//##details table
+			var details_table = new EPos.PdfTable(catalog.pdf, catalog.page, catalog.font, 
+													catalog.pageAvailableSpace, 
+													catalog.XPos, 
+													catalog.YPos - table.Height - 10 - table1.Height - 10);
+													
+			details_table.SetColumnsWidth({12.5f, 50, 12.5f, 12.5f, 12.5f});		
+											
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.SetText(SBText.__("Item #"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.SetText(SBText.__("Description\n Vendor's Description"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "center";
+			cell.SetText(SBText.__("Quantity"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "center";
+			cell.SetText(SBText.__("U.O.M"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "center";
+			cell.SetText(SBText.__("Ext. Cost"));
+			
+			foreach(var item in order.Items)
+			{
+				var prod = new EPos.EProduct.from_id(item.GetInt("product_id"));
+				cell 			= details_table.AddCell();
+				cell.FontSize 	= font_size;
+				cell.Border		= false;
+				cell.SetText(prod.Code);
+				
+				cell 			= details_table.AddCell();
+				cell.FontSize 	= font_size;
+				cell.Border		= false;
+				cell.SetText(prod.Name);
+				
+				cell 			= details_table.AddCell();
+				cell.FontSize 	= font_size;
+				cell.Border		= false;
+				cell.Align		= "center";
+				cell.SetText(item.Get("quantity"));
+				
+				cell 			= details_table.AddCell();
+				cell.FontSize 	= font_size;
+				cell.Border		= false;
+				cell.SetText("");
+				
+				cell 			= details_table.AddCell();
+				cell.FontSize 	= font_size;
+				cell.Border		= false;
+				cell.Align		= "right";
+				cell.SetText("%.2f".printf(item.GetDouble("total")));
+			}
+			
+			cell 			= details_table.AddCell();
+			cell.Span		= 4;
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText(SBText.__("Subtotal:"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText("%.2f".printf(order.SubTotal));
+			
+			cell 			= details_table.AddCell();
+			cell.Span		= 4;
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText(SBText.__("Sales Tax:"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText("%.2f".printf(order.TaxTotal));
+			
+			cell 			= details_table.AddCell();
+			cell.Span		= 4;
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText(SBText.__("Total:"));
+			
+			cell 			= details_table.AddCell();
+			cell.FontSize 	= font_size;
+			cell.LeftBorder	= false;
+			cell.RightBorder	= false;
+			cell.Align		= "right";
+			cell.SetText("%.2f".printf(order.Total));
+			
+			
+			details_table.Draw();
+			
+			//catalog.Save();			
+			catalog.Preview();
+		}
 		protected void GetOrders(int store_id, string? status = null, int page = 1, int limit = 100)
 		{
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
@@ -240,7 +454,7 @@ namespace Woocommerce
 				    Columns.STORE, row.Get("store_name"),
 				    Columns.ITEMS, row.GetInt("items"),
 				    Columns.TOTAL, "%.2f".printf(row.GetDouble("total")),
-				    Columns.DELIVERY_DATE, "",
+				    Columns.DELIVERY_DATE, row.Get("delivery_date"),
 				    Columns.STATUS, "<span color=\"%s\" font_weight=\"bold\">%s</span>".printf(status_color, _status),
 				    Columns.CREATION_DATE, row.Get("creation_date"),
 				    Columns.ORDER_ID, row.GetInt("order_id")

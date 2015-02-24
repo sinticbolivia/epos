@@ -27,9 +27,28 @@ namespace Woocommerce
 			this.resourceNs		= "/net/sinticbolivia/Inventory";
 			this.resourceFile 	= "./modules/inventory.gresource";
 		}
+		protected void ApplyPatches()
+		{
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			if( dbh.Engine == "mysql" )
+			{
+				string query = "SHOW columns FROM purchase_orders WHERE Field = 'supplier_id'";
+				if( dbh.GetRow(query) == null )
+				{
+					dbh.Execute("DROP TABLE purchase_orders");
+				}
+				query = "SHOW columns FROM purchase_order_items WHERE Field = 'subtotal'";
+				if( dbh.GetRow(query) == null )
+				{
+					dbh.Execute("DROP TABLE purchase_order_items");
+				}
+			}
+			
+		}
 		public void Enabled()
 		{
 			this.LoadResources();
+			this.ApplyPatches();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string sql_file = "";
 			

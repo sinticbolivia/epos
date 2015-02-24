@@ -562,12 +562,12 @@ namespace Woocommerce
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			if( store_id == 0 )
 			{
-				string query = "SELECT * FROM stores ORDER BY store_name ASC";
-				
+				//string query = "SELECT * FROM stores ORDER BY store_name ASC";
+				dbh.Select("*").From("stores").OrderBy("store_name", "ASC");
 				TreeIter s_iter;
 				(this.comboboxCategoriesStore.model as ListStore).append(out s_iter);
 				(this.comboboxCategoriesStore.model as ListStore).set(s_iter, 0, "-- store --", 1, "-1");
-				foreach(var row in dbh.GetResults(query))
+				foreach(var row in dbh.GetResults(null))
 				{
 					(this.comboboxCategoriesStore.model as ListStore).append(out s_iter);
 					(this.comboboxCategoriesStore.model as ListStore).set(s_iter, 0, row.Get("store_name"), 1, row.Get("store_id"));
@@ -580,7 +580,7 @@ namespace Woocommerce
 			}
 			else if( store_id > 0 )
 			{
-				
+				var store = new SBStore.from_id(store_id);
 				var cats = (ArrayList<SBLCategory>)InventoryHelper.GetCategories(store_id);			
 				TreeIter c_iter, p_iter;
 											
@@ -594,7 +594,6 @@ namespace Woocommerce
 				{
 					foreach(var cat in cats)
 					{
-						SBStore store = new SBStore.from_id(cat.StoreId);
 						(this.treeviewCategories.model as TreeStore).append(out c_iter, null);
 						(this.treeviewCategories.model as TreeStore).set(c_iter, 
 												0, cat.Id,
@@ -1173,6 +1172,7 @@ namespace Woocommerce
 			{
 				cats = InventoryHelper.GetCategories(store_id);
 			}
+			/*
 			var catalog = new Catalog();
 			catalog.WriteText(SBText.__("Products Catalog"), "center", 24);
 			catalog.WriteText(SBText.__("Date: %s").printf(new DateTime.now_local().format("%Y-%m-%d")), "left", 12);
@@ -1203,6 +1203,7 @@ namespace Woocommerce
 			catalog.Preview();
 			//var img = HPDF.LoadJpegImageFromFile(pdf, "/home/marcelo/Pictures/cd_1_angle-90x90.jpg");
 			//page.DrawImage(img, margin, height - 98, img.GetWidth(), img.GetHeight());
+			*/
 		}
 		protected void OnPrintLabelsActivated()
 		{
@@ -1226,6 +1227,7 @@ namespace Woocommerce
 			{
 				cats = InventoryHelper.GetCategories(store_id);
 			}
+			/*
 			var catalog = new Catalog();
 			catalog.WriteText(SBText.__("Products Labels"), "center", 24);
 			//catalog.WriteText(SBText.__("Products Labels"), "center", 24);
@@ -1247,6 +1249,7 @@ namespace Woocommerce
 			}
 			catalog.Draw();
 			catalog.Preview("labels");
+			*/
 		}
 	}
 }

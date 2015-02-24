@@ -13,9 +13,9 @@
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hpdf.h>
 #include <float.h>
 #include <math.h>
+#include <hpdf.h>
 #include <cairo.h>
 #include <gdk/gdk.h>
 
@@ -65,38 +65,16 @@ typedef struct _EPosEAssembly EPosEAssembly;
 typedef struct _EPosEAssemblyClass EPosEAssemblyClass;
 typedef struct _EPosEAssemblyPrivate EPosEAssemblyPrivate;
 
-#define WOOCOMMERCE_TYPE_PDF_CELL (woocommerce_pdf_cell_get_type ())
-#define WOOCOMMERCE_PDF_CELL(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_PDF_CELL, WoocommercePdfCell))
-#define WOOCOMMERCE_PDF_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_PDF_CELL, WoocommercePdfCellClass))
-#define WOOCOMMERCE_IS_PDF_CELL(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_PDF_CELL))
-#define WOOCOMMERCE_IS_PDF_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_PDF_CELL))
-#define WOOCOMMERCE_PDF_CELL_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_PDF_CELL, WoocommercePdfCellClass))
+#define EPOS_TYPE_CATALOG (epos_catalog_get_type ())
+#define EPOS_CATALOG(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_CATALOG, EPosCatalog))
+#define EPOS_CATALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_CATALOG, EPosCatalogClass))
+#define EPOS_IS_CATALOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_CATALOG))
+#define EPOS_IS_CATALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_CATALOG))
+#define EPOS_CATALOG_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_CATALOG, EPosCatalogClass))
 
-typedef struct _WoocommercePdfCell WoocommercePdfCell;
-typedef struct _WoocommercePdfCellClass WoocommercePdfCellClass;
-typedef struct _WoocommercePdfCellPrivate WoocommercePdfCellPrivate;
-
-#define WOOCOMMERCE_TYPE_PDF_ROW (woocommerce_pdf_row_get_type ())
-#define WOOCOMMERCE_PDF_ROW(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_PDF_ROW, WoocommercePdfRow))
-#define WOOCOMMERCE_PDF_ROW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_PDF_ROW, WoocommercePdfRowClass))
-#define WOOCOMMERCE_IS_PDF_ROW(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_PDF_ROW))
-#define WOOCOMMERCE_IS_PDF_ROW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_PDF_ROW))
-#define WOOCOMMERCE_PDF_ROW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_PDF_ROW, WoocommercePdfRowClass))
-
-typedef struct _WoocommercePdfRow WoocommercePdfRow;
-typedef struct _WoocommercePdfRowClass WoocommercePdfRowClass;
-typedef struct _WoocommercePdfRowPrivate WoocommercePdfRowPrivate;
-
-#define WOOCOMMERCE_TYPE_CATALOG (woocommerce_catalog_get_type ())
-#define WOOCOMMERCE_CATALOG(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_CATALOG, WoocommerceCatalog))
-#define WOOCOMMERCE_CATALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_CATALOG, WoocommerceCatalogClass))
-#define WOOCOMMERCE_IS_CATALOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_CATALOG))
-#define WOOCOMMERCE_IS_CATALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_CATALOG))
-#define WOOCOMMERCE_CATALOG_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_CATALOG, WoocommerceCatalogClass))
-
-typedef struct _WoocommerceCatalog WoocommerceCatalog;
-typedef struct _WoocommerceCatalogClass WoocommerceCatalogClass;
-typedef struct _WoocommerceCatalogPrivate WoocommerceCatalogPrivate;
+typedef struct _EPosCatalog EPosCatalog;
+typedef struct _EPosCatalogClass EPosCatalogClass;
+typedef struct _EPosCatalogPrivate EPosCatalogPrivate;
 
 #define WOOCOMMERCE_TYPE_ORDER (woocommerce_order_get_type ())
 #define WOOCOMMERCE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_ORDER, WoocommerceOrder))
@@ -108,6 +86,39 @@ typedef struct _WoocommerceCatalogPrivate WoocommerceCatalogPrivate;
 typedef struct _WoocommerceOrder WoocommerceOrder;
 typedef struct _WoocommerceOrderClass WoocommerceOrderClass;
 typedef struct _WoocommerceOrderPrivate WoocommerceOrderPrivate;
+
+#define EPOS_TYPE_PDF_CELL (epos_pdf_cell_get_type ())
+#define EPOS_PDF_CELL(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_PDF_CELL, EPosPdfCell))
+#define EPOS_PDF_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_PDF_CELL, EPosPdfCellClass))
+#define EPOS_IS_PDF_CELL(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_PDF_CELL))
+#define EPOS_IS_PDF_CELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_PDF_CELL))
+#define EPOS_PDF_CELL_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_PDF_CELL, EPosPdfCellClass))
+
+typedef struct _EPosPdfCell EPosPdfCell;
+typedef struct _EPosPdfCellClass EPosPdfCellClass;
+typedef struct _EPosPdfCellPrivate EPosPdfCellPrivate;
+
+#define EPOS_TYPE_PDF_ROW (epos_pdf_row_get_type ())
+#define EPOS_PDF_ROW(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_PDF_ROW, EPosPdfRow))
+#define EPOS_PDF_ROW_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_PDF_ROW, EPosPdfRowClass))
+#define EPOS_IS_PDF_ROW(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_PDF_ROW))
+#define EPOS_IS_PDF_ROW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_PDF_ROW))
+#define EPOS_PDF_ROW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_PDF_ROW, EPosPdfRowClass))
+
+typedef struct _EPosPdfRow EPosPdfRow;
+typedef struct _EPosPdfRowClass EPosPdfRowClass;
+typedef struct _EPosPdfRowPrivate EPosPdfRowPrivate;
+
+#define EPOS_TYPE_PDF_TABLE (epos_pdf_table_get_type ())
+#define EPOS_PDF_TABLE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_PDF_TABLE, EPosPdfTable))
+#define EPOS_PDF_TABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_PDF_TABLE, EPosPdfTableClass))
+#define EPOS_IS_PDF_TABLE(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_PDF_TABLE))
+#define EPOS_IS_PDF_TABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_PDF_TABLE))
+#define EPOS_PDF_TABLE_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_PDF_TABLE, EPosPdfTableClass))
+
+typedef struct _EPosPdfTable EPosPdfTable;
+typedef struct _EPosPdfTableClass EPosPdfTableClass;
+typedef struct _EPosPdfTablePrivate EPosPdfTablePrivate;
 typedef struct _EPosEProductPrivate EPosEProductPrivate;
 
 #define WOOCOMMERCE_TYPE_PURCHASE_ORDER (woocommerce_purchase_order_get_type ())
@@ -143,6 +154,17 @@ typedef struct _EPosESupplier EPosESupplier;
 typedef struct _EPosESupplierClass EPosESupplierClass;
 typedef struct _EPosESupplierPrivate EPosESupplierPrivate;
 
+#define EPOS_TYPE_ETAX_RATE (epos_etax_rate_get_type ())
+#define EPOS_ETAX_RATE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_ETAX_RATE, EPosETaxRate))
+#define EPOS_ETAX_RATE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_ETAX_RATE, EPosETaxRateClass))
+#define EPOS_IS_ETAX_RATE(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_ETAX_RATE))
+#define EPOS_IS_ETAX_RATE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_ETAX_RATE))
+#define EPOS_ETAX_RATE_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_ETAX_RATE, EPosETaxRateClass))
+
+typedef struct _EPosETaxRate EPosETaxRate;
+typedef struct _EPosETaxRateClass EPosETaxRateClass;
+typedef struct _EPosETaxRatePrivate EPosETaxRatePrivate;
+
 #define WOOCOMMERCE_INVOICE_TYPE_TICKET_INVOICE (woocommerce_invoice_ticket_invoice_get_type ())
 #define WOOCOMMERCE_INVOICE_TICKET_INVOICE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_INVOICE_TYPE_TICKET_INVOICE, WoocommerceInvoiceTicketInvoice))
 #define WOOCOMMERCE_INVOICE_TICKET_INVOICE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_INVOICE_TYPE_TICKET_INVOICE, WoocommerceInvoiceTicketInvoiceClass))
@@ -153,6 +175,17 @@ typedef struct _EPosESupplierPrivate EPosESupplierPrivate;
 typedef struct _WoocommerceInvoiceTicketInvoice WoocommerceInvoiceTicketInvoice;
 typedef struct _WoocommerceInvoiceTicketInvoiceClass WoocommerceInvoiceTicketInvoiceClass;
 typedef struct _WoocommerceInvoiceTicketInvoicePrivate WoocommerceInvoiceTicketInvoicePrivate;
+
+#define EPOS_TYPE_WIDGET_ITEM_TYPES (epos_widget_item_types_get_type ())
+#define EPOS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypes))
+#define EPOS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
+#define EPOS_IS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES))
+#define EPOS_IS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES))
+#define EPOS_WIDGET_ITEM_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
+
+typedef struct _EPosWidgetItemTypes EPosWidgetItemTypes;
+typedef struct _EPosWidgetItemTypesClass EPosWidgetItemTypesClass;
+typedef struct _EPosWidgetItemTypesPrivate EPosWidgetItemTypesPrivate;
 
 #define EPOS_TYPE_WIDGET_ASSEMBLIES (epos_widget_assemblies_get_type ())
 #define EPOS_WIDGET_ASSEMBLIES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ASSEMBLIES, EPosWidgetAssemblies))
@@ -198,17 +231,6 @@ typedef struct _WoocommerceWidgetIventory WoocommerceWidgetIventory;
 typedef struct _WoocommerceWidgetIventoryClass WoocommerceWidgetIventoryClass;
 typedef struct _WoocommerceWidgetIventoryPrivate WoocommerceWidgetIventoryPrivate;
 
-#define EPOS_TYPE_WIDGET_ITEM_TYPES (epos_widget_item_types_get_type ())
-#define EPOS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypes))
-#define EPOS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
-#define EPOS_IS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES))
-#define EPOS_IS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES))
-#define EPOS_WIDGET_ITEM_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
-
-typedef struct _EPosWidgetItemTypes EPosWidgetItemTypes;
-typedef struct _EPosWidgetItemTypesClass EPosWidgetItemTypesClass;
-typedef struct _EPosWidgetItemTypesPrivate EPosWidgetItemTypesPrivate;
-
 #define EPOS_TYPE_WINDOW_NEW_ASSEMBLY (epos_window_new_assembly_get_type ())
 #define EPOS_WINDOW_NEW_ASSEMBLY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WINDOW_NEW_ASSEMBLY, EPosWindowNewAssembly))
 #define EPOS_WINDOW_NEW_ASSEMBLY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WINDOW_NEW_ASSEMBLY, EPosWindowNewAssemblyClass))
@@ -253,19 +275,6 @@ typedef struct _WoocommerceWidgetProductLines WoocommerceWidgetProductLines;
 typedef struct _WoocommerceWidgetProductLinesClass WoocommerceWidgetProductLinesClass;
 typedef struct _WoocommerceWidgetProductLinesPrivate WoocommerceWidgetProductLinesPrivate;
 
-#define WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS (woocommerce_widget_purchase_orders_get_type ())
-#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrders))
-#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrdersClass))
-#define WOOCOMMERCE_IS_WIDGET_PURCHASE_ORDERS(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS))
-#define WOOCOMMERCE_IS_WIDGET_PURCHASE_ORDERS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS))
-#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrdersClass))
-
-typedef struct _WoocommerceWidgetPurchaseOrders WoocommerceWidgetPurchaseOrders;
-typedef struct _WoocommerceWidgetPurchaseOrdersClass WoocommerceWidgetPurchaseOrdersClass;
-typedef struct _WoocommerceWidgetPurchaseOrdersPrivate WoocommerceWidgetPurchaseOrdersPrivate;
-
-#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_TYPE_COLUMNS (woocommerce_widget_purchase_orders_columns_get_type ())
-
 #define WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDER (woocommerce_widget_purchase_order_get_type ())
 #define WOOCOMMERCE_WIDGET_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDER, WoocommerceWidgetPurchaseOrder))
 #define WOOCOMMERCE_WIDGET_PURCHASE_ORDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDER, WoocommerceWidgetPurchaseOrderClass))
@@ -278,6 +287,19 @@ typedef struct _WoocommerceWidgetPurchaseOrderClass WoocommerceWidgetPurchaseOrd
 typedef struct _WoocommerceWidgetPurchaseOrderPrivate WoocommerceWidgetPurchaseOrderPrivate;
 
 #define WOOCOMMERCE_WIDGET_PURCHASE_ORDER_TYPE_COLUMNS (woocommerce_widget_purchase_order_columns_get_type ())
+
+#define WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS (woocommerce_widget_purchase_orders_get_type ())
+#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrders))
+#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrdersClass))
+#define WOOCOMMERCE_IS_WIDGET_PURCHASE_ORDERS(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS))
+#define WOOCOMMERCE_IS_WIDGET_PURCHASE_ORDERS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS))
+#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_WIDGET_PURCHASE_ORDERS, WoocommerceWidgetPurchaseOrdersClass))
+
+typedef struct _WoocommerceWidgetPurchaseOrders WoocommerceWidgetPurchaseOrders;
+typedef struct _WoocommerceWidgetPurchaseOrdersClass WoocommerceWidgetPurchaseOrdersClass;
+typedef struct _WoocommerceWidgetPurchaseOrdersPrivate WoocommerceWidgetPurchaseOrdersPrivate;
+
+#define WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_TYPE_COLUMNS (woocommerce_widget_purchase_orders_columns_get_type ())
 
 #define WOOCOMMERCE_TYPE_WIDGET_SUPPLIERS (woocommerce_widget_suppliers_get_type ())
 #define WOOCOMMERCE_WIDGET_SUPPLIERS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_SUPPLIERS, WoocommerceWidgetSuppliers))
@@ -292,6 +314,17 @@ typedef struct _WoocommerceWidgetSuppliersPrivate WoocommerceWidgetSuppliersPriv
 
 #define WOOCOMMERCE_WIDGET_SUPPLIERS_TYPE_COLUMNS (woocommerce_widget_suppliers_columns_get_type ())
 
+#define WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES (woocommerce_widget_transaction_types_get_type ())
+#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypes))
+#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypesClass))
+#define WOOCOMMERCE_IS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES))
+#define WOOCOMMERCE_IS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES))
+#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypesClass))
+
+typedef struct _WoocommerceWidgetTransactionTypes WoocommerceWidgetTransactionTypes;
+typedef struct _WoocommerceWidgetTransactionTypesClass WoocommerceWidgetTransactionTypesClass;
+typedef struct _WoocommerceWidgetTransactionTypesPrivate WoocommerceWidgetTransactionTypesPrivate;
+
 #define WOOCOMMERCE_TYPE_WIDGET_TRANSACTIONS (woocommerce_widget_transactions_get_type ())
 #define WOOCOMMERCE_WIDGET_TRANSACTIONS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTIONS, WoocommerceWidgetTransactions))
 #define WOOCOMMERCE_WIDGET_TRANSACTIONS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_TRANSACTIONS, WoocommerceWidgetTransactionsClass))
@@ -304,17 +337,6 @@ typedef struct _WoocommerceWidgetTransactionsClass WoocommerceWidgetTransactions
 typedef struct _WoocommerceWidgetTransactionsPrivate WoocommerceWidgetTransactionsPrivate;
 
 #define WOOCOMMERCE_WIDGET_TRANSACTIONS_TYPE_COLUMNS (woocommerce_widget_transactions_columns_get_type ())
-
-#define WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES (woocommerce_widget_transaction_types_get_type ())
-#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypes))
-#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypesClass))
-#define WOOCOMMERCE_IS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES))
-#define WOOCOMMERCE_IS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES))
-#define WOOCOMMERCE_WIDGET_TRANSACTION_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), WOOCOMMERCE_TYPE_WIDGET_TRANSACTION_TYPES, WoocommerceWidgetTransactionTypesClass))
-
-typedef struct _WoocommerceWidgetTransactionTypes WoocommerceWidgetTransactionTypes;
-typedef struct _WoocommerceWidgetTransactionTypesClass WoocommerceWidgetTransactionTypesClass;
-typedef struct _WoocommerceWidgetTransactionTypesPrivate WoocommerceWidgetTransactionTypesPrivate;
 
 #define WOOCOMMERCE_TYPE_WIDGET_UNIT_OF_MEASUREMENT (woocommerce_widget_unit_of_measurement_get_type ())
 #define WOOCOMMERCE_WIDGET_UNIT_OF_MEASUREMENT(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), WOOCOMMERCE_TYPE_WIDGET_UNIT_OF_MEASUREMENT, WoocommerceWidgetUnitOfMeasurement))
@@ -382,54 +404,14 @@ struct _EPosEAssemblyClass {
 	GObjectClass parent_class;
 };
 
-struct _WoocommercePdfCell {
+struct _EPosCatalog {
 	GObject parent_instance;
-	WoocommercePdfCellPrivate * priv;
-	HPDF_Page* page;
-	HPDF_Font* PdfFont;
-	gchar* text;
-	HPDF_Image* image;
-	gfloat Width;
-	gfloat Height;
-	gchar* FontFamily;
-	gfloat FontSize;
-	gint Span;
-	gboolean Border;
-	gint TableCols;
-	gfloat* ColumnsWidth;
-	gint ColumnsWidth_length1;
-	gchar* Align;
-	GeeArrayList* lines;
-};
-
-struct _WoocommercePdfCellClass {
-	GObjectClass parent_class;
-};
-
-struct _WoocommercePdfRow {
-	GObject parent_instance;
-	WoocommercePdfRowPrivate * priv;
-	HPDF_Page* page;
-	GeeArrayList* cells;
-	gfloat Width;
-	gfloat Height;
-	gfloat* ColumnsWidth;
-	gint ColumnsWidth_length1;
-};
-
-struct _WoocommercePdfRowClass {
-	GObjectClass parent_class;
-};
-
-struct _WoocommerceCatalog {
-	GObject parent_instance;
-	WoocommerceCatalogPrivate * priv;
+	EPosCatalogPrivate * priv;
 	gchar* Title;
 	gfloat XPos;
 	gfloat YPos;
 	gchar* FontType;
-	gchar** Headers;
-	gint Headers_length1;
+	gfloat FontSize;
 	gfloat* ColumnsWidth;
 	gint ColumnsWidth_length1;
 	gfloat TopMargin;
@@ -442,14 +424,11 @@ struct _WoocommerceCatalog {
 	gfloat pageWidth;
 	gfloat pageHeight;
 	gfloat pageAvailableSpace;
-	gint currentCell;
 	gint totalCols;
 	gfloat rowHeight;
-	GeeArrayList* rows;
-	WoocommercePdfRow* currentRow;
 };
 
-struct _WoocommerceCatalogClass {
+struct _EPosCatalogClass {
 	GObjectClass parent_class;
 };
 
@@ -462,6 +441,80 @@ struct _WoocommerceOrder {
 };
 
 struct _WoocommerceOrderClass {
+	GObjectClass parent_class;
+};
+
+struct _EPosPdfCell {
+	GObject parent_instance;
+	EPosPdfCellPrivate * priv;
+	HPDF_Font* Font;
+	gchar* text;
+	HPDF_Image* image;
+	EPosPdfRow* Row;
+	gint Index;
+	gfloat Width;
+	gfloat Height;
+	gfloat SourceX;
+	gfloat SourceY;
+	gchar* FontFamily;
+	gfloat FontSize;
+	gint Span;
+	gboolean TopBorder;
+	gboolean RightBorder;
+	gboolean BottomBorder;
+	gboolean LeftBorder;
+	gfloat Padding;
+	gchar* Align;
+	GeeArrayList* lines;
+};
+
+struct _EPosPdfCellClass {
+	GObjectClass parent_class;
+};
+
+struct _EPosPdfRow {
+	GObject parent_instance;
+	EPosPdfRowPrivate * priv;
+	GeeArrayList* cells;
+	EPosPdfTable* Table;
+	gfloat Width;
+	gfloat Height;
+	gfloat X;
+	gfloat Y;
+	gfloat SourceX;
+	gfloat SourceY;
+	gint NumCells;
+	gfloat* ColumnsWidth;
+	gint ColumnsWidth_length1;
+};
+
+struct _EPosPdfRowClass {
+	GObjectClass parent_class;
+};
+
+struct _EPosPdfTable {
+	GObject parent_instance;
+	EPosPdfTablePrivate * priv;
+	GeeArrayList* rows;
+	HPDF_Page* PdfPage;
+	HPDF_Doc* Doc;
+	HPDF_Font* Font;
+	gint totalCols;
+	gfloat Width;
+	gfloat Height;
+	gfloat X;
+	gfloat Y;
+	gfloat SourceX;
+	gfloat SourceY;
+	gfloat* ColumnsWidth;
+	gint ColumnsWidth_length1;
+	gchar** Headers;
+	gint Headers_length1;
+	EPosPdfRow* currentRow;
+	gint currentCell;
+};
+
+struct _EPosPdfTableClass {
 	GObjectClass parent_class;
 };
 
@@ -508,6 +561,16 @@ struct _EPosESupplierClass {
 	GObjectClass parent_class;
 };
 
+struct _EPosETaxRate {
+	GObject parent_instance;
+	EPosETaxRatePrivate * priv;
+	SinticBoliviaDatabaseSBDBRow* dbData;
+};
+
+struct _EPosETaxRateClass {
+	GObjectClass parent_class;
+};
+
 struct _WoocommerceInvoiceTicketInvoice {
 	GObject parent_instance;
 	WoocommerceInvoiceTicketInvoicePrivate * priv;
@@ -523,6 +586,29 @@ struct _WoocommerceInvoiceTicketInvoice {
 
 struct _WoocommerceInvoiceTicketInvoiceClass {
 	GObjectClass parent_class;
+};
+
+struct _EPosWidgetItemTypes {
+	GtkBox parent_instance;
+	EPosWidgetItemTypesPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxItemTypes;
+	GtkImage* image1;
+	GtkButton* buttonAdd;
+	GtkButton* buttonEdit;
+	GtkButton* buttonDelete;
+	GtkScrolledWindow* scrolledwindow1;
+	SinticBoliviaGtkDbTableTreeView* treeview;
+	GtkDialog* dlg;
+	GtkEntry* entryCode;
+	GtkEntry* entryName;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSave;
+	gint itemTypeId;
+};
+
+struct _EPosWidgetItemTypesClass {
+	GtkBoxClass parent_class;
 };
 
 struct _EPosWidgetAssemblies {
@@ -652,29 +738,6 @@ struct _WoocommerceWidgetIventoryClass {
 	GtkBoxClass parent_class;
 };
 
-struct _EPosWidgetItemTypes {
-	GtkBox parent_instance;
-	EPosWidgetItemTypesPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxItemTypes;
-	GtkImage* image1;
-	GtkButton* buttonAdd;
-	GtkButton* buttonEdit;
-	GtkButton* buttonDelete;
-	GtkScrolledWindow* scrolledwindow1;
-	SinticBoliviaGtkDbTableTreeView* treeview;
-	GtkDialog* dlg;
-	GtkEntry* entryCode;
-	GtkEntry* entryName;
-	GtkButton* buttonCancel;
-	GtkButton* buttonSave;
-	gint itemTypeId;
-};
-
-struct _EPosWidgetItemTypesClass {
-	GtkBoxClass parent_class;
-};
-
 struct _EPosWindowNewAssembly {
 	GtkWindow parent_instance;
 	EPosWindowNewAssemblyPrivate * priv;
@@ -715,6 +778,7 @@ struct _EPosWidgetNewProduct {
 	GtkComboBox* comboboxItemType;
 	GtkComboBox* comboboxUnitofMeasure;
 	GtkComboBox* comboboxStatus;
+	GtkComboBox* comboboxTaxRates;
 	GtkEntry* entryCost;
 	GtkEntry* entryPrice;
 	GtkEntry* entryPrice2;
@@ -799,6 +863,52 @@ struct _WoocommerceWidgetProductLinesClass {
 	GtkBoxClass parent_class;
 };
 
+struct _WoocommerceWidgetPurchaseOrder {
+	GtkBox parent_instance;
+	WoocommerceWidgetPurchaseOrderPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxPurchaseOrder;
+	GtkImage* image1;
+	GtkLabel* labelTitle;
+	GtkComboBox* comboboxStores;
+	SinticBoliviaGtkSBDatePicker* datepickerOrderDate;
+	SinticBoliviaGtkSBDatePicker* datepickerDeliveryDate;
+	GtkComboBox* comboboxSuppliers;
+	GtkEntry* entryDetails;
+	GtkEntry* entrySearchProduct;
+	GtkSpinButton* spinbuttonProductQty;
+	GtkComboBox* comboboxSearchType;
+	GtkButton* buttonAddProduct;
+	GtkTreeView* treeviewProducts;
+	GtkButtonBox* buttonbox1;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSave;
+	GtkLabel* labelSubTotal;
+	GtkLabel* labelTotalTax;
+	GtkLabel* labelTotal;
+	gint total_items;
+	WoocommercePurchaseOrder* order;
+};
+
+struct _WoocommerceWidgetPurchaseOrderClass {
+	GtkBoxClass parent_class;
+};
+
+typedef enum  {
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_COUNT,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_PRODUCT_NAME,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_CURRENT_QTY,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_QTY,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_COST,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_SUB_TOTAL,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_TAX,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_TOTAL,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_IMAGE,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_PRODUCT_ID,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_TAX_RATE,
+	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_N
+} WoocommerceWidgetPurchaseOrderColumns;
+
 struct _WoocommerceWidgetPurchaseOrders {
 	GtkBox parent_instance;
 	WoocommerceWidgetPurchaseOrdersPrivate * priv;
@@ -810,6 +920,8 @@ struct _WoocommerceWidgetPurchaseOrders {
 	GtkButton* buttonEdit;
 	GtkButton* buttonReceive;
 	GtkButton* buttonCancel;
+	GtkButton* buttonPrint;
+	GtkButton* buttonPreview;
 	GtkComboBox* comboboxStores;
 	GtkComboBox* comboboxStatus;
 	GtkTreeView* treeviewOrders;
@@ -830,43 +942,6 @@ typedef enum  {
 	WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_COLUMNS_ORDER_ID,
 	WOOCOMMERCE_WIDGET_PURCHASE_ORDERS_COLUMNS_N_COLS
 } WoocommerceWidgetPurchaseOrdersColumns;
-
-struct _WoocommerceWidgetPurchaseOrder {
-	GtkBox parent_instance;
-	WoocommerceWidgetPurchaseOrderPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxPurchaseOrder;
-	GtkLabel* labelTitle;
-	GtkComboBox* comboboxStores;
-	GtkEntry* entryDetails;
-	GtkEntry* entrySearchProduct;
-	GtkSpinButton* spinbuttonProductQty;
-	GtkComboBox* comboboxSearchType;
-	GtkButton* buttonAddProduct;
-	GtkTreeView* treeviewProducts;
-	GtkButtonBox* buttonbox1;
-	GtkButton* buttonCancel;
-	GtkButton* buttonSave;
-	GtkLabel* labelTotal;
-	gint total_items;
-	WoocommercePurchaseOrder* order;
-};
-
-struct _WoocommerceWidgetPurchaseOrderClass {
-	GtkBoxClass parent_class;
-};
-
-typedef enum  {
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_COUNT,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_PRODUCT_NAME,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_CURRENT_QTY,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_QTY,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_COST,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_TOTAL,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_IMAGE,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_PRODUCT_ID,
-	WOOCOMMERCE_WIDGET_PURCHASE_ORDER_COLUMNS_N
-} WoocommerceWidgetPurchaseOrderColumns;
 
 struct _WoocommerceWidgetSuppliers {
 	GtkBox parent_instance;
@@ -895,6 +970,30 @@ typedef enum  {
 	WOOCOMMERCE_WIDGET_SUPPLIERS_COLUMNS_SUPPLIER_ID,
 	WOOCOMMERCE_WIDGET_SUPPLIERS_COLUMNS_N_COLS
 } WoocommerceWidgetSuppliersColumns;
+
+struct _WoocommerceWidgetTransactionTypes {
+	GtkBox parent_instance;
+	WoocommerceWidgetTransactionTypesPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxTransactionTypes;
+	GtkImage* image1;
+	GtkLabel* labelTitle;
+	GtkButton* buttonNew;
+	GtkButton* buttonEdit;
+	GtkButton* buttonDelete;
+	GtkTreeView* treeview1;
+	GtkDialog* dlg;
+	GtkEntry* entryKey;
+	GtkEntry* entryName;
+	GtkComboBox* comboboxType;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSave;
+	gint ttId;
+};
+
+struct _WoocommerceWidgetTransactionTypesClass {
+	GtkBoxClass parent_class;
+};
 
 struct _WoocommerceWidgetTransactions {
 	GtkBox parent_instance;
@@ -932,30 +1031,6 @@ typedef enum  {
 	WOOCOMMERCE_WIDGET_TRANSACTIONS_COLUMNS_G_TYPE,
 	WOOCOMMERCE_WIDGET_TRANSACTIONS_COLUMNS_N_COLS
 } WoocommerceWidgetTransactionsColumns;
-
-struct _WoocommerceWidgetTransactionTypes {
-	GtkBox parent_instance;
-	WoocommerceWidgetTransactionTypesPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxTransactionTypes;
-	GtkImage* image1;
-	GtkLabel* labelTitle;
-	GtkButton* buttonNew;
-	GtkButton* buttonEdit;
-	GtkButton* buttonDelete;
-	GtkTreeView* treeview1;
-	GtkDialog* dlg;
-	GtkEntry* entryKey;
-	GtkEntry* entryName;
-	GtkComboBox* comboboxType;
-	GtkButton* buttonCancel;
-	GtkButton* buttonSave;
-	gint ttId;
-};
-
-struct _WoocommerceWidgetTransactionTypesClass {
-	GtkBoxClass parent_class;
-};
 
 struct _WoocommerceWidgetUnitOfMeasurement {
 	GtkBox parent_instance;
@@ -1022,6 +1097,7 @@ struct _WoocommerceInventoryHelperClass {
 
 
 GType woocommerce_sb_moduleinventory_get_type (void) G_GNUC_CONST;
+void woocommerce_sb_moduleinventory_ApplyPatches (WoocommerceSB_ModuleInventory* self);
 void woocommerce_sb_moduleinventory_sidebar_init (SinticBoliviaSBModuleArgs* harg);
 void woocommerce_sb_moduleinventory_init_menu_management (SinticBoliviaSBModuleArgs* args);
 void woocommerce_sb_moduleinventory_hook_reports_menu (SinticBoliviaSBModuleArgs* args);
@@ -1054,34 +1130,16 @@ const gchar* epos_eassembly_get_Name (EPosEAssembly* self);
 const gchar* epos_eassembly_get_Description (EPosEAssembly* self);
 gint epos_eassembly_get_StoreId (EPosEAssembly* self);
 GeeArrayList* epos_eassembly_get_Components (EPosEAssembly* self);
-GType woocommerce_pdf_cell_get_type (void) G_GNUC_CONST;
-WoocommercePdfCell* woocommerce_pdf_cell_new (HPDF_Page* page);
-WoocommercePdfCell* woocommerce_pdf_cell_construct (GType object_type, HPDF_Page* page);
-void woocommerce_pdf_cell_SetPage (WoocommercePdfCell* self, HPDF_Page* page);
-void woocommerce_pdf_cell_SetText (WoocommercePdfCell* self, const gchar* text);
-void woocommerce_pdf_cell_Draw (WoocommercePdfCell* self, gfloat x, gfloat y);
-GeeArrayList* woocommerce_pdf_cell_BuildCellText (HPDF_Page* _page, gfloat cell_width, const gchar* text);
-GType woocommerce_pdf_row_get_type (void) G_GNUC_CONST;
-WoocommercePdfRow* woocommerce_pdf_row_new (HPDF_Page* page);
-WoocommercePdfRow* woocommerce_pdf_row_construct (GType object_type, HPDF_Page* page);
-void woocommerce_pdf_row_SetPage (WoocommercePdfRow* self, HPDF_Page* page);
-gint woocommerce_pdf_row_AddCell (WoocommercePdfRow* self, WoocommercePdfCell* cell);
-void woocommerce_pdf_row_calculateRowSize (WoocommercePdfRow* self);
-void woocommerce_pdf_row_Draw (WoocommercePdfRow* self, gfloat x, gfloat y);
-gint woocommerce_pdf_row_get_Size (WoocommercePdfRow* self);
-GType woocommerce_catalog_get_type (void) G_GNUC_CONST;
-WoocommerceCatalog* woocommerce_catalog_new (void);
-WoocommerceCatalog* woocommerce_catalog_construct (GType object_type);
-void woocommerce_catalog_SetMargins (WoocommerceCatalog* self, gfloat top, gfloat right, gfloat bottom, gfloat left);
-void woocommerce_catalog_WriteText (WoocommerceCatalog* self, const gchar* text, const gchar* align, gfloat font_size, const gchar* color);
-void woocommerce_catalog_SetColumnsWidth (WoocommerceCatalog* self, gfloat* widths, int widths_length1);
-void woocommerce_catalog_SetTableHeaders (WoocommerceCatalog* self, gchar** headers, int headers_length1);
-void woocommerce_catalog_AddCell (WoocommerceCatalog* self, const gchar* text, const gchar* align, gfloat font_size, gboolean border, gint span, const gchar* bg, const gchar* fg);
-void woocommerce_catalog_Draw (WoocommerceCatalog* self);
-gboolean woocommerce_catalog_CheckNewPage (WoocommerceCatalog* self, gfloat obj_height);
-gchar* woocommerce_catalog_Save (WoocommerceCatalog* self, const gchar* name);
-void woocommerce_catalog_Preview (WoocommerceCatalog* self, const gchar* name);
-void woocommerce_catalog_Print (WoocommerceCatalog* self, const gchar* name, const gchar* printer);
+GType epos_catalog_get_type (void) G_GNUC_CONST;
+EPosCatalog* epos_catalog_new (void);
+EPosCatalog* epos_catalog_construct (GType object_type);
+void epos_catalog_SetMargins (EPosCatalog* self, gfloat top, gfloat right, gfloat bottom, gfloat left);
+void epos_catalog_WriteText (EPosCatalog* self, const gchar* text, const gchar* align, gfloat font_size, const gchar* color);
+void epos_catalog_Draw (EPosCatalog* self);
+gboolean epos_catalog_CheckNewPage (EPosCatalog* self, gfloat obj_height);
+gchar* epos_catalog_Save (EPosCatalog* self, const gchar* name);
+void epos_catalog_Preview (EPosCatalog* self, const gchar* name);
+void epos_catalog_Print (EPosCatalog* self, const gchar* name, const gchar* printer);
 GType woocommerce_order_get_type (void) G_GNUC_CONST;
 WoocommerceOrder* woocommerce_order_new (void);
 WoocommerceOrder* woocommerce_order_construct (GType object_type);
@@ -1093,16 +1151,48 @@ void woocommerce_order_GetDbItems (WoocommerceOrder* self, gint order_id);
 gint woocommerce_order_get_Id (WoocommerceOrder* self);
 const gchar* woocommerce_order_get_Code (WoocommerceOrder* self);
 gint woocommerce_order_get_StoreId (WoocommerceOrder* self);
+gint woocommerce_order_get_SupplierId (WoocommerceOrder* self);
 gint woocommerce_order_get_NumItems (WoocommerceOrder* self);
 gdouble woocommerce_order_get_SubTotal (WoocommerceOrder* self);
+gdouble woocommerce_order_get_TaxTotal (WoocommerceOrder* self);
 gdouble woocommerce_order_get_Discount (WoocommerceOrder* self);
 gdouble woocommerce_order_get_Total (WoocommerceOrder* self);
 const gchar* woocommerce_order_get_Details (WoocommerceOrder* self);
 const gchar* woocommerce_order_get_Status (WoocommerceOrder* self);
 gint woocommerce_order_get_UserId (WoocommerceOrder* self);
+const gchar* woocommerce_order_get_OrderDate (WoocommerceOrder* self);
+const gchar* woocommerce_order_get_DeliveryDate (WoocommerceOrder* self);
 const gchar* woocommerce_order_get_LastModificationDate (WoocommerceOrder* self);
 const gchar* woocommerce_order_get_CreationDate (WoocommerceOrder* self);
 GeeArrayList* woocommerce_order_get_Items (WoocommerceOrder* self);
+GType epos_pdf_cell_get_type (void) G_GNUC_CONST;
+GType epos_pdf_row_get_type (void) G_GNUC_CONST;
+EPosPdfCell* epos_pdf_cell_new (void);
+EPosPdfCell* epos_pdf_cell_construct (GType object_type);
+EPosPdfCell* epos_pdf_cell_new_with_row (EPosPdfRow* row);
+EPosPdfCell* epos_pdf_cell_construct_with_row (GType object_type, EPosPdfRow* row);
+void epos_pdf_cell_SetText (EPosPdfCell* self, const gchar* text);
+void epos_pdf_cell_SetImage (EPosPdfCell* self, HPDF_Image* image);
+void epos_pdf_cell_Draw (EPosPdfCell* self);
+GeeArrayList* epos_pdf_cell_BuildCellText (EPosPdfCell* self, gfloat font_size, const gchar* text);
+void epos_pdf_cell_set_Border (EPosPdfCell* self, gboolean value);
+GType epos_pdf_table_get_type (void) G_GNUC_CONST;
+EPosPdfRow* epos_pdf_row_new (void);
+EPosPdfRow* epos_pdf_row_construct (GType object_type);
+EPosPdfRow* epos_pdf_row_new_with_table (EPosPdfTable* table);
+EPosPdfRow* epos_pdf_row_construct_with_table (GType object_type, EPosPdfTable* table);
+EPosPdfCell* epos_pdf_row_AddCell (EPosPdfRow* self);
+void epos_pdf_row_calculateRowSize (EPosPdfRow* self);
+void epos_pdf_row_Draw (EPosPdfRow* self);
+gint epos_pdf_row_get_Size (EPosPdfRow* self);
+EPosPdfTable* epos_pdf_table_new (HPDF_Doc* doc, HPDF_Page* page, HPDF_Font* font, gfloat width, gfloat source_x, gfloat source_y);
+EPosPdfTable* epos_pdf_table_construct (GType object_type, HPDF_Doc* doc, HPDF_Page* page, HPDF_Font* font, gfloat width, gfloat source_x, gfloat source_y);
+void epos_pdf_table_SetColumnsWidth (EPosPdfTable* self, gfloat* widths, int widths_length1);
+void epos_pdf_table_SetTableHeaders (EPosPdfTable* self, gchar** headers, int headers_length1);
+EPosPdfRow* epos_pdf_table_AddRow (EPosPdfTable* self);
+EPosPdfCell* epos_pdf_table_AddCell (EPosPdfTable* self);
+void epos_pdf_table_AddTextCell (EPosPdfTable* self, const gchar* text, const gchar* align, gfloat font_size, gboolean border, gint span, const gchar* bg, const gchar* fg);
+void epos_pdf_table_Draw (EPosPdfTable* self);
 EPosEProduct* epos_eproduct_new (void);
 EPosEProduct* epos_eproduct_construct (GType object_type);
 EPosEProduct* epos_eproduct_new_from_id (gint id);
@@ -1151,6 +1241,8 @@ WoocommerceSale* woocommerce_sale_construct (GType object_type);
 GType epos_esupplier_get_type (void) G_GNUC_CONST;
 EPosESupplier* epos_esupplier_new (void);
 EPosESupplier* epos_esupplier_construct (GType object_type);
+EPosESupplier* epos_esupplier_new_with_db_data (SinticBoliviaDatabaseSBDBRow* db_data);
+EPosESupplier* epos_esupplier_construct_with_db_data (GType object_type, SinticBoliviaDatabaseSBDBRow* db_data);
 EPosESupplier* epos_esupplier_new_from_id (gint supplier_id);
 EPosESupplier* epos_esupplier_construct_from_id (GType object_type, gint supplier_id);
 void epos_esupplier_GetDbData (EPosESupplier* self, gint supplier_id);
@@ -1165,6 +1257,14 @@ const gchar* epos_esupplier_get_City (EPosESupplier* self);
 const gchar* epos_esupplier_get_Email (EPosESupplier* self);
 const gchar* epos_esupplier_get_ContactPerson (EPosESupplier* self);
 const gchar* epos_esupplier_get_Key (EPosESupplier* self);
+GType epos_etax_rate_get_type (void) G_GNUC_CONST;
+EPosETaxRate* epos_etax_rate_new (void);
+EPosETaxRate* epos_etax_rate_construct (GType object_type);
+EPosETaxRate* epos_etax_rate_new_from_id (gint id);
+EPosETaxRate* epos_etax_rate_construct_from_id (GType object_type, gint id);
+gint epos_etax_rate_get_Id (EPosETaxRate* self);
+const gchar* epos_etax_rate_get_Name (EPosETaxRate* self);
+gdouble epos_etax_rate_get_Rate (EPosETaxRate* self);
 GType woocommerce_invoice_ticket_invoice_get_type (void) G_GNUC_CONST;
 WoocommerceInvoiceTicketInvoice* woocommerce_invoice_ticket_invoice_new (void);
 WoocommerceInvoiceTicketInvoice* woocommerce_invoice_ticket_invoice_construct (GType object_type);
@@ -1182,6 +1282,17 @@ gchar* woocommerce_invoice_ticket_invoice_TextRight (WoocommerceInvoiceTicketInv
 gfloat woocommerce_invoice_ticket_invoice_Pixel2Mm (WoocommerceInvoiceTicketInvoice* self, gfloat _pix);
 gfloat woocommerce_invoice_ticket_invoice_Mm2Pixel (WoocommerceInvoiceTicketInvoice* self, gfloat _mm);
 void woocommerce_invoice_ticket_invoice_buildPageFrame (WoocommerceInvoiceTicketInvoice* self);
+GType epos_widget_item_types_get_type (void) G_GNUC_CONST;
+EPosWidgetItemTypes* epos_widget_item_types_new (void);
+EPosWidgetItemTypes* epos_widget_item_types_construct (GType object_type);
+void epos_widget_item_types_Build (EPosWidgetItemTypes* self);
+void epos_widget_item_types_SetEvents (EPosWidgetItemTypes* self);
+void epos_widget_item_types_Refresh (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonAddClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonEditClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonDeleteClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonCancelClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonSaveClicked (EPosWidgetItemTypes* self);
 GType epos_widget_assemblies_get_type (void) G_GNUC_CONST;
 EPosWidgetAssemblies* epos_widget_assemblies_new (void);
 EPosWidgetAssemblies* epos_widget_assemblies_construct (GType object_type);
@@ -1240,17 +1351,6 @@ void woocommerce_widget_iventory_OnComboboxCategoryChanged (WoocommerceWidgetIve
 void woocommerce_widget_iventory_OnButtonRefreshProductsClicked (WoocommerceWidgetIventory* self);
 void woocommerce_widget_iventory_OnPrintCatalogActivated (WoocommerceWidgetIventory* self);
 void woocommerce_widget_iventory_OnPrintLabelsActivated (WoocommerceWidgetIventory* self);
-GType epos_widget_item_types_get_type (void) G_GNUC_CONST;
-EPosWidgetItemTypes* epos_widget_item_types_new (void);
-EPosWidgetItemTypes* epos_widget_item_types_construct (GType object_type);
-void epos_widget_item_types_Build (EPosWidgetItemTypes* self);
-void epos_widget_item_types_SetEvents (EPosWidgetItemTypes* self);
-void epos_widget_item_types_Refresh (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonAddClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonEditClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonDeleteClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonCancelClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonSaveClicked (EPosWidgetItemTypes* self);
 GType epos_window_new_assembly_get_type (void) G_GNUC_CONST;
 EPosWindowNewAssembly* epos_window_new_assembly_new (void);
 EPosWindowNewAssembly* epos_window_new_assembly_construct (GType object_type);
@@ -1304,20 +1404,6 @@ void woocommerce_widget_product_lines_OnButtonEditClicked (WoocommerceWidgetProd
 void woocommerce_widget_product_lines_OnButtonDeleteClicked (WoocommerceWidgetProductLines* self);
 void woocommerce_widget_product_lines_OnButtonCancelClicked (WoocommerceWidgetProductLines* self);
 void woocommerce_widget_product_lines_OnButtonSaveClicked (WoocommerceWidgetProductLines* self);
-GType woocommerce_widget_purchase_orders_get_type (void) G_GNUC_CONST;
-GType woocommerce_widget_purchase_orders_columns_get_type (void) G_GNUC_CONST;
-WoocommerceWidgetPurchaseOrders* woocommerce_widget_purchase_orders_new (void);
-WoocommerceWidgetPurchaseOrders* woocommerce_widget_purchase_orders_construct (GType object_type);
-void woocommerce_widget_purchase_orders_Build (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_FillForm (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_SetEvents (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnComboBoxStoresChanged (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnComboBoxStatusChanged (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnButtonNewClicked (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnButtonEditClicked (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnButtonReceiveClicked (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_OnButtonCancelClicked (WoocommerceWidgetPurchaseOrders* self);
-void woocommerce_widget_purchase_orders_GetOrders (WoocommerceWidgetPurchaseOrders* self, gint store_id, const gchar* status, gint page, gint limit);
 GType woocommerce_widget_purchase_order_get_type (void) G_GNUC_CONST;
 GType woocommerce_widget_purchase_order_columns_get_type (void) G_GNUC_CONST;
 WoocommerceWidgetPurchaseOrder* woocommerce_widget_purchase_order_new (void);
@@ -1337,6 +1423,21 @@ void woocommerce_widget_purchase_order_OnButtonCancelClicked (WoocommerceWidgetP
 void woocommerce_widget_purchase_order_SetOrder (WoocommerceWidgetPurchaseOrder* self, WoocommercePurchaseOrder* order);
 void woocommerce_widget_purchase_order_OnButtonReceiveClicked (WoocommerceWidgetPurchaseOrder* self);
 void woocommerce_widget_purchase_order_set_Title (WoocommerceWidgetPurchaseOrder* self, const gchar* value);
+GType woocommerce_widget_purchase_orders_get_type (void) G_GNUC_CONST;
+GType woocommerce_widget_purchase_orders_columns_get_type (void) G_GNUC_CONST;
+WoocommerceWidgetPurchaseOrders* woocommerce_widget_purchase_orders_new (void);
+WoocommerceWidgetPurchaseOrders* woocommerce_widget_purchase_orders_construct (GType object_type);
+void woocommerce_widget_purchase_orders_Build (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_FillForm (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_SetEvents (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnComboBoxStoresChanged (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnComboBoxStatusChanged (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnButtonNewClicked (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnButtonEditClicked (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnButtonReceiveClicked (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnButtonCancelClicked (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_OnButtonPreviewClicked (WoocommerceWidgetPurchaseOrders* self);
+void woocommerce_widget_purchase_orders_GetOrders (WoocommerceWidgetPurchaseOrders* self, gint store_id, const gchar* status, gint page, gint limit);
 GType woocommerce_widget_suppliers_get_type (void) G_GNUC_CONST;
 GType woocommerce_widget_suppliers_columns_get_type (void) G_GNUC_CONST;
 WoocommerceWidgetSuppliers* woocommerce_widget_suppliers_new (void);
@@ -1347,16 +1448,6 @@ void woocommerce_widget_suppliers_SetEvents (WoocommerceWidgetSuppliers* self);
 void woocommerce_widget_suppliers_OnButtonNewClicked (WoocommerceWidgetSuppliers* self);
 void woocommerce_widget_suppliers_OnButtonEditClicked (WoocommerceWidgetSuppliers* self);
 void woocommerce_widget_suppliers_FillSuppliers (WoocommerceWidgetSuppliers* self);
-GType woocommerce_widget_transactions_get_type (void) G_GNUC_CONST;
-GType woocommerce_widget_transactions_columns_get_type (void) G_GNUC_CONST;
-WoocommerceWidgetTransactions* woocommerce_widget_transactions_new (void);
-WoocommerceWidgetTransactions* woocommerce_widget_transactions_construct (GType object_type);
-void woocommerce_widget_transactions_Build (WoocommerceWidgetTransactions* self);
-void woocommerce_widget_transactions_SetEvents (WoocommerceWidgetTransactions* self);
-void woocommerce_widget_transactions_OnComboBoxStoreChanged (WoocommerceWidgetTransactions* self);
-void woocommerce_widget_transactions_OnComboBoxTransactionTypeChanged (WoocommerceWidgetTransactions* self);
-void woocommerce_widget_transactions_FillTransactions (WoocommerceWidgetTransactions* self, GeeArrayList* records);
-void woocommerce_widget_transactions_OnButtonViewClicked (WoocommerceWidgetTransactions* self);
 GType woocommerce_widget_transaction_types_get_type (void) G_GNUC_CONST;
 WoocommerceWidgetTransactionTypes* woocommerce_widget_transaction_types_new (void);
 WoocommerceWidgetTransactionTypes* woocommerce_widget_transaction_types_construct (GType object_type);
@@ -1369,6 +1460,16 @@ void woocommerce_widget_transaction_types_OnButtonEditClicked (WoocommerceWidget
 void woocommerce_widget_transaction_types_OnButtonDeleteClicked (WoocommerceWidgetTransactionTypes* self);
 void woocommerce_widget_transaction_types_OnButtonCancelClicked (WoocommerceWidgetTransactionTypes* self);
 void woocommerce_widget_transaction_types_OnButtonSaveClicked (WoocommerceWidgetTransactionTypes* self);
+GType woocommerce_widget_transactions_get_type (void) G_GNUC_CONST;
+GType woocommerce_widget_transactions_columns_get_type (void) G_GNUC_CONST;
+WoocommerceWidgetTransactions* woocommerce_widget_transactions_new (void);
+WoocommerceWidgetTransactions* woocommerce_widget_transactions_construct (GType object_type);
+void woocommerce_widget_transactions_Build (WoocommerceWidgetTransactions* self);
+void woocommerce_widget_transactions_SetEvents (WoocommerceWidgetTransactions* self);
+void woocommerce_widget_transactions_OnComboBoxStoreChanged (WoocommerceWidgetTransactions* self);
+void woocommerce_widget_transactions_OnComboBoxTransactionTypeChanged (WoocommerceWidgetTransactions* self);
+void woocommerce_widget_transactions_FillTransactions (WoocommerceWidgetTransactions* self, GeeArrayList* records);
+void woocommerce_widget_transactions_OnButtonViewClicked (WoocommerceWidgetTransactions* self);
 GType woocommerce_widget_unit_of_measurement_get_type (void) G_GNUC_CONST;
 WoocommerceWidgetUnitOfMeasurement* woocommerce_widget_unit_of_measurement_new (void);
 WoocommerceWidgetUnitOfMeasurement* woocommerce_widget_unit_of_measurement_construct (GType object_type);
@@ -1400,6 +1501,7 @@ GeeArrayList* woocommerce_inventory_helper_GetPurchaseOrders (gint store_id, gin
 GeeArrayList* woocommerce_inventory_helper_GetDepartments (void);
 GeeArrayList* woocommerce_inventory_helper_GetUnitOfMeasures (void);
 GeeHashMap* woocommerce_inventory_helper_GetUnitOfMeasure (gint id);
+GeeArrayList* woocommerce_inventory_helper_GetSuppliers (void);
 WoocommerceInventoryHelper* woocommerce_inventory_helper_new (void);
 WoocommerceInventoryHelper* woocommerce_inventory_helper_construct (GType object_type);
 
