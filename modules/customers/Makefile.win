@@ -1,0 +1,42 @@
+VLIBS=--pkg gmodule-2.0 \
+		--pkg gee-1.0 \
+		--pkg libxml-2.0\
+		--pkg gtk+-3.0 \
+		--pkg sqlite3 \
+		--pkg SinticBolivia \
+		--pkg GtkSinticBolivia \
+		--pkg posix\
+		--pkg mysql
+		
+VFLAGS=--vapidir=../../../SinticBolivia \
+		--vapidir=../../../SinticBolivia/widgets
+		
+CFLAGS=-X -I/mingw/include \
+		-X -I/mingw/include/gee-1.0 \
+		-X -I/mingw/include/json-glib-1.0 \
+		-X -I/mingw/include/libsoup-2.4 \
+		-X -L/mingw/lib \
+		-X -I../../../libs/libmysqlclient-5.6.20/include\
+		-X -D__LCC__\
+		-X -I. \
+		-X -I../../../SinticBolivia \
+		-X -I../../../SinticBolivia/widgets \
+		-X -L../../../SinticBolivia/bin \
+		-X -L../../../SinticBolivia/widgets
+		
+CLIBS=-X -lgee\
+		-X -lSinticBolivia \
+		-X -lGtkSinticBolivia
+SOURCES=$(wildcard *.vala) $(wildcard widgets/*.vala) $(wildcard classes/*.vala)
+			
+MODULE_NAME=Customers
+LIB_NAME=libCustomers.dll
+
+all:
+	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
+	glib-compile-resources customers.gresource.xml
+install:
+	install $(LIB_NAME) /c/EPOS/modules/
+	install customers.gresource /c/EPOS/modules/
+clean: 
+	rm $(LIB_NAME) customers.gresource rm *.h rm *.vapi
