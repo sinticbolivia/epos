@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Pos">
+		<file compressed="true">ui/payment-methods.glade</file>
+		<file compressed="true">sql/pos.mysql.sql</file>
+	</gresource>
+</gresources>
