@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Customers">
+		<!--
+		<file>images/nobody.png</file>
+		<file>images/system-users-64x64.png</file>
+		<file>images/roles-icon-64x64.png</file>
+		
+		-->
+		<file compressed="true">sql/customers.sqlite3.sql</file>
+		<file>images/nobody.png</file>
+		<file>images/nobody-80x80.png</file>
+		<file>images/customer-icon-64x64.png</file>
+		<file compressed="true">ui/customers.glade</file>
+		<file compressed="true">ui/new-customer.glade</file>
+	</gresource>
+</gresources>
