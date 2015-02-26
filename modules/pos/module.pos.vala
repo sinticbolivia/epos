@@ -1,5 +1,6 @@
 using GLib;
 using Gee;
+using Gtk;
 using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
@@ -59,6 +60,29 @@ namespace EPos
 		{
 			var hook0 = new SBModuleHook(){HookName = "init_menu_management", handler = init_menu_management};
 			SBModules.add_action("init_menu_management", ref hook0);
+			var hook1 = new SBModuleHook(){HookName = "init_sidebar", handler = init_sidebar};
+			SBModules.add_action("init_sidebar", ref hook1);
+		}
+		public static void init_sidebar(SBModuleArgs<HashMap> args)
+		{
+			var data = (HashMap<string, Widget>)args.GetData();
+			var box = (Box)data["quickicons"];
+			var nb = (SBNotebook)SBGlobals.GetVar("notebook");
+			var btn_pos = new Button();
+			btn_pos.image = new Image.from_pixbuf((SBModules.GetModule("Pos") as SBGtkModule).GetPixbuf("sale-icon-48x48.png"));
+			btn_pos.show();
+			btn_pos.clicked.connect( () => 
+			{
+				if(nb.GetPage("retail-pos") == null )
+				{
+					var w = new WidgetRetailPos();
+					w.show();
+					nb.AddPage("retail-pos", SBText.__("Point of Sale (Retail)"), w);
+				}
+				nb.SetCurrentPageById("retail-pos");
+			});
+			box.add(btn_pos);
+			
 		}
 		public static void init_menu_management(SBModuleArgs<Gtk.Menu> args)
 		{

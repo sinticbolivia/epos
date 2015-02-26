@@ -429,7 +429,7 @@ namespace Woocommerce
 			var margs = new SBModuleArgs<HashMap>();
 			var data = new HashMap<string, Widget>();
 			data.set("quickicons", this._boxQuickIcons);
-			data.set("notebook", this.notebook);
+			//data.set("notebook", this.notebook);
 			margs.SetData(data);
 			SBModules.do_action("init_sidebar", margs);
 			

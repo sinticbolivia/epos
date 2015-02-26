@@ -7,6 +7,8 @@
 		<file compressed="true">ui/wc-pos.glade</file>
 		<file compressed="true">ui/retail-pos.glade</file>
 		<file compressed="true">images/customer-48x48.png</file>
+		<file compressed="true">images/pos-48x48.png</file>
+		<file compressed="true">images/sale-icon-48x48.png</file>
 		<file compressed="true">sql/pos.mysql.sql</file>
 	</gresource>
 </gresources>
