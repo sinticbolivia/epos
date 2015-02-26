@@ -204,6 +204,29 @@ namespace Woocommerce
 		}
 		protected void OnButtonReceiveClicked()
 		{
+			TreeModel model;
+			TreeIter iter;
+			
+			if( !this.treeviewOrders.get_selection().get_selected(out model, out iter) )
+			{
+				var err = new InfoDialog("error")
+				{
+					Title = SBText.__("Preview error"),
+					Message = SBText.__("You need to select a purchase order.")
+				};
+				err.run();
+				err.destroy();
+				return;
+			}
+			Value order_id;
+			model.get_value(iter, Columns.ORDER_ID, out order_id);
+			var order = new Woocommerce.PurchaseOrder.from_id((int)order_id);
+			var nb = (SBNotebook)SBGlobals.GetVar("notebook");
+			var w = new EPos.WidgetReceivePurchaseOrder(order);
+			w.show();
+			string tab_id = "receive-purchase-order-%d".printf(order.Id);
+			nb.AddPage(tab_id, SBText.__("Receive Order"), w);
+			nb.SetCurrentPageById(tab_id);
 		}
 		protected void OnButtonCancelClicked()
 		{

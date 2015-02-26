@@ -125,12 +125,14 @@ CREATE TABLE IF NOT EXISTS purchase_order_items(
 	order_id				integer not null,
 	name					varchar(250),
 	quantity				integer,
+	quantity_received		integer default 0,
 	supply_price			decimal(10,2),
 	subtotal				decimal(10,2),
 	tax_rate				decimal(10,2),
 	total_tax				decimal(10,2),
 	discount				decimal(10,2),
 	total					decimal(10,2),
+	status					varchar(128),
 	last_modification_date 	datetime,
 	creation_date 			datetime
 );

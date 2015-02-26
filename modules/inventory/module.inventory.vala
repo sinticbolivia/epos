@@ -32,6 +32,7 @@ namespace Woocommerce
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			if( dbh.Engine == "mysql" )
 			{
+				/*
 				string query = "SHOW columns FROM purchase_orders WHERE Field = 'supplier_id'";
 				if( dbh.GetRow(query) == null )
 				{
@@ -42,13 +43,20 @@ namespace Woocommerce
 				{
 					dbh.Execute("DROP TABLE purchase_order_items");
 				}
+				*/
+				string query = "SHOW columns FROM purchase_order_items WHERE Field = 'status'";
+				if( dbh.GetRow(query) == null )
+				{
+					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN status VARCHAR(128) AFTER total");
+					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN quantity_received INT DEFAULT 0 AFTER quantity");
+				}
 			}
 			
 		}
 		public void Enabled()
 		{
 			this.LoadResources();
-			this.ApplyPatches();
+			
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string sql_file = "";
 			
@@ -109,6 +117,7 @@ namespace Woocommerce
 					dbh.Insert("permissions", p);
 				}
 			}
+			this.ApplyPatches();
 			dbh.EndTransaction();
 		}		
 		public void Disabled()
@@ -225,6 +234,20 @@ namespace Woocommerce
 				notebook.SetCurrentPageById("purchase_orders");
 			});
 			menuitem_inventory.submenu.add(menuitem_purchase_order);
+			
+			var mi_transfer = new Gtk.MenuItem.with_label(SBText.__("Stock Transfers"));
+			mi_transfer.show();
+			mi_transfer.activate.connect( () => 
+			{
+				if( notebook.GetPage("stock_transfers") == null )
+				{
+					var w = new EPos.WidgetStockTransfers();
+					w.show();
+					notebook.AddPage("stock_transfers", SBText.__("Stock Transfers"), w);
+				}
+				notebook.SetCurrentPageById("stock_transfers");
+			});
+			menuitem_inventory.submenu.add(mi_transfer);
 			
 			var menuitem_suppliers = new Gtk.MenuItem.with_label(SBText.__("Suppliers"));
 			menuitem_suppliers.show();

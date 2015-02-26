@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
 	<gresource prefix="/net/sinticbolivia/Pos">
+		<file compressed="true">ui/new-promotional-price.glade</file>
+		<file compressed="true">ui/promotional-prices.glade</file>
 		<file compressed="true">ui/payment-methods.glade</file>
+		<file compressed="true">ui/wc-pos.glade</file>
+		<file compressed="true">ui/retail-pos.glade</file>
+		<file compressed="true">images/customer-48x48.png</file>
 		<file compressed="true">sql/pos.mysql.sql</file>
 	</gresource>
 </gresources>

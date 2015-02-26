@@ -80,9 +80,9 @@ namespace Woocommerce
 				this._builder = new Builder ();
 				this._builder.add_from_file (this._UI_FILE);
 				//this._builder.connect_signals (null);
-				SBGlobals.SetVar("main_gui_builder", (Object)this._builder);
-				this._mainWindow = this._builder.get_object ("windowMain") as Window;
-				this._menubarMain	= (MenuBar)this._builder.get_object("menubarMain");
+				//SBGlobals.SetVar("main_gui_builder", (Object)this._builder);
+				this._mainWindow 			= (Window)this._builder.get_object ("windowMain");
+				this._menubarMain			= (MenuBar)this._builder.get_object("menubarMain");
 				this._mainWindow.name 		= "windowMain";
 				this._menuManagement		= (Gtk.Menu)this._builder.get_object("menuManagement");
 				this._boxMainContent		= (Box)this._builder.get_object("boxMainContent");
@@ -122,11 +122,11 @@ namespace Woocommerce
 				this.buttonHome.image = new Image.from_file(GLib.Environment.get_current_dir() + "/share/images/120.png");
 				this.buttonHome.image_position = PositionType.TOP;
 				this.buttonHome.set_size_request(48, 48);
-				this.buttonPointOfSale = (Button)this._builder.get_object("buttonPointOfSale");
-				this.buttonPointOfSale.label = null;
-				this.buttonPointOfSale.tooltip_text = SBText.__("Point of Sale");
-				this.buttonPointOfSale.image = new Image.from_file(GLib.Environment.get_current_dir() + "/share/images/sale-icon.png");
-				this.buttonPointOfSale.image_position = PositionType.TOP;
+				//this.buttonPointOfSale = (Button)this._builder.get_object("buttonPointOfSale");
+				//this.buttonPointOfSale.label = null;
+				//this.buttonPointOfSale.tooltip_text = SBText.__("Point of Sale");
+				//this.buttonPointOfSale.image = new Image.from_file(GLib.Environment.get_current_dir() + "/share/images/sale-icon.png");
+				//this.buttonPointOfSale.image_position = PositionType.TOP;
 				this.SetStyles();
 			} 
 			catch (Error e) 
@@ -137,7 +137,6 @@ namespace Woocommerce
 			SBGlobals.SetVar("notebook", this.notebook);
 			this.Build();
 			this.SetEvents();
-			//stderr.printf(this._UI_FILE);
 			this.notebook.show_all();
 		}
 		protected void SetStyles()
@@ -171,6 +170,7 @@ namespace Woocommerce
 				stdout.printf("Key code: %u\n", args.keyval);
 				if( (int)args.keyval ==  65513) //left alt
 				{
+					/*
 					if( this._menubarMain.visible )
 					{
 						this._menubarMain.visible = false;
@@ -180,6 +180,7 @@ namespace Woocommerce
 						this._menubarMain.visible = true;
 						this._menubarMain.show_all();
 					}
+					*/
 				}
 				return false;
 			});

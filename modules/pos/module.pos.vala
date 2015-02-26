@@ -83,6 +83,20 @@ namespace EPos
 				notebook.SetCurrentPageById("payment-methods");
 			});
 			mi_pos.submenu.add(mi_payment_method);
+			
+			var mi_rpos = new Gtk.MenuItem.with_label(SBText.__("Point of Sale"));
+			mi_rpos.show();
+			mi_rpos.activate.connect( () => 
+			{
+				if( notebook.GetPage("retail-pos") == null )
+				{
+					var w = new EPos.WidgetRetailPos();
+					w.show();
+					notebook.AddPage("retail-pos", SBText.__("Point of Sale"), w);
+				}
+				notebook.SetCurrentPageById("retail-pos");
+			});
+			mi_pos.submenu.add(mi_rpos);
 		}
 	}
 }

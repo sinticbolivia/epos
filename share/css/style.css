@@ -72,6 +72,7 @@
 @define-color entry_border_color #0088cc;
 @define-color dark_bg_color #4A4545;
 @define-color menu_item_hover_color #3e9b33;
+@define-color list_item_hover_bg_color #0088CC;
 /**********************/
 /*** common classes ***/
 /**********************/
@@ -92,8 +93,6 @@ GtkWindow, GtkContainer, GtkBox, GtkHBox, GtkVBox
 	border:1px solid @border_color;
 }
 GtkPaned{border:none;}
-GtkTreeView{color:#222;border:none;}
-
 /*
 GtkTreeView GtkCellLayout{border:none;}
 GtkTreeView GtkCellRenderer{color:#222;}
@@ -341,10 +340,8 @@ GtkButton.check:prelight { /** hover **/
 .check:active, GtkButton.check:active:prelight {
 	background-image: -gtk-gradient(linear, left center, left bottom, from(#0088CC), to(#0088CC));
 }
-.check:hover{border-color:#0088CC;}
-.check:active:insensitive {
-    background-image: -gtk-win32-theme-part(button, 3 8);
-}
+.check:hover{border-color:@list_item_hover_bg_color;}
+.check:active:insensitive {background-image: -gtk-win32-theme-part(button, 3 8);}
 .check:inconsistent {
     background-image: -gtk-win32-theme-part(button, 3 9);
 }
@@ -383,6 +380,7 @@ GtkEventBox#eventboxQuickIcons{background-color: #4A4545;background-image:-gtk-g
 /*********************/
 /** treeview styles **/
 /*********************/
+GtkTreeView{color:#222;border:none;}
 GtkTreeView .button
 {
 	border-radius: 0px;
@@ -391,11 +389,15 @@ GtkTreeView row:nth-child(even) {
 	background-color: #ececec;
 }
 GtkTreeView row:nth-child(odd) {
-       /*background-color: shade(@base_color, 1.0);*/
+	/*background-color: shade(@base_color, 1.0);*/
 }
 GtkTreeView row:active, GtkTreeView row:focus, GtkTreeView row:selected{background-color:#5454FB;color:#fff;}
 GtkTreeView GtkButton GtkBox GtkAlignment GtkLabel{font-weight:bold;}
 GtkTreeView GtkEntry{background:#fff;color:#000;}
+GtkTreeView.check, 
+GtkTreeView.check:active
+{background-color: #fff;background-image:none;border:1px solid @list_item_hover_bg_color;color:@list_item_hover_bg_color;}
+
 
 GtkButton.button-view-list{border-radius:8px 0px 0px 8px;}
 GtkButton.button-view-grid{border-radius:0px 8px 8px 0px;}
@@ -544,6 +546,14 @@ GtkScrolledWindow GtkViewport{border:0;}
 .info-dialog .button-close{border:0;padding:5px 10px}
 .info-dialog .button-close GtkLabel{color:#fff;font-weight:bold;border:1px solid #6e1416;border:0;}
 
+.info-dialog.success .header
+{
+	background-color: #00AF00;
+	background-image: linear-gradient(#00AF00, #1FBE1F);
+}
+.info-dialog.success .button-close{background-image: linear-gradient(#00AF00, #1FBE1F);}
+.info-dialog.success .button-close:active{background-image: linear-gradient(#00a1cb, #00a1cb);}
+
 .info-dialog.info .button-close{background-image: -gtk-gradient(linear, left top, left bottom, from (#01B9E9), to (#00a1cb));}
 .info-dialog.info .button-close:active{background-image: linear-gradient(#00a1cb, #00a1cb);}
 
@@ -580,4 +590,17 @@ GtkScrolledWindow GtkViewport{border:0;}
 .button-print GtkLabel,.button-preview GtkLabel{font-size:0;color:transparent;padding:12px 12px;}
 .button-print GtkLabel{background-image: url("../images/print-icon-24x24.png");background-repeat: space;}
 .button-preview GtkLabel{background-image: url('../images/preview-icon-24x24.png');background-repeat: space;}
+/*******************************/
+/********** GtkFrame Styles ****/
+/*******************************/
+GtkFrame{padding:25px 15px 10px 0px;}
+GtkFrame > GtkLabel{padding:0 5px}
+GtkStatusbar GtkFrame{padding:0;}
 
+/*************************************/
+/********* Retail Pos styles *********/
+/*************************************/
+.box-retail-pos-totals{}
+.box-retail-pos-totals GtkFrame{background:#b9dfeb;box-shadow: inset 0px 0px 1px alpha(black, 1);}
+.box-retail-pos-totals GtkFrame > GtkLabel{font-size: 17px;}
+.box-retail-pos-totals GtkFrame GtkAlignment GtkLabel{font-size: 25px;}

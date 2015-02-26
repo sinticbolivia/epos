@@ -21,12 +21,15 @@
 		<file>images/currencies02-64x64.png</file>
 		<file>images/assembly-64x64.png</file>
 		<file>images/purchase-order-icon-64x64.png</file>
+		<file>images/receive-order-icon-64x64.png</file>
+		<file>images/stock-transfer-icon-64x64.png</file>
 		<file compressed="true">ui/products.glade</file>
 		<file compressed="true">ui/new-product.glade</file>
 		<file compressed="true">ui/transactions.glade</file>
 		<file compressed="true">ui/inventory-report.glade</file>
 		<file compressed="true">ui/purchase-orders.glade</file>
 		<file compressed="true">ui/purchase-order.glade</file>
+		<file compressed="true">ui/receive-purchase-order.glade</file>
 		<file compressed="true">ui/suppliers.glade</file>
 		<file compressed="true">ui/new-supplier.glade</file>
 		<file compressed="true">ui/transaction-types.glade</file>
@@ -38,6 +41,7 @@
 		<file compressed="true">ui/item-types.glade</file>
 		<file compressed="true">ui/assemblies.glade</file>
 		<file compressed="true">ui/new-assembly.glade</file>
+		<file compressed="true">ui/stock-transfer.glade</file>
 		<file compressed="true">sql/inventory.sqlite3.sql</file>
 		<file compressed="true">sql/inventory.mysql.sql</file>
 		<!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->

@@ -466,7 +466,8 @@ namespace Woocommerce
 			string cdate 	= new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
 			int store_id 	= int.parse(this.comboboxStores.active_id);
 			int supplier_id = int.parse(this.comboboxSuppliers.active_id);
-			
+			var store		= new SBStore.from_id(store_id);
+			var transaction_type = new SBTransactionType.from_id(store.PurchaseTransactionTypeId); 
 			double order_total = 0;
 			double total_tax	= double.parse(this.labelTotalTax.label);
 			double sub_total	= double.parse(this.labelSubTotal.label);
@@ -525,6 +526,13 @@ namespace Woocommerce
 				order.set("creation_date", cdate);
 				
 				long order_id = dbh.Insert("purchase_orders", order);
+				//##Set purchar order code
+				string code = "%s-%s".printf(transaction_type.Key, Utils.FillCeros((int)order_id, 6));
+				var data = new HashMap<string, Value?>();
+				var w = new HashMap<string, Value?>();
+				data.set("code", code);
+				w.set("order_id", order_id);
+				dbh.Update("purcharse_orders", data, w);
 				foreach(HashMap<string, Value?> item in items)
 				{
 					item.set("order_id", order_id);
@@ -574,7 +582,10 @@ namespace Woocommerce
 		public void SetOrder(PurchaseOrder order)
 		{
 			this.comboboxStores.active_id 	= order.StoreId.to_string();
+			this.comboboxSuppliers.active_id = order.SupplierId.to_string();
 			this.entryDetails.text 			= order.Details;
+			this.labelSubTotal.label				= "%.2f".printf(order.SubTotal);
+			this.labelTotalTax.label				= "%.2f".printf(order.TaxTotal);
 			this.labelTotal.label 			= "%.2f".printf(order.Total);
 			//fill items
 			(this.treeviewProducts.model as ListStore).clear();
@@ -597,10 +608,14 @@ namespace Woocommerce
 					Columns.CURRENT_QTY, prod.Quantity,
 					Columns.QTY, qty,
 					Columns.COST, "%.2f".printf(cost),
+					Columns.SUB_TOTAL, "%.2f".printf(item.GetDouble("subtotal")),
+					Columns.TAX, "%.2f".printf(item.GetDouble("total_tax")),
 					Columns.TOTAL, "%.2f".printf(qty * cost),
 					Columns.IMAGE, remove_img,
-					Columns.PRODUCT_ID, prod.Id
+					Columns.PRODUCT_ID, prod.Id,
+					Columns.TAX_RATE, "%.2f".printf(item.GetDouble("tax_rate"))
 				);
+				this.calculateRowTotal(p_iter);
 			}
 			this.order = order;
 			
@@ -622,6 +637,13 @@ namespace Woocommerce
 		}
 		protected void OnButtonReceiveClicked()
 		{
+			var w = new WidgetReceivePurchaseOrder(this.order);
+			var nb = (SBNotebook)SBGlobals.GetVar("notebook");
+			string tab_id = "receive-purchase-order-%d".printf(this.order.Id);
+			
+			nb.AddPage(tab_id, SBText.__("Receive Order #%s").printf(this.order.Code), w);
+			nb.SetCurrentPageById(tab_id);
+			/*
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			dbh.BeginTransaction();
 			foreach(SBDBRow item in this.order.Items)
@@ -639,6 +661,7 @@ namespace Woocommerce
 			msg.run();
 			msg.destroy();
 			GLib.Signal.emit_by_name(this.buttonCancel, "clicked");
+			*/
 		}
 	}
 }
