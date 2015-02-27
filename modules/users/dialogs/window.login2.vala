@@ -131,12 +131,15 @@ namespace Woocommerce
 			data.set("password", password);
 			args.SetData(data);
 			SBModules.do_action("authenticate", args);
+			
 			if( (string)data["result"] == "ok" )
 			{
 				logged = true;
 				this.set_data<string>("is_authenticated", "yes");
-				this.destroy();
+				stdout.printf("USERNAME: %s\n", (data["user"] as SBUser).Username);
+				SBGlobals.SetVar("user", (Object)data["user"]);
 				GLib.Source.remove(this.timeoutId);
+				this.destroy();
 			}
 			else
 			{

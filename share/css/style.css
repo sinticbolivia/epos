@@ -73,10 +73,7 @@
 @define-color dark_bg_color #4A4545;
 @define-color menu_item_hover_color #3e9b33;
 @define-color list_item_hover_bg_color #0088CC;
-/**********************/
-/*** common classes ***/
-/**********************/
-.no-border{border:0;}
+
 *
 {
 	/*font: condensed 10;
@@ -601,6 +598,13 @@ GtkStatusbar GtkFrame{padding:0;}
 /********* Retail Pos styles *********/
 /*************************************/
 .box-retail-pos-totals{}
-.box-retail-pos-totals GtkFrame{background:#b9dfeb;box-shadow: inset 0px 0px 1px alpha(black, 1);}
-.box-retail-pos-totals GtkFrame > GtkLabel{font-size: 17px;}
-.box-retail-pos-totals GtkFrame GtkAlignment GtkLabel{font-size: 25px;}
+.box-retail-pos-totals GtkFrame,
+.box-retail-pos-totals GtkFrame GtkAlignment GtkLabel{background:#b9dfeb;box-shadow: inset 0px 0px 1px alpha(black, 1);}
+.box-retail-pos-totals GtkFrame > GtkLabel{font-size:17;}
+.box-retail-pos-totals GtkFrame GtkAlignment GtkLabel{font-size: 25;}
+.dialog-retail-comments GtkViewport{border:1px solid @border_color;}
+/**********************/
+/*** common classes ***/
+/**********************/
+.no-border{border:0;}
+.border{border:1px solid @border_color;}

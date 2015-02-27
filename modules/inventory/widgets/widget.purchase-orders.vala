@@ -118,7 +118,7 @@ namespace Woocommerce
 			string[,] statuses = 
 			{
 			    {SBText.__("Waiting Orders"), "waiting"},
-			    {SBText.__("Received Orders"), "received"},
+			    {SBText.__("Completed Orders"), "completed"},
 			    {SBText.__("Cancelled Orders"), "cancelled"},
 			};
 			for(int i = 0; i < statuses.length[0]; i++)
@@ -230,6 +230,40 @@ namespace Woocommerce
 		}
 		protected void OnButtonCancelClicked()
 		{
+			TreeModel model;
+			TreeIter iter;
+			
+			if( !this.treeviewOrders.get_selection().get_selected(out model, out iter) )
+			{
+				var err = new InfoDialog("error")
+				{
+					Title = SBText.__("Cancel order error"),
+					Message = SBText.__("You need to select an order.")
+				};
+				err.run();
+				err.destroy();
+				return;
+			}
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			Value order_id;
+			model.get_value(iter, Columns.ORDER_ID, out order_id);
+			var confirm = new InfoDialog("info")
+			{
+				Title = SBText.__("Cancel order"),
+				Message = SBText.__("Are you sure to cancel the order?")
+			};
+			var btn = (Button)confirm.add_button(SBText.__("Yes"), ResponseType.YES);
+			btn.get_style_context().add_class("button-green");
+			if( confirm.run() == ResponseType.YES )
+			{
+				var data = new HashMap<string, Value?>();
+				data.set("status", "cancelled");
+				var w = new HashMap<string, Value?>();
+				w.set("order_id", (int)order_id);
+				dbh.Update("purchase_orders", data, w);
+			}
+			confirm.destroy();
+			this.RefreshOrders();
 		}
 		protected void OnButtonPreviewClicked()
 		{
@@ -435,6 +469,21 @@ namespace Woocommerce
 			
 			//catalog.Save();			
 			catalog.Preview();
+		}
+		protected void RefreshOrders()
+		{
+			if( this.comboboxStores.active_id == null || this.comboboxStores.active_id == "-1")
+		    {
+		        (this.treeviewOrders.model as ListStore).clear();
+		        return;
+		    }
+		    int store_id = int.parse(this.comboboxStores.active_id);
+		    string? status = null;
+		    if( this.comboboxStatus.active_id != "-1")
+		    {
+		        status = this.comboboxStatus.active_id;
+		    }
+		    this.GetOrders(store_id, status);
 		}
 		protected void GetOrders(int store_id, string? status = null, int page = 1, int limit = 100)
 		{

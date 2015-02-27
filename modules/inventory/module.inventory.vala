@@ -32,18 +32,18 @@ namespace Woocommerce
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			if( dbh.Engine == "mysql" )
 			{
-				/*
-				string query = "SHOW columns FROM purchase_orders WHERE Field = 'supplier_id'";
-				if( dbh.GetRow(query) == null )
+				string o_query = "SHOW columns FROM purchase_orders WHERE Field = 'r_subtotal'";
+				if( dbh.GetRow(o_query) ==  null )
 				{
-					dbh.Execute("DROP TABLE purchase_orders");
+					dbh.Execute("ALTER TABLE purchase_orders ADD COLUMN r_subtotal DECIMAL(10,2) AFTER total");
+					dbh.Execute("ALTER TABLE purchase_orders ADD COLUMN r_total_tax DECIMAL(10,2) AFTER r_subtotal");
+					dbh.Execute("ALTER TABLE purchase_orders ADD COLUMN r_discount DECIMAL(10,2) AFTER r_total_tax");
+					dbh.Execute("ALTER TABLE purchase_orders ADD COLUMN r_total DECIMAL(10,2) AFTER r_discount");
+					
+					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN r_subtotal DECIMAL(10,2) AFTER total");
+					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN r_total_tax DECIMAL(10,2) AFTER r_subtotal");
+					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN r_total DECIMAL(10,2) AFTER r_total_tax");
 				}
-				query = "SHOW columns FROM purchase_order_items WHERE Field = 'subtotal'";
-				if( dbh.GetRow(query) == null )
-				{
-					dbh.Execute("DROP TABLE purchase_order_items");
-				}
-				*/
 				string query = "SHOW columns FROM purchase_order_items WHERE Field = 'status'";
 				if( dbh.GetRow(query) == null )
 				{
@@ -103,6 +103,17 @@ namespace Woocommerce
 				{"create_departments", "", SBText.__("Create Departments")},
 				{"edit_departments", "", SBText.__("Edit Departments")},
 				{"delete_departments", "", SBText.__("Delete Departments")},
+				{"manage_stores", "", SBText.__("Manage Stores")},
+				{"create_stores", "", SBText.__("Create Stores")},
+				{"edit_stores", "", SBText.__("Edit Stores")},
+				{"delete_stores", "", SBText.__("Delete Stores")},
+				//##purchase permissions
+				{"manage_purchase_orders", "", SBText.__("Manage Purchase Orders")},
+				{"create_purchase_orders", "", SBText.__("Create Purchase Orders")},
+				{"edit_purchase_orders", "", SBText.__("Edit Purchase Orders")},
+				{"receive_purchase_orders", "", SBText.__("Receive Purchase Orders")},
+				{"return_purchase_orders", "", SBText.__("Return Purchase Orders")},
+				{"cancell_purchase_orders", "", SBText.__("Cancell Purchase Orders")}
 			};
 			
 			dbh.BeginTransaction();
@@ -157,7 +168,7 @@ namespace Woocommerce
 		{
 			var data		= (HashMap<string,Widget>)harg.GetData();
 			var quick_icons = (Box)data.get("quickicons");
-			var notebook	= (SBNotebook)data.get("notebook");
+			var notebook	= (SBNotebook)SBGlobals.GetVar("notebook");
 			var btnProducts = new Button();
 			btnProducts.tooltip_text = SBText.__("Products");
 			//btnProducts.image = File.new_from_uri("resource:///net/sinticbolivia/Inventory/products-icon-48x48.png");

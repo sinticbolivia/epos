@@ -15,7 +15,8 @@ PKG=--pkg gmodule-2.0\
         --pkg mysql\
         --pkg SinticBolivia\
         --pkg GtkSinticBolivia\
-        --pkg libxml-2.0
+        --pkg libxml-2.0\
+        --pkg posix
         
 VAPI=--vapidir=../../../SinticBolivia \
         --vapidir=../../../SinticBolivia/widgets

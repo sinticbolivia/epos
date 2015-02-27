@@ -73,6 +73,7 @@ namespace EPos
 			btn_pos.show();
 			btn_pos.clicked.connect( () => 
 			{
+				
 				if(nb.GetPage("retail-pos") == null )
 				{
 					var w = new WidgetRetailPos();

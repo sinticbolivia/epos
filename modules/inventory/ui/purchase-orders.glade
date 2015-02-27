@@ -104,6 +104,19 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="buttonReturn">
+                    <property name="label" translatable="yes">Return</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="buttonCancel">
                     <property name="label" translatable="yes">_Cancel</property>
                     <property name="visible">True</property>
@@ -114,7 +127,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>

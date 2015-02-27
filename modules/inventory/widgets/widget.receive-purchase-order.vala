@@ -17,6 +17,7 @@ namespace EPos
 			COUNT,
 			PRODUCT_NAME,
 			QTY_ORDERED,
+			TOTAL_RECEIVED,
 			QTY_RECEIVED,
 			UNIT,
 			COST,
@@ -28,6 +29,7 @@ namespace EPos
 			ITEM_ID,
 			PRODUCT_ID,
 			TAX_RATE,
+			STATUS,
 			N_COLS
 		}
 		protected	Builder			ui;
@@ -80,6 +82,7 @@ namespace EPos
 				typeof(int), //count
 				typeof(string), //product name
 				typeof(int), //qty ordered
+				typeof(int),	//total received
 				typeof(int), //qty received
 				typeof(string), //U.O.M
 				typeof(string), //cost
@@ -90,23 +93,25 @@ namespace EPos
 				typeof(string), //total
 				typeof(int),	//item id
 				typeof(int),	//product id
-				typeof(string)	//tax rate
+				typeof(string),	//tax rate
+				typeof(string)
 			);
 			string[,] cols = 
 			{
-				{"", "toggle", "50", "center", "", ""},
-				{"", "markup", "50", "center", "", ""},
-				{"#", "text", "50", "center", "", ""},
+				{"", "toggle", "30", "center", "", ""},
+				{"", "markup", "30", "center", "", ""},
+				{"#", "text", "40", "center", "", ""},
 				{SBText.__("Product"), "text", "200", "left", "", ""},
 				{SBText.__("Qty Ordered"), "text", "50", "center", "", ""},
-				{SBText.__("Qty Received"), "text", "50", "center", "editable", ""},
+				{SBText.__("Received so far"), "text", "50", "center", "", ""},
+				{SBText.__("Qty to Receive"), "text", "50", "center", "editable", ""},
 				{SBText.__("Unit"), "text", "100", "left", "", ""},
 				{SBText.__("Cost"), "text", "80", "right", "", ""},
 				{SBText.__("Discount %"), "text", "80", "right", "editable", ""},
-				{SBText.__("Sub Total"), "text", "100", "right", "", ""},
+				{SBText.__("Sub Total"), "text", "90", "right", "", ""},
 				{SBText.__("Discount Amount"), "text", "100", "right", "", ""},
-				{SBText.__("Tax"), "text", "100", "right", "", ""},
-				{SBText.__("Total"), "text", "120", "right", "", ""}
+				{SBText.__("Tax"), "text", "70", "right", "", ""},
+				{SBText.__("Total"), "text", "90", "right", "", ""}
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewOrderItems);
 			this.treeviewOrderItems.rules_hint = true;
@@ -141,6 +146,24 @@ namespace EPos
 					status_color = status_color.printf("#CC0000", "#CC0000", status);
 				}
 				var prod = new EPos.EProduct.from_id(item.GetInt("product_id"));
+				int qty_total_received = item.GetInt("quantity_received");
+				int qty_ordered	= item.GetInt("quantity");
+				int qty_to_receive = 0;
+				
+				if( qty_total_received > 0 && qty_total_received < qty_ordered )
+				{
+					qty_to_receive = qty_ordered - qty_total_received;
+				}
+				else
+				{
+					qty_to_receive = qty_ordered;
+				}
+				double tax_rate 	= item.GetDouble("tax_rate");
+				double supply_price = item.GetDouble("supply_price");
+				double subtotal 	= qty_to_receive * supply_price;
+				double tax_amount 	= subtotal * (tax_rate/100);
+				double total		= subtotal + tax_amount;
+				
 				(this.treeviewOrderItems.model as ListStore).append(out iter);
 				(this.treeviewOrderItems.model as ListStore).set(iter,
 					Columns.SELECTED, true,
@@ -148,19 +171,28 @@ namespace EPos
 					Columns.COUNT, i,
 					Columns.PRODUCT_NAME, prod.Name,
 					Columns.QTY_ORDERED, item.GetInt("quantity"),
-					Columns.QTY_RECEIVED, item.GetInt("quantity"),
+					Columns.TOTAL_RECEIVED, qty_total_received,
+					Columns.QTY_RECEIVED, qty_to_receive,
 					Columns.UNIT, "",
-					Columns.COST, "%.2f".printf(item.GetDouble("supply_price")),
+					Columns.COST, "%.2f".printf(supply_price),
 					Columns.DISCOUNT, "0.00",
-					Columns.SUB_TOTAL, "%.2f".printf(item.GetDouble("subtotal")),
+					Columns.SUB_TOTAL, "%.2f".printf(subtotal),
 					Columns.DISCOUNT_AMOUNT, "0.00",
-					Columns.TAX, "%.2f".printf(item.GetDouble("total_tax")),
-					Columns.TOTAL, "%.2f".printf(item.GetDouble("total")),
+					Columns.TAX, "%.2f".printf(tax_amount),
+					Columns.TOTAL, "%.2f".printf(total),
 					Columns.ITEM_ID, item.GetInt("item_id"),
 					Columns.PRODUCT_ID, item.GetInt("product_id"),
-					Columns.TAX_RATE, "%.2f".printf(item.GetDouble("tax_rate"))
+					Columns.TAX_RATE, "%.2f".printf(tax_rate),
+					Columns.STATUS, status
 				);
 				i++;
+				
+			}
+			this.CalculateTotals();
+			if( this.order.Status == "completed" || this.order.Status == "cancelled")
+			{
+				this.buttonReceive.visible = false;
+				this.buttonCancel.label = SBText.__("Close");
 			}
 		}
 		protected void SetEvents()
@@ -187,9 +219,27 @@ namespace EPos
 		protected void OnCellQtyReceivedEdited(string path, string text)
 		{
 			int qty = int.parse(text.strip());
-				
+			Value v_qty_ordered, v_qty_received_so_far;
 			TreeIter iter;
 			this.treeviewOrderItems.model.get_iter(out iter, new TreePath.from_string(path));
+			
+			this.treeviewOrderItems.model.get_value(iter, Columns.QTY_ORDERED, out v_qty_ordered);
+			this.treeviewOrderItems.model.get_value(iter, Columns.TOTAL_RECEIVED, out v_qty_received_so_far);
+			
+			int qty_left = (int)v_qty_ordered - (int)v_qty_received_so_far;
+			
+			if( qty > qty_left )
+			{
+				var info = new InfoDialog()
+				{
+					Title = SBText.__("Quantity received error"),
+					Message = SBText.__("The quantity to receive is higher than the quantity you have ordered.")
+				};
+				info.run();
+				info.destroy();
+				qty = qty_left;
+			}
+			
 			(this.treeviewOrderItems.model as ListStore).set_value(iter, Columns.QTY_RECEIVED, qty);
 			this.CalculateRowTotal(iter);
 			this.CalculateTotals();
@@ -264,41 +314,97 @@ namespace EPos
 		{
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			bool all_received = true;
+			int total_items = 0;
+			string delivery_notes = "";
+			var delivery_items = new ArrayList<HashMap<string, Value?>>();
 			this.treeviewOrderItems.model.foreach( (model, tree, iter) => 
 			{
-				Value v_selected, v_qty_ordered, v_qty_received, v_item_id, v_product_id;
+				Value v_selected, v_qty_ordered, v_qty_total_received, v_qty_received, v_discount, v_subtotal, v_tax_amount,
+						v_total, v_item_id, v_product_id, v_current_status;
+						
 				model.get_value(iter, Columns.SELECTED, out v_selected);
 				model.get_value(iter, Columns.QTY_ORDERED, out v_qty_ordered);
+				model.get_value(iter, Columns.TOTAL_RECEIVED, out v_qty_total_received);
 				model.get_value(iter, Columns.QTY_RECEIVED, out v_qty_received);
+				model.get_value(iter, Columns.DISCOUNT_AMOUNT, out v_discount);
+				model.get_value(iter, Columns.SUB_TOTAL, out v_subtotal);
+				model.get_value(iter, Columns.TAX, out v_tax_amount);
+				model.get_value(iter, Columns.TOTAL, out v_total);
 				model.get_value(iter, Columns.ITEM_ID, out v_item_id);
 				model.get_value(iter, Columns.PRODUCT_ID, out v_product_id);
-				if( (bool)v_selected )
+				model.get_value(iter, Columns.STATUS, out v_current_status);
+				
+				if( (bool)v_selected && (string)v_current_status != "completed" )
 				{
-					string status = "completed";
-					if( (int)v_qty_received > 0 && (int)v_qty_received < (int)v_qty_ordered )
+					int received_so_far = (int)v_qty_total_received + (int)v_qty_received;
+					string status = "";
+					string note	= "";
+					if( received_so_far > 0 && received_so_far < (int)v_qty_ordered )
 					{
 						status = "partially";
 						all_received = false;
+						note = SBText.__("Order item #%d partially received, quantity received is %d of %d").printf((int)v_item_id, (int)v_qty_received, (int)v_qty_ordered);
 					}
-					else if( (int)v_qty_received <= 0 )
+					else if( received_so_far <= 0 )
 					{
 						status = "non_received";
 						all_received = false;
+						note = SBText.__("Order item #%d non received, quantity received is 0").printf((int)v_item_id);
 					}
+					else if( received_so_far == (int)v_qty_ordered)
+					{
+						status = "completed";
+						all_received = false;
+						note = SBText.__("Order item #%d received complety, quantity received is %d of %d").printf((int)v_item_id, (int)v_qty_received, (int)v_qty_ordered);
+					}
+					//##update order item
+					var order_item = new HashMap<string, Value?>();
+					order_item.set("quantity_received", received_so_far);
+					order_item.set("status", status);
 					
-					var item = new HashMap<string, Value?>();
-					item.set("quantity_received", (int)v_qty_received);
-					item.set("status", status);
 					var w = new HashMap<string, Value?>();
 					w.set("item_id", (int)v_item_id);
-					//dbh.Update("purchar_order_items", item, w);
+					dbh.Update("purchase_order_items", order_item, w);
+					
 					//##update products quantity
 					string query = "UPDATE products SET product_quantity = product_quantity + %d WHERE product_id = %d".
 									printf((int)v_qty_received, (int)v_product_id);
+					total_items += (int)v_qty_received;
+					//##build delivery item
+					var delivery_item = new HashMap<string, Value?>();
+					delivery_item.set("quantity_ordered", (int)v_qty_ordered);
+					delivery_item.set("supply_price", 0);
+					delivery_item.set("quantity_delivered", (int)v_qty_received);
+					delivery_item.set("sub_total", (int)v_qty_ordered);
+					delivery_item.set("total_tax", double.parse((string)v_tax_amount));
+					delivery_item.set("discount", double.parse((string)v_discount));
+					delivery_item.set("total", double.parse((string)v_total));
+					delivery_item.set("creation_date", new DateTime.now_local().format("%Y-%m-%d %H:%M:%S"));
+					delivery_items.add(delivery_item);
 					SBModules.do_action("purchar_order_item_received", null);
 				}
 				return false;
 			});
+			//##insert purchase order delivery
+			var delivery = new HashMap<string, Value?>();
+			delivery.set("order_id", this.order.Id);
+			delivery.set("items", total_items);
+			delivery.set("sub_total", double.parse(this.labelSubTotal.label));
+			delivery.set("total_tax", double.parse(this.labelTotalTax.label));
+			delivery.set("discount", double.parse(this.labelTotalDiscount.label));
+			delivery.set("total", double.parse(this.labelTotal.label));
+			delivery.set("notes", delivery_notes);
+			delivery.set("data", "");
+			delivery.set("creation_date", new DateTime.now_local().format("%Y-%m-%d %H:%M:%S"));
+			int delivery_id = (int)dbh.Insert("purchase_order_deliveries", delivery);
+			//##insert delivery items
+			foreach(var item in delivery_items)
+			{
+				item.set("delivery_id", delivery_id);
+				dbh.Insert("purchase_order_delivery_items", item);
+			}
+			
+			
 			string message = SBText.__("The order has been received and the products quantity has been updated.");
 			string order_status = "completed";
 			if( !all_received )
@@ -306,12 +412,14 @@ namespace EPos
 				order_status = "partially";
 				message = SBText.__("The order has been received partially, so just some products has been updated.");
 			}
+			//##update purchase order data
 			var order_data = new HashMap<string, Value?>();
 			order_data.set("status", order_status);
 			var w = new HashMap<string, Value?>();
 			w.set("order_id", this.order.Id);
-			//dbh.Update("purchase_orders", order_data, w);
-			SBModules.do_action("purchar_order_received", null);
+			dbh.Update("purchase_orders", order_data, w);
+			
+			SBModules.do_action("purchase_order_received", null);
 			var msg = new InfoDialog("success")
 			{
 				Title 	= SBText.__("Purchase order received"),

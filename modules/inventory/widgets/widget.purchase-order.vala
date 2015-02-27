@@ -628,9 +628,9 @@ namespace Woocommerce
 				btn_receive.clicked.connect(this.OnButtonReceiveClicked);
 				this.buttonbox1.pack_start(btn_receive);
 			}
-			else if( this.order.Status == "received" )
+			else if( this.order.Status == "completed" || this.order.Status == "cancelled" )
 			{
-				this.buttonSave.sensitive = false;
+				this.buttonSave.visible = false;
 				this.buttonCancel.label = SBText.__("Close");
 			}
 			

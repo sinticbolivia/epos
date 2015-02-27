@@ -111,6 +111,10 @@ CREATE TABLE IF NOT EXISTS purchase_orders(
 	total_tax				decimal(10,2),
 	discount				decimal(10,2),
 	total					decimal(10,2),
+	r_subtotal				decimal(10,2),
+	r_total_tax				decimal(10,2),
+	r_discount				decimal(10,2),
+	r_total					decimal(10,2),
 	details					text,
 	status					varchar(128),
 	user_id					integer,
@@ -132,9 +136,36 @@ CREATE TABLE IF NOT EXISTS purchase_order_items(
 	total_tax				decimal(10,2),
 	discount				decimal(10,2),
 	total					decimal(10,2),
+	r_subtotal				decimal(10,2),
+	r_total_tax				decimal(10,2),
+	r_total					decimal(10,2),
 	status					varchar(128),
 	last_modification_date 	datetime,
 	creation_date 			datetime
+);
+CREATE TABLE IF NOT EXISTS purchase_order_deliveries(
+	delivery_id 			integer not null primary key auto_increment,
+	order_id				integer not null,
+	items					integer,
+	sub_total				decimal(10,2),
+	total_tax				decimal(10,2),
+	discount				decimal(10,2),
+	total					decimal(10,2),
+	notes					text,
+	data					text,
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS purchase_order_delivery_items(
+	item_id					integer not null primary key auto_increment,
+	delivery_id				integer not null,
+	quantity_ordered		integer,
+	supply_price			decimal(10,2),
+	quantity_delivered		integer,
+	sub_total				decimal(10,2),
+	total_tax				decimal(10,2),
+	discount				decimal(10,2),
+	total					decimal(10,2),
+	creation_date			datetime
 );
 CREATE TABLE IF NOT EXISTS suppliers ( 
     supplier_id             INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
