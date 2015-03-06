@@ -136,7 +136,7 @@ namespace Woocommerce
 			{
 				logged = true;
 				this.set_data<string>("is_authenticated", "yes");
-				stdout.printf("USERNAME: %s\n", (data["user"] as SBUser).Username);
+				//stdout.printf("USERNAME: %s\n", (data["user"] as SBUser).Username);
 				SBGlobals.SetVar("user", (Object)data["user"]);
 				GLib.Source.remove(this.timeoutId);
 				this.destroy();

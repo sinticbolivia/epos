@@ -8,6 +8,7 @@
 		
 		-->
 		<file compressed="true">sql/customers.sqlite3.sql</file>
+		<file compressed="true">sql/customers.mysql.sql</file>
 		<file>images/nobody.png</file>
 		<file>images/nobody-80x80.png</file>
 		<file>images/customer-icon-64x64.png</file>

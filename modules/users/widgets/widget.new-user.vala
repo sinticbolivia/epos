@@ -15,6 +15,7 @@ namespace Woocommerce
 		protected	Image		imageNewUser;
 		protected	Button		buttonUserImage;
 		protected	Image		imageUser;
+		protected	Grid		grid2;
 		protected	Entry		entryFirstName;
 		protected	Entry		entryLastName;
 		protected	Entry		entryUsername;
@@ -40,6 +41,7 @@ namespace Woocommerce
 			this.imageNewUser		= (Image)this.ui.get_object("imageNewUser");
 			this.imageUser			= (Image)this.ui.get_object("imageUser");
 			this.buttonUserImage	= (Button)this.ui.get_object("buttonUserImage");
+			this.grid2				= (Grid)this.ui.get_object("grid2");
 			this.entryFirstName		= (Entry)this.ui.get_object("entryFirstName");
 			this.entryLastName		= (Entry)this.ui.get_object("entryLastName");
 			this.entryUsername		= (Entry)this.ui.get_object("entryUsername");
@@ -72,7 +74,9 @@ namespace Woocommerce
 			this.comboboxRoles.set_attributes(cell, "text", 0);
 			this.comboboxRoles.id_column = 1;
 			this.comboboxRoles.show_all();
-			
+			var args = new SBModuleArgs<Grid>();
+			args.SetData(this.grid2);
+			SBModules.do_action("user_fields", args);
 		}
 		protected void SetEvents()
 		{
@@ -157,9 +161,15 @@ namespace Woocommerce
 			{
 				//##create new user
 				data.set("creation_date", cdate);
-				dbh.Insert("users", data);
+				this._user_id = (int)dbh.Insert("users", data);
 				msg = SBText.__("The user has been created.");
 			}
+			var h_data = new HashMap<string, Value?>();
+			h_data.set("user_id", this._user_id);
+			h_data.set("grid_fields", this.grid2);
+			var args = new SBModuleArgs<HashMap>();
+			args.SetData(h_data);
+			SBModules.do_action("user_saved", args);
 			this._user_id = 0;
 			var dlg = new InfoDialog()
 			{

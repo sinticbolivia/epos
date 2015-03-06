@@ -36,8 +36,24 @@ namespace Woocommerce
 		public void Enabled()
 		{
 			this.LoadResources();
-			var istream = (InputStream)this.GetInputStream("sql/customers.sqlite3.sql");
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			string sql_file = "";
+			if( dbh.Engine == "sqlite3" )
+			{
+				sql_file = "sql/customers.sqlite3.sql";
+			}
+			else if( dbh.Engine == "mysql" )
+			{
+				sql_file = "sql/customers.mysql.sql";
+			}
 			
+			string[] queries = this.GetSQLFromResource(sql_file);
+			foreach(string q in queries)
+			{
+				dbh.Execute(q);
+			}
+			/*
+			var istream = (InputStream)this.GetInputStream(sql_file);
 			var ds = new DataInputStream(istream);
 			string sql = "";
 			string? line = "";
@@ -45,8 +61,8 @@ namespace Woocommerce
 			{
 				sql += line;
 			}
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			dbh.Execute(sql);
+			*/
 		}		
 		public void Disabled()
 		{

@@ -82,6 +82,9 @@ namespace Woocommerce {
 		public SB_ModuleInventory ();
 		protected void ApplyPatches ();
 		public static void hook_reports_menu (SinticBolivia.SBModuleArgs<Gtk.Menu> args);
+		public static void hook_set_user_data (SinticBolivia.SBModuleArgs<Gee.HashMap> args);
+		public static void hook_user_fields (SinticBolivia.SBModuleArgs<int> args);
+		public static void hook_user_saved (SinticBolivia.SBModuleArgs<Gee.HashMap> args);
 		public static void init_menu_management (SinticBolivia.SBModuleArgs<Gtk.Menu> args);
 		public static void sidebar_init (SinticBolivia.SBModuleArgs<Gee.HashMap> harg);
 	}

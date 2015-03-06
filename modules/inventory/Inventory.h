@@ -1184,6 +1184,9 @@ void woocommerce_sb_moduleinventory_ApplyPatches (WoocommerceSB_ModuleInventory*
 void woocommerce_sb_moduleinventory_sidebar_init (SinticBoliviaSBModuleArgs* harg);
 void woocommerce_sb_moduleinventory_init_menu_management (SinticBoliviaSBModuleArgs* args);
 void woocommerce_sb_moduleinventory_hook_reports_menu (SinticBoliviaSBModuleArgs* args);
+void woocommerce_sb_moduleinventory_hook_user_fields (SinticBoliviaSBModuleArgs* args);
+void woocommerce_sb_moduleinventory_hook_user_saved (SinticBoliviaSBModuleArgs* args);
+void woocommerce_sb_moduleinventory_hook_set_user_data (SinticBoliviaSBModuleArgs* args);
 WoocommerceSB_ModuleInventory* woocommerce_sb_moduleinventory_new (void);
 WoocommerceSB_ModuleInventory* woocommerce_sb_moduleinventory_construct (GType object_type);
 GType sb_get_module_type (GModule* inventory_module);

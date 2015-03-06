@@ -16,18 +16,20 @@ PKG=--pkg gmodule-2.0\
         --pkg SinticBolivia\
         --pkg GtkSinticBolivia\
         --pkg libxml-2.0\
+        --pkg json-glib-1.0\
         --pkg posix
         
 VAPI=--vapidir=../../../SinticBolivia \
         --vapidir=../../../SinticBolivia/widgets
 CFLAGS=-X -I/mingw/include \
 		-X -I/mingw/include/gee-1.0 \
-		-X -I/mingw/include/json-glib-1.0 \
+		-X -I/mingw/include/json-glib-1.0\
 		-X -I/mingw/include/libsoup-2.4 \
 		-X -L/mingw/lib\
 		-X -D__LCC__
 		
 CLIBS=-X -lgee\
+		-X -ljson-glib-1.0 \
 		-X -lSinticBolivia \
 		-X -lGtkSinticBolivia
 				
@@ -39,7 +41,7 @@ INCLUDE_DIR=-X -I.\
 LIB_DIR=-X -L../../../SinticBolivia/bin\
 		-X -L../../../SinticBolivia/widgets
 
-SRC=$(wildcard *.vala) $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)
+SRC=$(wildcard *.vala) $(wildcard classes/*.vala) $(wildcard helpers/*.vala) $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)
 MODULE_NAME=Pos
 LIB_NAME=libPos.dll
 #VARA="-e $(OK_COLOR)pwd$(NO_COLOR)"

@@ -1,10 +1,13 @@
 VLIBS=--pkg gmodule-2.0 \
 		--pkg gee-1.0 \
+		--pkg libxml-2.0\
 		--pkg gtk+-3.0 \
 		--pkg sqlite3 \
+		--pkg mysql\
 		--pkg SinticBolivia \
 		--pkg GtkSinticBolivia \
 		--pkg posix
+		
 VFLAGS=--vapidir=../../../SinticBolivia \
 		--vapidir=../../../SinticBolivia/widgets
 		

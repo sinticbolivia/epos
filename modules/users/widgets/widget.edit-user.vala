@@ -15,6 +15,7 @@ namespace Woocommerce
 		protected	Image		imageNewUser;
 		protected	Button		buttonUserImage;
 		protected	Image		imageUser;
+		protected	Grid		grid2;
 		protected	Entry		entryFirstName;
 		protected	Entry		entryLastName;
 		protected	Entry		entryEmail;
@@ -41,6 +42,7 @@ namespace Woocommerce
 			this.imageNewUser		= (Image)this.ui.get_object("imageNewUser");
 			this.imageUser			= (Image)this.ui.get_object("imageUser");
 			this.buttonUserImage	= (Button)this.ui.get_object("buttonUserImage");
+			this.grid2				= (Grid)this.ui.get_object("grid2");
 			this.entryFirstName		= (Entry)this.ui.get_object("entryFirstName");
 			this.entryLastName		= (Entry)this.ui.get_object("entryLastName");
 			this.entryEmail			= (Entry)this.ui.get_object("entryEmail");
@@ -82,6 +84,9 @@ namespace Woocommerce
 			this.comboboxRoles.id_column = 1;
 			this.comboboxRoles.show_all();
 			
+			var args = new SBModuleArgs<Grid>();
+			args.SetData(this.grid2);
+			SBModules.do_action("user_fields", args);
 		}
 		protected void SetEvents()
 		{
@@ -118,6 +123,12 @@ namespace Woocommerce
 			this.entryPassword.text		= this.theUser.Password;
 			this.comboboxRoles.active_id = this.theUser.RoleId.to_string();
 			
+			var args = new SBModuleArgs<HashMap<string, Value?>>();
+			var data = new HashMap<string, Value?>();
+			data.set("grid_fields", this.grid2);
+			data.set("user_id", this.theUser.Id);
+			args.SetData(data);
+			SBModules.do_action("set_user_data", args);
 		}
 		protected void OnButtonUserImageClicked()
 		{
@@ -171,6 +182,14 @@ namespace Woocommerce
 			w.set("user_id", this.theUser.Id);
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			dbh.Update("users", data, w);
+			
+			var args_data = new HashMap<string, Value?>();
+			args_data.set("grid_fields", this.grid2);
+			args_data.set("user_id", this.theUser.Id);
+			var args = new SBModuleArgs<HashMap<string, Value?>>();
+			args.SetData(args_data);
+			SBModules.do_action("user_saved", args);
+			
 			var msg = new InfoDialog()
 			{
 				Message = SBText.__("The user has been updated."),

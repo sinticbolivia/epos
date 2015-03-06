@@ -597,6 +597,10 @@ GtkStatusbar GtkFrame{padding:0;}
 /*************************************/
 /********* Retail Pos styles *********/
 /*************************************/
+.sale-details{}
+.sale-details GtkLabel{font-size:13;font-weight:bold;}
+.box-pos-customer{}
+.box-pos-customer GtkLabel{font-size:15;font-weight:bold;}
 .box-retail-pos-totals{}
 .box-retail-pos-totals GtkFrame,
 .box-retail-pos-totals GtkFrame GtkAlignment GtkLabel{background:#b9dfeb;box-shadow: inset 0px 0px 1px alpha(black, 1);}

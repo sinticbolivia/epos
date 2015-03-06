@@ -154,9 +154,24 @@ namespace Woocommerce
 			hook2.HookName = "reports_menu";
 			hook2.handler	= (ActionHandler)SB_ModuleInventory.hook_reports_menu;
 			
+			var hook3 = new SBModuleHook();
+			hook3.HookName = "user_fields";
+			hook3.handler	= (ActionHandler)SB_ModuleInventory.hook_user_fields;
+			
+			var hook4 = new SBModuleHook();
+			hook4.HookName = "user_saved";
+			hook4.handler	= (ActionHandler)SB_ModuleInventory.hook_user_saved;
+			
+			var hook5 = new SBModuleHook();
+			hook5.HookName = "user_saved";
+			hook5.handler	= (ActionHandler)SB_ModuleInventory.hook_set_user_data;
+			
 			SBModules.add_action("init_sidebar", ref hook);
 			SBModules.add_action("init_menu_management", ref hook1);
 			SBModules.add_action("reports_menu", ref hook2);
+			SBModules.add_action("user_fields", ref hook3);
+			SBModules.add_action("user_saved", ref hook4);
+			SBModules.add_action("set_user_data", ref hook5);
 		}
 		public void Unload()
 		{
@@ -387,6 +402,80 @@ namespace Woocommerce
 					widget.show();
 					notebook.AddPage("inventory-report", SBText.__("Iventory Report"), widget);
 					notebook.SetCurrentPageById("inventory-report");
+				}
+			});
+		}
+		public static void hook_user_fields(SBModuleArgs<int> args)
+		{
+			Grid grid_fields = (Grid)args.GetData();
+			var label_store = new Label(SBText.__("Store:")){xalign = 0};
+			label_store.show();
+			var comboboxStores = new ComboBox(){name = "combobox_stores"};
+			comboboxStores.show();
+			comboboxStores.model = new ListStore(2, typeof(string), typeof(string));
+			comboboxStores.id_column = 1;
+			var cell = new CellRendererText();
+			comboboxStores.pack_start(cell, true);
+			comboboxStores.set_attributes(cell, "text", 0);
+			
+			//##fill stores
+			TreeIter iter;
+			(comboboxStores.model as ListStore).append(out iter);
+			(comboboxStores.model as ListStore).set(iter, 
+				0, SBText.__("-- store --"),
+				1, "-1"
+			);
+			var stores = InventoryHelper.GetStores();
+			
+			foreach(SBStore store in stores)
+			{
+				(comboboxStores.model as ListStore).append(out iter);
+				(comboboxStores.model as ListStore).set(iter, 
+					0, store.Name,
+					1, store.Id.to_string()
+				);
+			}
+			comboboxStores.active_id = "-1";
+			/*
+			stdout.printf("base_line_row: %d\n", grid_fields. get_baseline_row ());
+			//grid_fields.foreach( (w) => 
+			grid_fields.forall_internal(true,  (w) => 
+			{
+				stdout.printf("child: %s\n", w.name);
+			});
+			*/
+			grid_fields.attach(label_store, 0, 4, 1, 1);
+			grid_fields.attach(comboboxStores, 1, 4, 1, 1);
+		}
+		public static void hook_user_saved(SBModuleArgs<HashMap> args)
+		{
+			var data = (HashMap<string, Value?>)args.GetData();
+			var grid_fields = (Grid)data["grid_fields"];
+			int user_id		= (int)data["user_id"];
+			grid_fields.foreach((w) => 
+			{
+				if( w.name == "combobox_stores" )
+				{
+					if( (w as ComboBox).active_id != null )
+					{
+						int store_id = int.parse((w as ComboBox).active_id);
+						SBMeta.UpdateMeta("user_meta", "store_id", store_id.to_string(), "user_id", user_id);
+					}
+					
+				}
+			});
+		}
+		public static void hook_set_user_data(SBModuleArgs<HashMap> args)
+		{
+			var data = (HashMap<string, Value?>)args.GetData();
+			int user_id 		= (int)data["user_id"];
+			string store_id		= SBUser.SGetMeta(user_id, "store_id");
+			Grid grid_fields 	= (Grid)data["grid_fields"];
+			grid_fields.foreach( (w) => 
+			{
+				if( w.name == "combobox_stores" )
+				{
+					(w as ComboBox).active_id = store_id;
 				}
 			});
 		}

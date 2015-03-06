@@ -16,6 +16,7 @@ PKG=--pkg gmodule-2.0\
         --pkg SinticBolivia\
         --pkg GtkSinticBolivia\
         --pkg libxml-2.0\
+        --pkg json-glib-1.0\
         --pkg posix
         
 VAPI=--vapidir=../../../SinticBolivia \
@@ -26,7 +27,7 @@ INCLUDE_DIR=-X -I.\
 LIB_DIR=-X -L../../../SinticBolivia/bin\
 		-X -L../../../SinticBolivia/widgets
 
-SRC=$(wildcard *.vala) $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)
+SRC=$(wildcard *.vala) $(wildcard helpers/*.vala) $(wildcard classes/*.vala) $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)
 MODULE_NAME=Pos
 LIB_NAME=libPos.so
 #VARA="-e $(OK_COLOR)pwd$(NO_COLOR)"

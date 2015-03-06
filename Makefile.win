@@ -71,7 +71,12 @@ modules:
 	make -C modules/inventory/ -f Makefile.win
 	make -C modules/customers/ -f Makefile.win
 	make -C modules/pos/ -f Makefile.win
-	
+installmodules:
+	make -C modules/modules/ -f Makefile.win install
+	make -C modules/users/ -f Makefile.win install
+	make -C modules/inventory/ -f Makefile.win install
+	make -C modules/customers/ -f Makefile.win install
+	make -C modules/pos/ -f Makefile.win install
 install:
 	install	-d /c/EPOS/share
 	install	-d /c/EPOS/libs
