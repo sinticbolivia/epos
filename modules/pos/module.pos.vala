@@ -160,7 +160,7 @@ namespace EPos
 		}
 	}
 }
-public Type sb_get_module_type(Module users_module)
+public Type sb_get_module_libpos_type(Module users_module)
 {
 	return typeof(EPos.SB_ModulePos);
 }

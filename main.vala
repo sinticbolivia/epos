@@ -453,6 +453,7 @@ namespace Woocommerce
 			//show window
 			this._mainWindow.show();
 		}
+		/*
 		public int SyncData()
 		{
 			var cfg = (SBConfig)SBGlobals.GetVar("config");
@@ -471,6 +472,7 @@ namespace Woocommerce
 			
 			return 0;
 		}
+		*/
 		public int CheckLoadedData()
 		{
 			while(!this._dataLoaded){}
@@ -518,7 +520,7 @@ namespace Woocommerce
 			
 			SBModules.do_action("modules_loaded", new SBModuleArgs<string>());
 			//##add ec pos hooks
-			ECHooks.AddInventoryHooks();
+			//ECHooks.AddInventoryHooks();
 		}
 		public static void Start()
 		{
@@ -529,13 +531,13 @@ namespace Woocommerce
 			string db_server = (string)cfg.GetValue("db_server", "");
 			if( db_engine.length <= 0 )
 			{
-				stderr.printf("There no database engine selected, please run setup to configure your engine.\n");
+				stderr.printf("There is no database engine selected, please run setup to configure your engine.\n");
 				Gtk.main_quit();
 				return;
 			}
 			if( db_server.length <= 0 )
 			{
-				stderr.printf("There no database server, please run setup to configure your connection.\n");
+				stderr.printf("There is no database server, please run setup to configure your connection.\n");
 				Gtk.main_quit();
 				return;
 			}
@@ -598,47 +600,6 @@ namespace Woocommerce
 			{
 				app.ShowAll();
 			}
-			/*
-			var login = new DialogLogin();
-			login.OnLoginSuccess = (the_user, auth, sync) => 
-			{
-				//##store user into globals
-				SBGlobals.SetVar("user", the_user);
-				//stdout.printf("auth method: %s\n", auth);
-				if( auth == "remote" )
-				{
-					if( sync )
-					{
-						try
-						{
-							//check to synchronize data at startup
-							show_loading("Please wait, we are synchronizing your ecommerce data.");
-							//unowned Thread<int> thread1 = Thread.create<int>(app.SyncData, true);
-							new Thread<int>.try("thread1", app.SyncData);
-							//unowned Thread<int> thread2 = Thread.create<int>(app.CheckLoadedData, true);
-							new Thread<int>.try("thread2", app.CheckLoadedData);
-						}
-						//catch(GLib.ThreadError e)
-						catch(GLib.Error e)
-						{
-							stderr.printf("THREAD ERROR: %s\n", e.message);
-						}
-						
-					}
-					
-				}
-				var api = new WC_Api_Client((string)cfg.GetValue("shop_url"), 
-									(string)cfg.GetValue("wc_api_key"),
-									(string)cfg.GetValue("wc_api_secret"));
-			
-				SBGlobals.SetVar("ec_api", api);
-				//##set the current username
-				app.labelCurrentUser.label = the_user.Username;
-				SBModules.do_action("pos_init", new SBModuleArgs<string>());
-				app.ShowAll();
-			};
-			login.show_all();
-			*/
 		}
 		public static int main(string[] args)
 		{
@@ -660,7 +621,7 @@ namespace Woocommerce
 			*/
 			Gtk.init(ref args);
 			
-			bool show_setup = FileUtils.test("setup.xml", FileTest.EXISTS);
+			//bool show_setup = FileUtils.test("setup.xml", FileTest.EXISTS);
 			if (Thread.supported () == false) 
 			{
 				stderr.printf ("Threads are not supported!\n");

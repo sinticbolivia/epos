@@ -4,7 +4,7 @@ using Gtk;
 using SinticBolivia;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WindowLogin : Window
 	{

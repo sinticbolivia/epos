@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	class WidgetUsers : Box
 	{

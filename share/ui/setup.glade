@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="3.4"/>
+  <!-- interface-requires gtk+ 3.4 -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <property name="no_show_all">True</property>
@@ -350,7 +349,7 @@ This process will guide you to setup correctly your installation.</property>
                         <property name="can_focus">True</property>
                         <property name="width_chars">4</property>
                         <property name="text" translatable="yes">3306</property>
-                        <property name="placeholder_text" translatable="yes">Port</property>
+                        <property name="placeholder_text">Port</property>
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
@@ -512,7 +511,6 @@ This process will guide you to setup correctly your installation.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="visibility">False</property>
-                        <property name="invisible_char">*</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>

@@ -15,5 +15,6 @@
 		<file compressed="true">images/product-lookup-48x48.png</file>
 		<file compressed="true">images/delete-icon-24x24.png</file>
 		<file compressed="true">sql/pos.mysql.sql</file>
+		<file compressed="true">sql/pos.sqlite3.sql</file>
 	</gresource>
 </gresources>

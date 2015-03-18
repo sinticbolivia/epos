@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class SB_ModuleUsers : SBGtkModule, ISBModule
 	{
@@ -161,7 +161,7 @@ namespace Woocommerce
 		}
 	}
 }
-public Type sb_get_module_type(Module users_module)
+public Type sb_get_module_libusers_type(Module users_module)
 {
-	return typeof(Woocommerce.SB_ModuleUsers);
+	return typeof(EPos.SB_ModuleUsers);
 }

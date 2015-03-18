@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS customers(
 	customer_id		integer not null primary key autoincrement,
+	extern_id		integer default 0,
 	code			varchar(512),
 	store_id		integer,
 	first_name		varchar(128),
@@ -20,4 +21,11 @@ CREATE TABLE IF NOT EXISTS customers(
 	country_code			varchar(10),
 	last_modification_date 	datetime,
 	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS customer_meta(
+	meta_id			integer not null primary key autoincrement,
+	customer_id		integer	not null,
+	meta_key		varchar(256),
+	meta_value		text,
+	creation_date	datetime
 );

@@ -19,6 +19,7 @@ VLIBS=--pkg gmodule-2.0 \
 		--pkg SinticBolivia \
 		--pkg GtkSinticBolivia \
 		--pkg posix 
+		
 VFLAGS=--vapidir=../../../SinticBolivia \
 		--vapidir=../../../SinticBolivia/widgets
 		
@@ -26,17 +27,17 @@ CLIBS=-X -lgee\
 		-X -lSinticBolivia \
 		-X -lGtkSinticBolivia
 		
-SOURCES=module.modules.vala \
-		widgets/widget.modules.vala
+SOURCES=module.modules.vala $(wildcard widgets/widget.modules.vala)
 		
 MODULE_NAME=Modules
 LIB_NAME=libModules.dll
 all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources modules.gresource.xml
+	cp modules.gresource $(LIB_NAME) ../../bin/modules
 install:
-	install $(LIB_NAME) ../../bin/modules/
-	install modules.gresource ../../bin/modules/
+	install $(LIB_NAME) /c/EPOS/modules/
+	install modules.gresource /c/EPOS/bin/modules/
 clean: 
 	rm $(LIB_NAME)
 	rm modules.gresource

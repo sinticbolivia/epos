@@ -4,7 +4,7 @@ using Gtk;
 using SinticBolivia;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetModules : Box
 	{
@@ -115,6 +115,7 @@ namespace Woocommerce
 			foreach(string key in modules.keys)
 			{
 				ISBModule mod = (ISBModule)modules.get(key);
+				if( mod.Id == "mod_modules" ) continue;
 				
 				string status = "disabled";
 				string status_text = SBText.__("Disabled");

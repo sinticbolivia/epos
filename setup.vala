@@ -128,32 +128,51 @@ namespace Woocommerce
 		}
 		protected void OnButtonPrevClicked()
 		{
-			if( this.notebook.page == 1 )
+			int total_pages = this.notebook.get_n_pages() - 1;
+			//int current_page = this.notebook.page;
+			
+			this.notebook.page = this.notebook.page - 1;
+			if( this.notebook.page == 0 )
 			{
 				this.buttonPrev.visible = false;
+				this.buttonFinish.visible = false;
+				this.buttonNext.visible = true;
 			}
-			this.notebook.page = this.notebook.page - 1;
+			if( this.notebook.page < total_pages )
+			{
+				this.buttonNext.visible = true;
+				this.buttonFinish.visible = false;
+			}
 		}
 		protected void OnButtonNextClicked()
 		{
-			stdout.printf("page: %d\n", this.notebook.page);
-			
-			
 			int total_pages = this.notebook.get_n_pages() - 1;
-			
+			/*
 			if( this.notebook.page + 1 == total_pages )
 			{
 				this.buttonNext.visible = false;
 				this.buttonFinish.visible = true;
 			}
+			*/
 			this.notebook.page = this.notebook.page + 1;
-			if( this.notebook.page > 0 )
+			if( this.notebook.page > 0 && this.notebook.page <= total_pages )
 			{
 				this.buttonPrev.visible = true;
 			}
 			else
 			{
-				this.buttonPrev.visible = true;
+				this.buttonPrev.visible = false;
+			}
+			
+			if( this.notebook.page == total_pages )
+			{
+				this.buttonFinish.visible = true;
+				this.buttonNext.visible = false;
+			}
+			else
+			{
+				this.buttonFinish.visible = false;
+				this.buttonNext.visible = true;
 			}
 		}
 		protected void OnButtonFinishClicked()
@@ -173,14 +192,20 @@ namespace Woocommerce
 				db_engine = "mysql";
 				dbh = new SBMySQL(server, null, user, pass, port);
 				res_path = "/net/sinticbolivia/ec-pos/sql/database.mysql.sql";
+				dbh.SelectDb(db);
 			}
 			else if( this.radiobuttonSqlite3.active )
 			{
+				if( !FileUtils.test("db", FileTest.IS_DIR) )
+				{
+					DirUtils.create("db", 0777);
+				}
 				db_engine = "sqlite3";
-				dbh = new SBSQLite(server);
-				res_path = "/net/sinticbolivia/ec-pos/sql/sqlite3.database.sql";
+				server = "ec-pos.sqlite";
+				dbh = new SBSQLite("db/%s".printf(server));
+				res_path = "/net/sinticbolivia/ec-pos/sql/database.sqlite3.sql";
 			}
-			
+			stdout.printf("Database engine selected: %s\n", db_engine);
 			if( !dbh.Open() )
 			{
 				var msg = new MessageDialog(this.window, DialogFlags.MODAL, MessageType.ERROR, ButtonsType.CLOSE,
@@ -190,14 +215,17 @@ namespace Woocommerce
 				msg.destroy();
 				return;
 			}
+			if( db_engine == "mysql" )
+			{
+				dbh.Execute("CREATE DATABASE %s;".printf(db));
+				dbh.SelectDb(db);
+			}
 			
-			dbh.Execute("CREATE DATABASE %s;".printf(db));
-			dbh.SelectDb(db);
 			var res = GtkHelper.LoadResource("share/resources/ec-pos.gresource");
 			try
 			{
-				var istream = res.open_stream(res_path, 
-														ResourceLookupFlags.NONE);
+				stdout.printf("Opening resource path: %s\n", res_path);
+				var istream 	= res.open_stream(res_path, ResourceLookupFlags.NONE);
 				var ds 			= new DataInputStream(istream);
 				string sql 		= "";
 				string? line 	= "";
@@ -210,7 +238,7 @@ namespace Woocommerce
 				
 				foreach(string q in queries)
 				{
-					if(q.strip().length <= 0 ) continue;
+					if( q.strip().length <= 0 ) continue;
 					dbh.Execute(q);
 				}
 				

@@ -38,22 +38,23 @@ SOURCES=main.vala $(wildcard classes/*.vala) $(wildcard dialogs/*.vala) $(wildca
 		$(wildcard helpers/*.vala)
 		
 OBJECTS=$(SOURCES:.vala=.o)
-DEST_EXEC=woocommerce_pos.exe
+DEST_EXEC=ec-pos.exe
 LIBRARY_NAME=SinticBolivia
 #include Database/Makefile
 
-.PHONY: modules
+.PHONY: modules setup
 
-all: $(SOURCES) $(DEST_EXEC) setup
+all: $(SOURCES) $(DEST_EXEC) config
 
 #$(DEST_EXEC): $(OBJECTS)
 $(DEST_EXEC): $(SOURCES)
+	install	-d bin
 	$(VC) -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) $(SOURCES) -X -L./../SinticBolivia/bin -o bin/$@
-	#strip bin/$@
+	@#strip bin/$@
 	glib-compile-resources ec-pos.gresource.xml
 	mv ec-pos.gresource share/resources
-setup:
-	valac -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin -o bin/setup.exe 
+config:
+	valac -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin -o bin/config.exe 
 #$(OBJECTS): $(SOURCES)
 #	$(VC) --define=__WIN32__ -c $(VFLAGS) $(VLIBS) $^ -o $@
 #	$(VC) $(VFLAGS) -c $(SOURCES)
@@ -107,7 +108,7 @@ install:
 	install ../libs/libxlsxwriter-win32/lib/libxlsxwriter.dll /c/EPOS
 	
 clean:
-	rm -fv bin/$(DEST_EXEC) bin/setup.exe *.o
+	rm -fv bin/$(DEST_EXEC) bin/config.exe *.o
 	make -C modules/modules/ -f Makefile.win clean
 	make -C modules/users/ -f Makefile.win clean
 	make -C modules/inventory/ -f Makefile.win clean

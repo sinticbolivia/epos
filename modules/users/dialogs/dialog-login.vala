@@ -3,7 +3,7 @@ using Gee;
 using SinticBolivia;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	delegate	void LoginSuccess(SBUser the_user, string authentication, bool sync);
 	
