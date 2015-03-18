@@ -36,6 +36,7 @@ LIB_NAME=libCustomers.dll
 all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources customers.gresource.xml
+	cp $(LIB_NAME) customers.gresource.xml ../../bin/modules
 install:
 	install $(LIB_NAME) /c/EPOS/modules/
 	install customers.gresource /c/EPOS/modules/
