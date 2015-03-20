@@ -12,7 +12,7 @@ namespace Woocommerce
 		protected	Builder 	_builder;
 		protected	SBConfig	_config;
 		protected	HashMap<string, Widget> _ecommerceWidgets;
-		
+		protected	Notebook	notebookConfig;
 		public		Box			boxEcommerceSettings;
 		public		ComboBox	comboboxLanguage;
 		//#company tab
@@ -51,6 +51,7 @@ namespace Woocommerce
 				this._builder.add_from_file(this._UI_FILE);
 				//get widgets
 				this.dialogConfig 			= (Gtk.Dialog)this._builder.get_object("dialogConfig");
+				this.notebookConfig			= (Notebook)this._builder.get_object("notebookConfig");
 				this.imageSettings 			= (Image)this._builder.get_object("imageSettings");
 				this.boxEcommerceSettings 	= (Box)this._builder.get_object("boxEcommerceSettings");
 				//##get company widgets
@@ -120,6 +121,9 @@ namespace Woocommerce
 		protected void Build()
 		{
 			this.imageLogo.pixbuf = GtkHelper.GetPixbuf("share/images/logo.png", 120, 120);
+			var args = new SBModuleArgs<Widget>();
+			args.SetData(this.notebookConfig);
+			SBModules.do_action("config_build", args);
 			
 		}
 		protected void SetEvents()
@@ -434,8 +438,6 @@ namespace Woocommerce
 				company.set("logo", f);
 			}
 			
-			SBParameter.Update("company", SinticBolivia.Utils.JsonEncode(company));
-			
 			//stderr.printf("%s => %s\n", "textchild", (string)cfg.GetValue("textchild"));			
 			//this._config.SetValue("address", this.entryAddress.text);
 			//this._config.SetValue("city", this.entryCity.text);
@@ -455,8 +457,17 @@ namespace Woocommerce
 			this._config.SetValue("page_size", this.comboboxPageSizes.active_id);
 			this._config.SetValue("print_preview", this.checkbuttonShowPreview.active ? "yes" : "no");
 			this._config.SetValue("show_print_dialog", this.checkbuttonShowPrintDialog.active ? "yes" : "no");
+			
+			var args = new SBModuleArgs<HashMap>();
+			var data = new HashMap<string, Value?>();
+			data.set("config", this._config);
+			data.set("company", company);
+			args.SetData(data);
+			SBModules.do_action("before_save_config", args);
+			SBParameter.Update("company", SinticBolivia.Utils.JsonEncode(company));
 			this._config.Save();
-			//update global config
+			SBModules.do_action("after_save_config", new SBModuleArgs<Widget>());
+			//##update global config
 			SBGlobals.SetVar("config", (Object)new SBConfig("config.xml", "point_of_sale"));
 			var msg = new InfoDialog()
 			{

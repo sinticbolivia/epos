@@ -83,6 +83,8 @@ namespace EPos
 			SBModules.add_action("init_menu_management", ref hook0);
 			var hook1 = new SBModuleHook(){HookName = "init_sidebar", handler = init_sidebar};
 			SBModules.add_action("init_sidebar", ref hook1);
+			var hook2 = new SBModuleHook(){HookName = "config_build", handler = this.hook_config_build};
+			SBModules.add_action("config_build", ref hook2);
 		}
 		public static void init_sidebar(SBModuleArgs<HashMap> args)
 		{
@@ -95,7 +97,9 @@ namespace EPos
 			btn_pos.show();
 			btn_pos.clicked.connect( () => 
 			{
-				string tab_id = "retail-pos";
+				string pos_gui = (string)(SBGlobals.GetVar("config") as SBConfig).GetValue("pos_gui", "standard");
+				
+				string tab_id = "pos-%s".printf(pos_gui);
 				if( !user.HasPermission("make_sales") )
 				{
 					var err = new InfoDialog("error")
@@ -108,9 +112,19 @@ namespace EPos
 					nb.RemovePage(tab_id);
 					return;
 				}
-				if(nb.GetPage(tab_id) == null )
+				if( nb.GetPage(tab_id) == null )
 				{
-					var w = new WidgetRetailPos();
+					Widget? w = null;
+					if( pos_gui == "retail" )
+						w = new WidgetRetailPos();
+					else if(pos_gui == "standard") 
+					{
+						w = new WidgetPOS();
+						(w as WidgetPOS).TabId = tab_id;
+						(w as WidgetPOS).Dbh = SBFactory.GetNewDbHandlerFromConfig((SBConfig)SBGlobals.GetVar("config"));
+						(w as WidgetPOS).ShowStoreSelector();
+					}
+						
 					nb.AddPage(tab_id, SBText.__("Point of Sale (Retail)"), w);
 					w.show();
 					
@@ -123,7 +137,7 @@ namespace EPos
 		public static void init_menu_management(SBModuleArgs<Gtk.Menu> args)
 		{
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
-			
+			var user = (SBUser)SBGlobals.GetVar("user");
 			var menu = (Gtk.Menu)args.GetData();
 			var mi_pos = new Gtk.MenuItem.with_label(SBText.__("Point of Sale"));
 			mi_pos.show();
@@ -148,15 +162,46 @@ namespace EPos
 			mi_rpos.show();
 			mi_rpos.activate.connect( () => 
 			{
-				if( notebook.GetPage("retail-pos") == null )
+				string pos_gui = (string)(SBGlobals.GetVar("config") as SBConfig).GetValue("pos_gui", "standard");
+				
+				string tab_id = "pos-%s".printf(pos_gui);
+				if( !user.HasPermission("make_sales") )
 				{
-					var w = new EPos.WidgetRetailPos();
-					w.show();
-					notebook.AddPage("retail-pos", SBText.__("Point of Sale"), w);
+					var err = new InfoDialog("error")
+					{
+						Title = SBText.__("Point of Sale Error"),
+						Message = SBText.__("You don't have enough permission to make sales.")
+					};
+					err.run();
+					err.destroy();
+					return;
 				}
-				notebook.SetCurrentPageById("retail-pos");
+				if( notebook.GetPage(tab_id) == null )
+				{
+					Widget? w = null;
+					if( pos_gui == "retail" )
+						w = new WidgetRetailPos();
+					else if(pos_gui == "standard") 
+					{
+						w = new WidgetPOS();
+						(w as WidgetPOS).TabId = tab_id;
+						(w as WidgetPOS).Dbh = SBFactory.GetNewDbHandlerFromConfig((SBConfig)SBGlobals.GetVar("config"));
+						(w as WidgetPOS).ShowStoreSelector();
+					}
+					notebook.AddPage(tab_id, SBText.__("Point of Sale"), w);
+					w.show();
+					
+				}
+				notebook.SetCurrentPageById(tab_id);
 			});
 			mi_pos.submenu.add(mi_rpos);
+		}
+		protected void hook_config_build(SBModuleArgs<Widget> args)
+		{
+			var notebook = (Notebook)args.GetData();
+			var w = new WidgetPosConfig();
+			w.show();
+			notebook.append_page(w, new Label(SBText.__("Point of Sale")));
 		}
 	}
 }

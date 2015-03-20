@@ -85,5 +85,34 @@ namespace EPos
 			this();
 			this.dbData = row;
 		}
+		public void GetDbData(int id)
+		{
+			this.Dbh.Select("*").From("sale_items").Where("item_id = %d".printf(id));
+			var row = this.Dbh.GetRow(null);
+			if( row != null )
+			{
+				this.dbData = row;
+			}
+		}
+		public int Register()
+		{
+			string cdate = new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
+			var row = new HashMap<string, Value?>();
+			row.set("sale_id", this.SaleId);
+			row.set("product_id", this.ProductId);
+			row.set("product_name", this.ProductName);
+			row.set("quantity", this.Quantity);
+			row.set("price", this.Price);
+			row.set("sub_total", this.SubTotal);
+			row.set("tax_rate", this.TaxRate);
+			row.set("tax_amount", this.TaxAmount);
+			row.set("discount", this.Discount);
+			row.set("total", this.Total);
+			row.set("status", this.Status);
+			row.set("last_modification_date", cdate);
+			row.set("creation_date", cdate);
+			
+			return (int)this.Dbh.Insert("sale_items", row);
+		}
 	}
 }

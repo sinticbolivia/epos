@@ -37,9 +37,9 @@ namespace EPos
 			
 			return tax;
 		}
-		public static HashMap<string, Value?>? GetCustomer(int id)
+		public static HashMap<string, string>? GetCustomer(int id, SBDatabase? _dbh = null)
 		{
-			HashMap<string, Value?>? customer = null;
+			HashMap<string, string>? customer = null;
 			
 			var cfg = (SBConfig)SBGlobals.GetVar("config");
 			string is_terminal = (string)cfg.GetValue("is_terminal", "");
@@ -49,7 +49,7 @@ namespace EPos
 			}
 			else
 			{
-				var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+				var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
 				dbh.Select("*").From("customers").Where("customer_id = %d".printf(id));
 				var row = dbh.GetRow(null);
 				if( row == null )
@@ -59,6 +59,7 @@ namespace EPos
 		
 			return customer;
 		}
+		
 		public static HashMap<string, Value?>? GetUOM(int id)
 		{
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
@@ -102,6 +103,64 @@ namespace EPos
 			}
 			
 			return product_id;
+		}
+		public static ArrayList<SBLCategory> GetCategories(int store_id, uint parent_id = 0, SBDatabase? _dbh = null)
+		{
+			var records = new ArrayList<SBLCategory>();
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
+			/*
+			int offset = (page == 1) ? 0 : (page - 1);
+			string query_count = "SELECT COUNT(product_id) FROM products";
+			total_records = dbh.Query(query_count);
+			if( total_records <= 0 )
+				return records;
+			*/
+			string query = @"SELECT * "+
+							@"FROM categories "+
+							@"WHERE store_id = $store_id "+
+							@"AND parent = $parent_id " +
+							@"ORDER BY creation_date DESC";
+			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
+			foreach(var row in rows)
+			{
+				var cat = new SBLCategory.with_db_data(row);
+				records.add(cat);
+			}
+			
+			return records;
+		}
+		public static ArrayList<SBProduct> GetStoreProducts(int store_id, SBDatabase? _dbh = null)
+		{
+			var products = new ArrayList<SBProduct>();
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("products").Where("store_id = %d".printf(store_id));
+			foreach(var row in dbh.GetResults(null))
+			{
+				var prod = new SBProduct.with_db_data(row);
+				prod.Dbh = dbh;
+				prod.GetDbMeta();
+				products.add(prod);
+			}
+			
+			return products;
+		}
+		public static ArrayList<SBProduct> GetCategoryProducts(int category_id, SBDatabase? _dbh = null)
+		{
+			var products = new ArrayList<SBProduct>();
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("p.*").From("products p, product2category p2c").
+				Where("p.product_id = p2c.product_id").
+				And("p2c.category_id = %d".printf(category_id));
+				
+			foreach(var row in dbh.GetResults(null))
+			{
+				var prod = new SBProduct.with_db_data(row);
+				prod.Dbh = dbh;
+				prod.GetDbMeta();
+				products.add(prod);
+			}
+			
+			return products;
 		}
 	}
 }

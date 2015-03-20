@@ -483,7 +483,7 @@ namespace EPos
 				this.CalculateTotals();
 				return;
 			}
-			var prod = new Woocommerce.SBProduct.from_id(product_id);
+			var prod = new SBProduct.from_id(product_id);
 			
 			double subtotal = (prod.Price * quantity);
 			double tax	=  subtotal * (this.taxRate / 100);

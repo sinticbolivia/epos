@@ -8,7 +8,7 @@ using SinticBolivia.Database;
 
 namespace EPos
 {
-	public class WidgetPOS : Box
+	public class WidgetPOS : BasePos
 	{
 		enum ProductColumns
 		{
@@ -38,6 +38,7 @@ namespace EPos
 		public 		ComboBox 		comboboxCategories;
 		public		Entry			entrySearchProduct;
 		public		ScrolledWindow	scrolledwindow1 = null;
+		protected	SBFixed			fixedProducts;
 		public 		TreeView 		treeviewProducts = null;
 		public 		TreeView 		treeviewOrderItems;
 		public		Label			labelTotalProducts;
@@ -52,39 +53,22 @@ namespace EPos
 		public		Label			labelVAT;
 		public		Entry			entryDiscount;
 		public 		ComboBox 		comboboxPaymentMethod;
-		public 		ComboBox		comboboxCustomer;
+		public 		Entry			entrySearchCustomer;
 		public		TextView		textviewNotes;
-		//public 		WC_Api_Client 	_wcApi;
-		//protected 	Json.Array 		_products;
 		protected	bool			_dataLoaded = false;
 		protected	bool			_categoriesLoaded = false;
 		protected	bool			_productsLoaded		= false;
 		protected	bool			_offline = true;
-		protected	Grid			_grid = null;
+		//protected	Grid			_grid = null;
 		protected	string			_currentView = "list";
-		//protected 	ECStore			store;		
-		protected	int				storeId = -1;
 		protected	bool			lock_grid_view = false;
 		protected	bool			lock_list_view = false;
+		protected	int				customerId = 0;
+		protected	bool			customerCreated = false;
 		
-		public WidgetPOS(/*ECStore store*/)
+		public WidgetPOS()
 		{
-			Object();
-			//this.store = store;
-			//this.storeId = this.store.Id;
-			/*
-			if( this.store.Type != "local" )
-			{
-				//##get ecommerce api handler
-				this._wcApi = new WC_Api_Client(this.store.GetMeta("wc_url"), 
-												this.store.GetMeta("wc_api_key"),
-												this.store.GetMeta("wc_api_secret")
-				);
-			}
-			*/
-			//string glade_file = ;
-			
-			this._builder = (SBModules.GetModule("Pos") as SBGtkModule).GetGladeUi("pos.glade");
+			this._builder = (SBModules.GetModule("Pos") as SBGtkModule).GetGladeUi("wc-pos.glade");
 			
 			/*
 			Type type = typeof(WidgetPOS);
@@ -101,7 +85,6 @@ namespace EPos
 			this.comboboxCategories 	= (ComboBox)this._builder.get_object("comboboxCategories");
 			this.entrySearchProduct		= (Entry)this._builder.get_object("entrySearchProduct");
 			this.scrolledwindow1		= (ScrolledWindow)this._builder.get_object("scrolledwindow1");
-			//this.treeviewProducts 		= (TreeView)this._builder.get_object("treeviewProducts");
 			this.labelTotalProducts		= (Label)this._builder.get_object("labelTotalProducts");
 			this.togglebuttonListView	= (ToggleButton)this._builder.get_object("togglebuttonListView");
 			this.togglebuttonGridView	= (ToggleButton)this._builder.get_object("togglebuttonGridView");
@@ -116,10 +99,10 @@ namespace EPos
 			this.entryDiscount.name		= "entry-discount";
 			this.treeviewOrderItems 	= (TreeView)this._builder.get_object("treeviewOrderItems");
 			this.comboboxPaymentMethod 	= (ComboBox)this._builder.get_object("comboboxPaymentMethod");
-			this.comboboxCustomer		= (ComboBox)this._builder.get_object("comboboxCustomer");
+			this.entrySearchCustomer	= (Entry)this._builder.get_object("entrySearchCustomer");
 			this.textviewNotes			= (TextView)this._builder.get_object("textviewNotes");
 			this.Build();
-			this.LoadData();
+			//this.LoadData();
 			this.SetEvents();
 			
 			this.panedPos.reparent(this);
@@ -143,18 +126,14 @@ namespace EPos
 			this.comboboxPaymentMethod.model = new ListStore(2, typeof(string), typeof(string));
 			TreeIter iter;
 			(this.comboboxPaymentMethod.model as ListStore).append(out iter);
+			(this.comboboxPaymentMethod.model as ListStore).set(iter, 0, SBText.__("-- payment method --"), 1, "-1");
+			(this.comboboxPaymentMethod.model as ListStore).append(out iter);
 			(this.comboboxPaymentMethod.model as ListStore).set(iter, 0, "Cash", 1, "cod");
 			(this.comboboxPaymentMethod.model as ListStore).append(out iter);
 			(this.comboboxPaymentMethod.model as ListStore).set(iter, 0, "Credit Card", 1, "cc");
+			this.comboboxPaymentMethod.active_id = "-1";
 			this.comboboxPaymentMethod.show_all();
-			//build combobox customers
-			this.comboboxCustomer.model = new ListStore(2, typeof(string), typeof(string));	 
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 0, SBText.__("Guest"), 1, "-1");
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 0, SBText.__("Create New Customer"), 1, "-2");
-			this.comboboxCustomer.entry_text_column = 0;
-			this.comboboxCustomer.set_id_column(1);						
+						
 			//##build order items treeview
 			this.treeviewOrderItems.model = new ListStore(OrderColumns.NUM_COLS, 
 															typeof(int), //product quantity
@@ -176,36 +155,19 @@ namespace EPos
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewOrderItems);
 			this.treeviewOrderItems.get_column(OrderColumns.ACTION).max_width = 90;
-			this.treeviewOrderItems.get_column(OrderColumns.ACTION).set_data<string>("remove_action", "yes");
-						
-			/*
-			try
+			this.treeviewOrderItems.get_column(OrderColumns.ACTION).set_data<string>("action", "remove");	
+			this.entrySearchCustomer.completion = new EntryCompletion();		
+			this.entrySearchCustomer.completion.model = new ListStore(2, typeof(string), typeof(int));
+			this.entrySearchCustomer.completion.text_column = 0;
+			this.entrySearchCustomer.completion.set_match_func( (completion, key, iter) => 
 			{
-				show_loading("Loading data...");
-				unowned Thread<void*> thread1 = Thread.create<void*>(this._fillCategories, true);
-				unowned Thread<void*> thread2 = Thread.create<void*>(this._fillProducts, true);
-				unowned Thread<int> thread3 = Thread.create<int>(this._checkLoadedData, true);
-				//GLib.Thread<int> thread3 = new GLib.Thread<int>("check_thread", this._checkLoadedData);
-				//this._fillCategories();
-				//this._fillProducts();
-			}
-			catch(GLib.Error e)
-			{
-				stdout.printf("ERROR: %s\n", e.message);
-			}
-			*/
-			
+				return true;
+			});
 		}
 		protected void SetEvents()
 		{
-			/*
-			this.destroy.connect( () => 
-			{
-				this.panedPos.reparent(this.windowPos);
-			});
-			*/
-			//this.panedPos.size_allocate.connect( (allocation) => 
-			(this.get_toplevel()).size_allocate.connect( (allocation) => 
+			this.size_allocate.connect( (allocation) => 
+			//this.map.connect( () => 
 			{
 				int w = this.get_allocated_width();
 				this.panedPos.position = (int)(w * 0.55);
@@ -213,8 +175,6 @@ namespace EPos
 			//##set events
 			this.comboboxCategories.changed.connect(this.OnComboBoxCategoriesChanged);
 			this.entrySearchProduct.key_release_event.connect( this.OnEntrySearchProductKeyRelease );
-			(this.comboboxCustomer.get_child() as Entry).key_release_event.connect( this.OnEntryCustomerKeyReleaseEvent );
-			this.comboboxCustomer.changed.connect(this.OnComboBoxCustomerChanged);
 			this.togglebuttonGridView.toggled.connect(this.OnToggleButtonGridViewToggled);
 			this.togglebuttonListView.toggled.connect(this.OnToggleButtonListViewToggled);
 			//this.togglebuttonGridView.clicked.connect(this.OnToggleButtonGridViewClicked);
@@ -226,6 +186,8 @@ namespace EPos
 			this.treeviewOrderItems.button_release_event.connect(this.OnOrderItemsButtonReleaseEvent);
 			(this.treeviewOrderItems.get_column(OrderColumns.QTY).get_cells().nth_data(0) as CellRendererText).edited.connect(this.OnOrderItemQtyEdited);		
 			(this.treeviewOrderItems.get_column(OrderColumns.PRICE).get_cells().nth_data(0) as CellRendererText).edited.connect(this.OnOrderItemPriceEdited);
+			this.entrySearchCustomer.key_release_event.connect(this.OnSearchCustomerKeyReleaseEvent);
+			this.entrySearchCustomer.completion.match_selected.connect(this.OnCustomerSelected);
 		}
 		protected void _buildProductTreeView()
 		{
@@ -252,34 +214,18 @@ namespace EPos
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewProducts);
 			//build action column
 			var col = this.treeviewProducts.get_column(ProductColumns.ADD);
-			col.set_data<string>("add_action", "yes");
+			col.set_data<string>("action", "add");
 		
 			this.treeviewProducts.button_release_event.connect(this.OnButtonReleaseEvent);
 		}
-		public void LoadData()
+		public override void LoadData()
 		{
 			this._fillCategories();
 			
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			
 			string query = "SELECT COUNT(*) as total_products FROM products WHERE store_id = %d".
 								printf(this.storeId);
-			dbh.Query(query);
-			long total_products = dbh.Rows[0].GetInt("total_products");
-			
-			query = @"SELECT p.*, a.file AS thumbnail "+
-						@"FROM products p "+
-						@"LEFT JOIN attachments a ON p.product_id = a.object_id " +
-						@"WHERE 1 = 1 "+
-						@"AND store_id = %d "+
-						@"AND LOWER(a.object_type) = 'product' " +
-						@"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
-						"GROUP BY p.product_id "+
-						"ORDER BY p.product_id DESC";
-			query = query.printf(this.storeId);
-			//stdout.printf(query);
-			var prods = dbh.GetResults(query);
-			//stdout.printf("products: %d\n", prods.size);
+			long total_products = this.Dbh.GetRow(query).GetInt("total_products");
+			var prods = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
 			this._fillProducts(prods, "list");
 			this.labelTotalProducts.label = total_products.to_string();
 		}
@@ -295,70 +241,58 @@ namespace EPos
 			);		
 			this.comboboxCategories.active_id = "-1";
 			//Gdk.threads_enter();
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			string query = "SELECT * FROM categories WHERE parent = 0 AND store_id = %d ORDER BY name ASC".
-							printf(this.storeId);
-			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
-			if( rows.size <= 0 )
-				return;
 			
-			//var time = new DateTime.now_local();
-			
-			foreach(SBDBRow row in rows)
+			var cats = EPosHelper.GetCategories(this.storeId, 0, this.Dbh);
+						
+			foreach(var cat in cats)
 			{
 				//##insert categories
 				(this.comboboxCategories.model as TreeStore).append(out iter, null);
 				(this.comboboxCategories.model as TreeStore).set(iter,
-					0, row.Get("name"),
-					1, row.Get("category_id")
+					0, cat.Name,
+					1, cat.Id.to_string()
 				);				
-				query = "SELECT * FROM categories WHERE parent = %d AND store_id = %d ORDER BY name ASC".
-							printf(row.GetInt("category_id"), this.storeId);;
-				var childs = dbh.GetResults(query);
-				if( childs.size > 0 )
+				TreeIter citer;
+				foreach(var child in cat.Childs)
 				{
-					TreeIter citer;
-					foreach(var child in childs)
-					{
-						(this.comboboxCategories.model as TreeStore).append(out citer, iter);
-						(this.comboboxCategories.model as TreeStore).set(citer,
-							0, child.Get("name"),
-							1, child.Get("category_id")
-						);				
-					}
+					(this.comboboxCategories.model as TreeStore).append(out citer, iter);
+					(this.comboboxCategories.model as TreeStore).set(citer,
+						0, child.Name,
+						1, child.Id.to_string()
+					);				
 				}
 			}
 			//Gdk.threads_leave();
 			this._categoriesLoaded = true;
 		}
-		public void _fillProducts(ArrayList<SBDBRow> rows, string view = "list")
+		public void _fillProducts(ArrayList<SBProduct> rows, string view = "list")
 		{
 			//Gdk.threads_enter();
 			if( this.scrolledwindow1.get_child() != null )
 			{
-				this.scrolledwindow1.get_child().dispose();
+				this.scrolledwindow1.get_child().destroy();
 			}
 			if( rows.size <= 0 )
 			{
 				return;
 			}
-			//stdout.printf("Preparing to add %d products with '%s' mode.\n", rows.size, view);
+			string images_path = SBFileHelper.SanitizePath("images/store_%d/".printf(this.storeId));
+			var placeholder = (SBModules.GetModule("Pos") as SBGtkModule).GetPixbuf("placeholder-80x80.png");
 			if( view == "list" )
 			{
 				this._buildProductTreeView();
 				this.scrolledwindow1.add(this.treeviewProducts);
-							
+				string add_icon	= SBFileHelper.SanitizePath("share/images/add-icon.png");		
+				var add_pixbuf = new Gdk.Pixbuf.from_file(add_icon);	
+				
 				try
 				{
-					foreach(var row in rows)
+					foreach(var prod in rows)
 					{
-						/*
-						var prod = new ECProduct.from_row(row);
-						string add_icon	= SBFileHelper.SanitizePath("share/images/add-icon.png");
-						string product_image = SBFileHelper.SanitizePath("images/%s".printf(prod.Thumbnail));
+						string product_image = images_path + prod.GetThumbnail();
 						
-						Gdk.Pixbuf prod_pixbuf = null;
-						if( prod.Thumbnail.strip().length <= 0 || FileUtils.test(product_image, FileTest.EXISTS) )
+						Gdk.Pixbuf? prod_pixbuf = null;
+						if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
 						{
 							prod_pixbuf = new Gdk.Pixbuf.from_file(product_image);
 							if( prod_pixbuf.width > 80 )
@@ -366,27 +300,22 @@ namespace EPos
 								prod_pixbuf = prod_pixbuf.scale_simple(80, 80, Gdk.InterpType.BILINEAR);
 							}
 						}
-						else
-						{
-							//prod_pixbuf = new Gdk.Pixbuf.from_file("images/");
-							stderr.printf("no image\n");
-						}
+						
 						TreeIter iter;
 						
 						(this.treeviewProducts.model as ListStore).append(out iter);
 						(this.treeviewProducts.model as ListStore).set(iter,
-													0, prod_pixbuf,
-													1, (prod.XId == 0) ? prod.Id : prod.XId, 
+													0, prod_pixbuf == null ? placeholder : prod_pixbuf,
+													1, prod.Id,
 													2, prod.Name, 
 													3, prod.Quantity, 
 													4, "%.2lf".printf(prod.Price),
-													5, new Gdk.Pixbuf.from_file(add_icon),
+													5, add_pixbuf,
 													6, prod.Id
 						);
-						*/
 					}
 					
-					this.treeviewProducts.show_all();
+					
 				}
 				catch(Error e)
 				{
@@ -395,46 +324,41 @@ namespace EPos
 					msg.run();
 					msg.destroy();
 				}
+				this.treeviewProducts.show_all();
 			}
 			else if( view == "grid" )
 			{
-				this._grid = new Grid();
-				this._grid.row_spacing = 5;
-				this._grid.column_spacing = 5;
-				this._grid.column_homogeneous = false;
-				this.scrolledwindow1.add_with_viewport(this._grid);
-				
-				int row = 0, col = 0;
-				
-				foreach(SBDBRow db_row in rows)
+				this.fixedProducts = new SBFixed()
 				{
-					/*
-					var product = new ECProduct.from_row(db_row);
-					string product_image = SBFileHelper.SanitizePath("images/%s".printf(product.Thumbnail));
-					stdout.printf("getting thumbnail => %s\n", product_image);
+					Width = this.scrolledwindow1.get_allocated_width()
+				};
+				this.fixedProducts.SetWidgetSize(100, 110);
+				this.fixedProducts.show();
+				this.scrolledwindow1.add_with_viewport(this.fixedProducts);
+							
+				foreach(var prod in rows)
+				{
+					string product_image = images_path + prod.GetThumbnail();
+					
 					try
 					{
-						//var prod_pixbuf = new Gdk.Pixbuf.from_file_at_scale(product_image, 80, 80, true);
-						Gdk.Pixbuf prod_pixbuf = null;
-						if( FileUtils.test(product_image, FileTest.EXISTS) )
+						Gdk.Pixbuf? prod_pixbuf = null;
+						if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
 						{
 							prod_pixbuf = new Gdk.Pixbuf.from_file(product_image);
 						}
-						else
-						{
-						}
-						string label = "Price: %.2lf".printf(product.Price);
+						
+						string label = "Price: %.2lf".printf(prod.Price);
 						Button btn = new Button.with_label(label);
 						//btn.tooltip_text = product.get_string_member("title");
 						btn.has_tooltip = true;
 						var tooltip_window = new Window(){skip_taskbar_hint = true};
 						tooltip_window.decorated = false;
 						var box = new Box(Gtk.Orientation.VERTICAL, 5){margin = 10};
-						
-						box.pack_start(new Label( "Name: %s".printf(product.Name) ){xalign = 0});
-						box.pack_start(new Label("Price: %.2lf".printf(product.Price)){xalign = 0});
-						box.pack_start(new Label("Stock: %d".printf(product.Quantity)){xalign = 0});
-						box.pack_start(new Label("Woo ID: %d".printf(product.XId)){xalign = 0});
+						box.pack_start(new Label("Name: %s".printf(prod.Name) ){xalign = 0});
+						box.pack_start(new Label("Price: %.2lf".printf(prod.Price)){xalign = 0});
+						box.pack_start(new Label("Stock: %d".printf(prod.Quantity)){xalign = 0});
+						box.pack_start(new Label("Woo ID: %d".printf(prod.GetInt("extern_id"))){xalign = 0});
 						box.show_all();
 						tooltip_window.add(box);
 						tooltip_window.name = "gtk-tooltip";
@@ -448,26 +372,18 @@ namespace EPos
 						btn.vexpand = false;
 						btn.hexpand = false;
 						btn.set_size_request(80,80);
-						//btn.width = 80;
-						btn.image = new Image.from_pixbuf(prod_pixbuf);
+						btn.image = new Image.from_pixbuf(prod_pixbuf != null ? prod_pixbuf : placeholder);
 						btn.image_position = PositionType.TOP;
 						btn.clicked.connect( () => 
 						{
-							this._addProductToOrder(product);
+							this._addProductToOrder(prod);
 						});
-						this._grid.attach(btn, col, row, 1, 1);
-						col++;
-						if( col == 4 )
-						{
-							col = 0;
-							row++;
-						}
+						this.fixedProducts.AddWidget(btn);
 					}
 					catch(GLib.Error e)
 					{
 						stdout.printf("ERROR: %s\n", e.message);
 					} 
-					*/
 				}
 				//this.togglebuttonGridView.active = true;
 			}	
@@ -496,17 +412,16 @@ namespace EPos
 								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
 								"GROUP BY p.product_id ";
 			query = query.printf("%"+keyword+"%", this.storeId);
-			stdout.printf(query);
-			var rows = dbh.GetResults(query);
-			this._fillProducts(rows, this._currentView);
 			
-			if( this._offline )
+			var rows = this.Dbh.GetResults(query);
+			var prods = new ArrayList<SBProduct>();
+			foreach(var row in rows)
 			{
-				
+				var p = new SBProduct.with_db_data(row);
+				prods.add(p);
 			}
-			else
-			{
-			}
+			this._fillProducts(prods, this._currentView);
+		
 			return true;
 		}
 		/*
@@ -528,26 +443,6 @@ namespace EPos
 		*/
 		public void OnButtonRefreshProductsClicked(Button button)
 		{
-			/*
-			stderr.printf ("refreshing products...\n");
-			SBInvoice invoice = new SBInvoice();
-			invoice.window = this._builder.get_object ("windowMain") as Window;			
-			invoice.Prepare();
-			this.treeviewOrderItems.model.foreach((_model, _path, _iter) => 
-			{
-				Value the_value;
-				var prod = new SBProduct();
-				(_model as ListStore).get_value(_iter, 0, out the_value);
-				prod.Quantity = (int)the_value;
-				(_model as ListStore).get_value(_iter, 1, out the_value);
-				prod.Name = (string)the_value;
-				(_model as ListStore).get_value(_iter, 2, out the_value);
-				prod.Price = (float)double.parse((string)the_value);
-				invoice.Items.append(prod);
-				return false;
-			});
-			invoice.Preview();
-			*/
 			var dlg = new MessageDialog(null, DialogFlags.MODAL, 
 											MessageType.ERROR, 
 											ButtonsType.CLOSE, 
@@ -574,26 +469,18 @@ namespace EPos
 			if( !this.treeviewProducts.get_selection().get_selected(out model, out iter) )
 				return false;
 			
-			string add = c.get_data<string>("add_action");
-			if( add == "yes" )        
+			string action = c.get_data<string>("action");
+			if( action == "add" )        
             {
 				GLib.Value v_pid;
 				
-				//get local id
 				(this.treeviewProducts.model as ListStore).get_value(iter, ProductColumns.ID, out v_pid);
-				//stdout.printf("trying to add product %d\n", (int)v_pid);
-				//string query = "SELECT * FROM products WHERE product_id = %d LIMIT 1".printf((int)pid);
-				//var product = new ECProduct((int)v_pid);
-				
-				/*if( product.Id > 0 )
+				var product = new SBProduct(){Dbh = this.Dbh};
+				product.GetDbData((int)v_pid);
+				if( product.Id > 0 )
 				{
 					this._addProductToOrder(product);									
 				}
-				else
-				{
-					
-				}
-				*/
 			}
 			
 			return true;
@@ -612,10 +499,10 @@ namespace EPos
 			if( !this.treeviewOrderItems.get_selection().get_selected(out model, out iter) )
 				return false;
 			
-			string remove = c.get_data<string>("remove_action");
+			string action = c.get_data<string>("action");
 			
 			
-            if( remove == "yes" )        
+            if( action == "remove" )        
             {
 				GLib.Value product_id, qty, price;
 			
@@ -648,18 +535,11 @@ namespace EPos
 			double total = (int)v_qty * double.parse((string)v_price);
 			(this.treeviewOrderItems.model as ListStore).set_value(iter, OrderColumns.TOTAL, "%.2f".printf(total));
 		}
-		protected void _addProductToOrder(/*ECProduct product*/)
+		protected void _addProductToOrder(SBProduct product)
 		{
 			TreeIter iter;
-			int product_id = 0;
-			if( this._offline )
-			{
-				//product_id = product.Id;
-			}
-			else
-			{
-				//product_id = (product.XId == 0) ? product.Id : product.XId;
-			}
+			int product_id = product.Id;
+			
 			stdout.printf("pid: %d\n", product_id);
 			
 			int qty = 1;
@@ -679,7 +559,7 @@ namespace EPos
 				//this.labelVAT.label = "%.2f".printf(this.store.TaxRate);
 				try
 				{
-					/*
+					
 					(this.treeviewOrderItems.model as ListStore).append(out iter);
 					(this.treeviewOrderItems.model as ListStore).set(iter,
 							OrderColumns.QTY, qty,
@@ -688,9 +568,9 @@ namespace EPos
 							OrderColumns.TOTAL, "%.2lf".printf(product.Price),
 							OrderColumns.ACTION, new Gdk.Pixbuf.from_file(SBFileHelper.SanitizePath("share/images/remove-icon.png")),
 							OrderColumns.PRODUCT_ID, product.Id,
-							OrderColumns.EXTERNAL_ID, product.XId
+							OrderColumns.EXTERNAL_ID, product.GetInt("extern_id")
 					);
-					*/
+					
 				}
 				catch(Error e)
 				{
@@ -741,6 +621,41 @@ namespace EPos
 			this._calculateOrderItermTotal(iter);
 			this.CalculateOrderTotal();
 		}
+		protected bool OnSearchCustomerKeyReleaseEvent(Gdk.EventKey event)
+		{
+			if( /*args.keyval == 65293 || args.keyval == 65288 ||*/ event.keyval == 65361 || event.keyval == 65362 || event.keyval == 65363 || event.keyval == 65364 )
+			{
+				return true;
+			}
+			(this.entrySearchCustomer.completion.model as ListStore).clear();
+			string keyword = this.entrySearchCustomer.text.strip();
+			if( keyword.length <= 0)
+			{
+				
+				return true;
+			}
+			string query = "SELECT * FROM customers WHERE (first_name || last_name) LIKE '%s' AND store_id = %d".printf("%"+keyword+"%", this.storeId);
+			var rows = this.Dbh.GetResults(query);
+			TreeIter iter;
+			foreach(var row in rows)
+			{
+				(this.entrySearchCustomer.completion.model as ListStore).append(out iter);
+				(this.entrySearchCustomer.completion.model as ListStore).set(iter,
+					0, "%s %s".printf(row.Get("first_name"), row.Get("last_name")),
+					1, row.GetInt("customer_id")
+				);
+			}
+			return true;
+		}
+		protected bool OnCustomerSelected(TreeModel model, TreeIter iter)
+		{
+			Value name, cid;
+			model.get_value(iter, 0, out name);
+			model.get_value(iter, 1, out cid);
+			this.entrySearchCustomer.text = (string)name;
+			this.customerId = (int)cid;
+			return true;
+		}
 		/**
 		 * Register new into store
 		 */
@@ -748,7 +663,7 @@ namespace EPos
 		{
 			TreeIter iter;
 			
-			if( this.comboboxPaymentMethod.active_id == "" || this.comboboxPaymentMethod.active_id == null )
+			if( this.comboboxPaymentMethod.active_id == null || this.comboboxPaymentMethod.active_id == "-1" )
 			{
 				var err = new InfoDialog("error");
 				err.Title 	= SBText.__("Sale error");
@@ -758,123 +673,102 @@ namespace EPos
 				this.comboboxPaymentMethod.grab_focus();
 				return;
 			}
-			if( this.comboboxCustomer.active_id == null || this.comboboxCustomer.active_id == "" )
+			if( this.customerId <= 0 )
 			{
-				/*
-				var err = new MessageDialog(null, 
-											DialogFlags.MODAL, 
-											MessageType.ERROR, 
-											ButtonsType.CLOSE, 
-											SBText.__("You need to select a customer."));
-				*/
 				var err = new InfoDialog("error");
 				err.Title = SBText.__("Error");
 				err.Message = SBText.__("You need to select a customer.");
 				err.run();
 				err.destroy();
-				this.comboboxCustomer.grab_focus();
+				this.entrySearchCustomer.grab_focus();
 				return;
 			}
 			if( !this.treeviewOrderItems.model.get_iter_first(out iter) )
 			{
-				/*
-				MessageDialog msg = new MessageDialog(null, 
-													DialogFlags.MODAL,
-													MessageType.ERROR, 
-													ButtonsType.CLOSE, 
-													SBText.__("There are no products into order"));
-				*/
 				var err = new InfoDialog("error")
 				{
 					Title 	= SBText.__("Error"),
-					Message = SBText.__("You need to select a customer.")
+					Message = SBText.__("You need to add products to order.")
 				};
 				
 				err.run();
 				err.destroy();
 				return;
 			}
-			
-			int customer_id = int.parse(this.comboboxCustomer.active_id);
+			this.Dbh.BeginTransaction();
 			string notes 	= this.textviewNotes.buffer.text.strip();
-			/*
-			var sale = new SBTransaction.for_store(this.store.Id);
-			sale.TypeId 	= this.store.sales_tt_id;
-			sale.Discount 	= 0;
-			sale.UserId		= 0;
-			sale.Notes 		= this.textviewNotes.buffer.text.strip();
-			sale.CustomerId = customer_id;
-			sale.Status = "sold";
+			var sale 		= new ESale();
+			sale.Dbh		= this.Dbh;
+			sale.Code 		= "";
+			sale.StoreId 	= this.storeId;
+			sale.CashierId 	= 0;
+			sale.CustomerId = this.customerId;
+			sale.Notes 		= notes;
+			sale.SubTotal	= double.parse(this.labelSubTotal.label);
+			sale.TaxRate	= 0;
+			sale.TaxAmount	= 0;
+			sale.Discount	= 0;
+			sale.Total		= double.parse(this.labelTotal.label);
+			sale.Status		= "completed";
 			
 			this.treeviewOrderItems.model.foreach( (_model, _path, _iter) => 
 			{
-				Value v_pid, v_qty, v_price;
+				Value v_pid, v_qty, v_price, v_pname;
 				_model.get_value(_iter, OrderColumns.QTY, out v_qty);
 				_model.get_value(_iter, OrderColumns.PRODUCT_ID, out v_pid);
 				_model.get_value(_iter, OrderColumns.PRICE, out v_price);
+				_model.get_value(_iter, OrderColumns.PRODUCT_NAME, out v_pname);
 				//##add item to order/sale
-				sale.AddItem((int)v_pid, (int)v_qty, double.parse((string)v_price));
+				var sale_item = new ESaleItem();
+				sale_item.ProductId 	= (int)v_pid;
+				sale_item.ProductName 	= (string)v_pname;
+				sale_item.Quantity		= (int)v_qty;
+				sale_item.Price			= double.parse((string)v_price);
+				sale_item.SubTotal		= sale_item.Quantity * sale_item.Price;
+				sale_item.TaxRate		= 0;
+				sale_item.TaxAmount		= 0;
+				sale_item.Discount		= 0;
+				sale_item.Total			= (sale_item.SubTotal + sale_item.TaxAmount) - sale_item.Discount;
+				sale_item.Status		= "completed";
+				sale.SetItem(sale_item);
+				
 				return false;
 				
 			});
+			var meta = new HashMap<string, Value?>();
+			meta.set("payment_method", this.comboboxPaymentMethod.active_id);
+			meta.set("customer_created", this.customerCreated ? "yes" : "no");
+			
+			var before_args = new SBModuleArgs<HashMap<string, Value?>>();
+			var bdata = new HashMap<string, Value?>();
+			bdata.set("store", this.store);
+			bdata.set("sale_obj", sale);
+			bdata.set("sale_meta", meta);
+			before_args.SetData(bdata);
+			SBModules.do_action("before_register_sale", before_args);
+			int sale_id = sale.Register();
+			//##add sale meta
+			foreach(var m in meta.keys)
+			{
+				SBMeta.AddMeta("sale_meta", m, "sale_id", sale_id, (string)meta[m], this.Dbh);
+			}
+			var after_args = new SBModuleArgs<HashMap<string, Value?>>();
+			var data = new HashMap<string, Value?>();
+			data.set("sale_id", sale_id);
+			data.set("sale_obj", sale);
+			after_args.SetData(data);
+			SBModules.do_action("after_register_sale", after_args);
+			
 			//##store order/sale into local database
-			sale.CreateTransaction();
-			sale.UpdateMeta("payment_method", this.comboboxPaymentMethod.active_id);
+			this.Dbh.EndTransaction();
+			var msg = new InfoDialog("success")
+			{
+				Title = SBText.__("Point of Sale"),
+				Message = SBText.__("The order has been registered.")
+			};
+			msg.run();
+			msg.destroy();
 			
-			if( sale.Id <= 0 )
-			{
-				var err = new MessageDialog(null, 
-											DialogFlags.MODAL, 
-											MessageType.INFO, 
-											ButtonsType.OK, 
-											SBText.__("An error ocurred trying to register the order locally, please contact with support."));
-				err.title = SBText.__("Error");
-				err.run();
-				err.destroy();
-				return;
-			}
-			
-			bool order_placed = true;
-			string error = "";
-			int wc_order_id = -1;
-			if( this.store.Type == "woocommerce" )
-			{
-				
-				order_placed = ECHelper.RegisterWoocommerceOrder(sale, out wc_order_id, out error);
-				if( !order_placed )
-				{
-					error += "\nThe order was registered locally sucessfully, so you can try to synchronize it with your " + 
-							"Woocommerce store later.";
-					sale.UpdateStatus("pending_sync");
-					var err = new MessageDialog(null, 
-											DialogFlags.MODAL, 
-											MessageType.INFO, 
-											ButtonsType.OK, 
-											error);
-					err.title = SBText.__("Error");
-					err.run();
-					err.destroy();
-				}
-				else
-				{
-					
-					sale.UpdateMeta("wc_order_id", wc_order_id.to_string());
-				}
-			}
-			*/
-			/*
-			if( order_placed )		
-			{
-				var dlg = new MessageDialog(null, 
-											DialogFlags.MODAL, 
-											MessageType.INFO, 
-											ButtonsType.OK, 
-											SBText.__("The order has been placed."));
-				dlg.title = SBText.__("Order Placed");
-				dlg.run();
-				dlg.destroy();
-			}
-			*/
 				
 			/*	
 			//## get print settings
@@ -977,197 +871,35 @@ namespace EPos
 		}
 		protected void SetCustomers(/*WCCustomer[] customers*/)
 		{
-			TreeIter iter;
 			
-			(this.comboboxCustomer.model as ListStore).clear();
-			
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 
-							0, "Guest",
-							1, "-1"
-			);
-			/*
-			foreach(WCCustomer customer in customers)
-			{
-				(this.comboboxCustomer.model as ListStore).append(out iter);
-				(this.comboboxCustomer.model as ListStore).set(iter, 
-								0, customer.Username,
-								1, customer.XId.to_string()
-				);
-			}
-			*/
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 
-							0, "Create New Customer",
-							1, "-2"
-			);
 		}
 		protected uint 		_timeout = 0;
 		protected string 	_keyword;
 		
 		protected bool _searchTimeout()
 		{
-			string keyword = (this.comboboxCustomer.get_child() as Entry).text;
-			//stdout.printf("keyword: %s\n", keyword);
-			if(keyword.length <= 0)
-				return false;
-				
-			TreeIter iter;
-			(this.comboboxCustomer.model as ListStore).clear();
 			
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 
-							0, SBText.__("Guest"),
-							1, "-1",
-							-1
-			);
-			//if( this.store.Type == "local" )
-			{
-				var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-				string query = "SELECT * FROM customers "+
-								"WHERE first_name LIKE '%s' "+
-								"OR last_name LIKE '%s'";
-				query = query.printf("%"+keyword+"%", "%"+keyword+"%");
-				//stdout.printf("query: %s\n", query);
-				var rows = dbh.GetResults(query);
-				foreach(SBDBRow row in rows)
-				{
-					(this.comboboxCustomer.model as ListStore).append(out iter);
-					(this.comboboxCustomer.model as ListStore).set(iter, 
-									0, "%s %s".printf(row.Get("first_name"), row.Get("last_name")),
-									1, "%d".printf(row.GetInt("customer_id"))
-					);
-				}
-			}
-			/*
-			else if( this.store.Type == "woocommerce" )
-			{
-				Json.Array? customers = this._wcApi.SearchCustomerByName(keyword);
-				if(customers.get_length() > 0)
-				{
-					//(this.entryCustomer.completion.model as ListStore).clear();
 					
-					foreach(var node in customers.get_elements())
-					{
-						
-						var customer = node.get_object();
-						(this.comboboxCustomer.model as ListStore).append(out iter);
-						(this.comboboxCustomer.model as ListStore).set(iter, 
-										0, customer.get_string_member("first_name"),
-										1, "%d".printf((int)customer.get_int_member("id")),
-										-1
-						);
-						stdout.printf("%d, %s\n", (int)customer.get_int_member("id"),customer.get_string_member("first_name"));
-						stdout.printf("complete()\n");
-						//this.entryCustomer.completion.complete();
-					}
-					
-				}
-			}
-			*/
-			(this.comboboxCustomer.model as ListStore).append(out iter);
-			(this.comboboxCustomer.model as ListStore).set(iter, 
-							0, SBText.__("Create New Customer"),
-							1, "-2",
-							-1
-			);
-			GLib.Signal.emit_by_name(this.comboboxCustomer, "popup");			
 			return false;
-		}
-		protected bool OnEntryCustomerKeyReleaseEvent(Gdk.EventKey args)
-		{
-			//##check for enter, backspace and arrow keys
-			if( args.keyval == 65293 || args.keyval == 65288 || args.keyval == 65361 || args.keyval == 65362 || args.keyval == 65363 || args.keyval == 65364 )
-				return true;
-			
-			if( this._timeout > 0 )
-			{
-				GLib.Source.remove(this._timeout);
-			}
-			
-			//this._timeout = GLib.Timeout.add_seconds(1, this._searchTimeout);
-			this._timeout = GLib.Timeout.add(300, this._searchTimeout);
-			return true;
 		}
 		protected void OnComboBoxCategoriesChanged()
 		{
 			if( this.comboboxCategories.active_id == null )
 				return;
 			int category_id = int.parse(this.comboboxCategories.active_id);
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			//var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			if( category_id == -1 )
 			{
-				string query = "SELECT p.*, a.file AS thumbnail "+
-								"FROM products p "+
-									"LEFT JOIN attachments a ON a.object_id = p.product_id "+
-								"WHERE 1 = 1 " +								
-								"AND p.store_id = %d "+
-								"AND LOWER(a.object_type) = 'product' "+
-								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
-								"GROUP BY p.product_id "+
-								"ORDER BY p.product_name ASC";
-				query = query.printf(this.storeId);
+				var prods = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
+				this._fillProducts(prods, this._currentView);
 				
-				var rows = dbh.GetResults(query);
-				this._fillProducts(rows, this._currentView);
-				//stdout.printf("QUERY: %s, rows: %d\n", query, rows.size);
 				return;
 			}
-			string query = "SELECT p.*,a.file AS thumbnail "+
-								"FROM products p, product2category p2c " + 
-									"LEFT JOIN attachments a ON a.object_id = p.product_id " +
-								"WHERE p.product_id = p2c.product_id " + 
-								"AND p.store_id = %d "+
-								"AND p2c.category_id = %d " + 
-								"AND LOWER(a.object_type) = 'product' " +
-								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
-								"GROUP BY p.product_id "+
-								"ORDER BY product_name ASC";
-			query = query.printf(this.storeId, category_id);
-			var rows = dbh.GetResults(query);
-			this._fillProducts(rows, this._currentView);
-			/*
-			if( this._offline )
-			{
-				string query = "SELECT p.*,a.file AS thumbnail FROM products p, product2category p2c, attachments a " +
-								"WHERE p.product_id = p2c.product_id " + 
-								"AND p.product_id = a.object_id "+
-								"AND p.store_id = %d "+
-								"AND LOWER(a.object_type) = 'product' " +
-								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
-								"AND p2c.category_id = %d " + 
-								"ORDER BY product_name ASC";
-				query = query.printf(this.storeId, category_id);
-				//stderr.printf("%s => %s\n", query, this._currentView);
-				var rows = dbh.GetResults(query);
-				this._fillProducts(rows, this._currentView);
-			}
-			else
-			{
-			}
-			*/
-		}
-		protected void OnComboBoxCustomerChanged()
-		{
-			if( this.comboboxCustomer.active_id == null )
-				return;
 			
-			if( this.comboboxCustomer.active_id == "-2" )
-			{
-				var dlg = new DialogCreateCustomer();
-				dlg.show_all();
-				/*
-				dlg.OnCustomerCreated = (the_customer) => 
-				{
-					this.SetCustomers({the_customer});
-					this.comboboxCustomer.active_id = the_customer.XId.to_string();
-					dlg.TheDialog.dispose();
-				};
-				*/
-			}
-			GLib.Signal.emit_by_name(this.comboboxCustomer, "popdown");
-			//stdout.printf("active_id => %s\n", this.comboboxCustomer.active_id);
+			var prods = EPosHelper.GetCategoryProducts(category_id, this.Dbh);
+			this._fillProducts(prods, this._currentView);
 		}
+		/*
 		protected ArrayList<SBDBRow> GetProducts(int store_id, out int total)
 		{
 			total = 0;
@@ -1186,6 +918,7 @@ namespace EPos
 					"ORDER BY p.product_name ASC LIMIT 100";
 			return dbh.GetResults(query.printf(store_id));
 		}
+		*/
 		protected void OnToggleButtonGridViewClicked()
 		{
 			//this.togglebuttonListView.active = false;
@@ -1218,7 +951,7 @@ namespace EPos
 						
 			stdout.printf("loading products\n");
 			int total = 0;
-			var rows = this.GetProducts(this.storeId, out total);
+			var rows = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
 			this._fillProducts(rows, "list");
 			this.labelTotalProducts.label = total.to_string();
 			
@@ -1241,7 +974,7 @@ namespace EPos
 						
 			stdout.printf("loading products\n");
 			int total = 0;
-			var rows = this.GetProducts(this.storeId, out total);
+			var rows = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
 			this._fillProducts(rows, "grid");
 			this.labelTotalProducts.label = total.to_string();
 			this.lock_list_view = false;
@@ -1250,11 +983,13 @@ namespace EPos
 		{
 			(this.treeviewOrderItems.model as ListStore).clear();
 			this.comboboxPaymentMethod.active_id = "-1";
-			this.comboboxCustomer.active_id = "-1";
+			this.entrySearchCustomer.text = "";
+			this.textviewNotes.buffer.text = "";
 			this.labelSubTotal.label = "0.00";
 			this.labelVAT.label = "0.00";
 			this.entryDiscount.text = "";
 			this.labelTotal.label = "0.00";
+			this.customerId = 0;
 		}
 	}
 }

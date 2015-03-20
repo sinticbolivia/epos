@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class SB_ModuleInventory : SBGtkModule, ISBModule
 	{
@@ -481,7 +481,7 @@ namespace Woocommerce
 		}
 	}
 }
-public Type sb_get_module_type(Module inventory_module)
+public Type sb_get_module_libinventory_type(Module inventory_module)
 {
-	return typeof(Woocommerce.SB_ModuleInventory);
+	return typeof(EPos.SB_ModuleInventory);
 }
