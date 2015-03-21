@@ -5,6 +5,7 @@
 		<file compressed="true">ui/categories.glade</file>
 		<file compressed="true">ui/products.glade</file>
 		<file compressed="true">ui/customers.glade</file>
+		<file compressed="true">ui/widget.sync-products.glade</file>
 		<file compressed="true">images/woocommerce_logo-64x64.png</file>
 		<file compressed="true">images/WooLogo-25x15.png</file>
 		<file compressed="true">images/placeholder-80x80.png</file>

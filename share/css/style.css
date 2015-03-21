@@ -497,7 +497,91 @@ GtkComboBox.radius{border-radius:8px;}
 GtkComboBox.right-radius GtkButton{border-radius:0px 8px 8px 0px;}
 GtkComboBox.left-radius GtkButton{border-radius:8px 0px 0px 8px;}
 
+/************************************/
+/******* GtkProgressBar styles ******/
+/************************************/
+.progressbar,
+.progressbar row,
+.progressbar row:hover,
+.progressbar row:selected,
+.progressbar row:selected:focused {
+	background-image: -gtk-gradient (linear,
+		left top, left bottom,
+		from (#97dffd),
+		to (#248cb5));
 
+	border-radius: 0;
+	border-style: solid;
+	border-width: 1;
+	border-color: #38159c;
+}
+
+.progressbar.vertical,
+.progressbar.vertical row,
+.progressbar.vertical row:hover,
+.progressbar.vertical row:selected,
+.progressbar.vertical row:selected:focused {
+	background-image: -gtk-gradient (linear,
+		left top, right top,
+		from (#57d9d1),
+		to (#57d9d1));
+
+	border-radius: 0;
+	border: 1px solid #38159c;
+}
+
+/* through component */
+GtkProgressBar,
+.trough row {
+	padding: 0;
+}
+
+GtkProgressBar.trough,
+.trough row,
+.trough row:hover {
+	background-image: -gtk-gradient (linear,
+		left top, left bottom,
+		from (#ececec),
+		to (#ececec));
+
+	border: 1px solid shade (#b1b1b1, 1.0);
+	border-radius: 0;
+}
+/*
+GtkProgressBar.trough.vertical,
+.trough.vertical row,
+.trough.vertical row:hover {
+	background-image: -gtk-gradient (linear,
+		left top, right top,
+		from (@progressbar_through_a),
+		to (@progressbar_through_b));
+
+	border-width: 1;
+	border-style: solid;
+	border-radius: 0;
+	border-color: shade (@progressbar_through_border, 1.0);
+}
+
+.trough row:selected,
+.trough row:selected:focused {
+	background-image: -gtk-gradient (linear,
+		left top, left bottom,
+		from (mix (@trough_bg_color_a, @theme_selected_bg_color, 0.25)),
+		to (mix (@trough_bg_color_b, @theme_selected_bg_color, 0.25)));
+}
+
+.trough.vertical row:selected,
+.trough.vertical row:selected:focused {
+	background-image: -gtk-gradient (linear,
+		left top, right top,
+		from (mix (@trough_bg_color_a, @theme_selected_bg_color, 0.25)),
+		to (mix (@trough_bg_color_b, @theme_selected_bg_color, 0.25)));
+}
+*/
+
+/*******************************/
+/***** SBWidget styles *********/
+/*******************************/
 .widget-container{padding:5px;}
 .widget-container GtkViewport{border:0;}
 .widget-container .wrap{padding:8px;}

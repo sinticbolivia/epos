@@ -6,8 +6,11 @@ using SinticBolivia.Database;
 
 namespace EPos.Woocommerce
 {
+	public delegate void SyncCallback(int totals, int imported, string item_name, string message);
 	public class SBWCSync : GLib.Object
 	{
+		
+		
 		protected	WC_Api_Client _api;
 		public		SBDatabase		Dbh{get;set;}
 		
@@ -147,25 +150,26 @@ namespace EPos.Woocommerce
 				dbh.Execute(update);
 			}
 		}
-		public long SyncProducts(int store_id)
+		public long SyncProducts(int store_id, SyncCallback? cb = null, FileProgressCallback? progress_callback = null)
 		{
 			this._api.debug = true;
 			int total_prods = 0;
 			int total_pages = 0;
-			var products = this._api.GetProducts(100, 1, out total_prods, out total_pages);
+			int imported	= 0;
+			int products_per_page = 100;
+			var products = this._api.GetProducts(products_per_page, 1, out total_prods, out total_pages);
 			try
 			{
-				this.Dbh.BeginTransaction();
-				
 				for(int page = 1; page <= total_pages; page++)
 				{
 					if( page > 1 )
 					{
-						products = this._api.GetProducts(100, page, out total_prods, out total_pages);
+						products = this._api.GetProducts(products_per_page, page, out total_prods, out total_pages);
 					}
 					stdout.printf ("Synchronizing page: %d\n", page);
 					foreach (var prod in products) 
 					{
+						this.Dbh.BeginTransaction();
 						int woo_id 				= (int)prod["id"];
 						double price 			= (double)prod["price"];
 						double regular_price 	= (double)prod["regular_price"];
@@ -177,21 +181,24 @@ namespace EPos.Woocommerce
 											printf(woo_id, store_id);
 						var row = this.Dbh.GetRow(query);
 						int product_id = 0;
+						//##call sync callback
+						if( cb != null ) cb(total_prods, imported, (string)prod["title"], "");
 						if( row != null )
 						{
 							//##update product data
 							product_id = row.GetInt("product_id");
 							//TODO:update product stock
 							var udata = new HashMap<string, Value?>();
-							//udata.set("product_description", product.get_string_member("description"));
+							udata.set("product_description", this.StripHtmlTags((string)prod["description"]));
 							udata.set("product_quantity", qty);
 							var uw = new HashMap<string, Value?>();
 							uw.set("product_id", product_id);
 							this.Dbh.Update("products", udata, uw);
+							imported++;
 						}
 						else
 						{
-							string cdate = new DateTime.now_local().format("%Y-%m-%d : %H:%M:%S");
+							string cdate = new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
 							HashMap<string, Value?> _row = new HashMap<string, Value?>();
 							
 							_row.set("extern_id", woo_id); 
@@ -208,23 +215,17 @@ namespace EPos.Woocommerce
 							_row.set("creation_date", cdate);
 							//##insert record
 							product_id = (int)this.Dbh.Insert("products", _row);
+							if( product_id <= 0 )
+							{
+								continue;
+							}
 							SBMeta.AddMeta("product_meta", "wc_product_type", "product_id", product_id, product_type, this.Dbh);
 							SBMeta.AddMeta("product_meta", "wc_image_url", "product_id", product_id, image_url, this.Dbh);
 							SBMeta.AddMeta("product_meta", "wc_categories", "product_id", product_id, (string)prod["categories"], this.Dbh);
 							
-							//dbh.Execute(@"INSERT INTO product_meta(product_id, meta_key, meta_value) VALUES($product_id,'product_type', '$product_type')");
-							/*
-							//##check for variations
-							if( product.has_member("variations") && product.get_array_member("variations").get_length() > 0 )
-							{
-								foreach(var node in product.get_array_member("variations").get_elements())
-								{
-									var variation = node.get_object();
-								}
-							}
-							*/
 							if( image_url.length > 0 )
 							{
+								stdout.printf("Downloading product image from : %s\n", image_url);
 								string image_name	= File.new_for_uri(image_url).get_basename();
 								string image_path = SBFileHelper.SanitizePath("images/store_%d/".printf(store_id));
 								if( !FileUtils.test(image_path, FileTest.IS_DIR) )
@@ -232,48 +233,46 @@ namespace EPos.Woocommerce
 									DirUtils.create_with_parents(image_path, 0777);
 								}
 								
-								uint8[] buffer;
-								SBWeb.RequestData(image_url, out buffer);
-								image_name = SBFileHelper.GetUniqueFilename(image_path, image_name);
+								image_name 			= SBFileHelper.GetUniqueFilename(image_path, image_name);
 								string[] parts		= SBFileHelper.GetParts(image_name);
 								string ext			= parts[1];
 								string thumbnail	= "%s-80x80.%s".printf(parts[0], parts[1]);
+								//##download image
+								/*
+								uint8[] buffer;
+								SBWeb.RequestData(image_url, out buffer);
 								//##write image
 								FileUtils.set_data(image_path + image_name, buffer);
-								var pixbuf = new Gdk.Pixbuf.from_file(image_path + image_name);
-								var scaled_pixbuf = pixbuf.scale_simple(80, 80, Gdk.InterpType.BILINEAR);
-								//##write thumbnail
-								scaled_pixbuf.save(image_path + thumbnail, (ext == "jpg") ? "jpeg" : ext, null, "quality", "100");
-								//var prod_pixbuf = new Gdk.Pixbuf.from_inline(buffer);
-								//var prod_pixbuf = new Gdk.Pixbuf.from_file_at_scale("test.png", 80, 80, true);
-								string query_images = @"INSERT INTO attachments(object_type,object_id,type,mime,file) VALUES"+
-													@"('Product',$product_id,'image', '$ext', '$image_name'),"+
-													@"('Product',$product_id,'image_thumbnail', '$ext', '$thumbnail')";
-								this.Dbh.Execute(query_images);
+								*/
+								SBWeb.Download(image_url, image_path + image_name, progress_callback);
+								try
+								{
+									var pixbuf = new Gdk.Pixbuf.from_file(image_path + image_name);
+									var scaled_pixbuf = pixbuf.scale_simple(80, 80, Gdk.InterpType.BILINEAR);
+									//##write thumbnail
+									scaled_pixbuf.save(image_path + thumbnail, (ext == "jpg") ? "jpeg" : ext, null, "quality", "100");
+									//var prod_pixbuf = new Gdk.Pixbuf.from_inline(buffer);
+									//var prod_pixbuf = new Gdk.Pixbuf.from_file_at_scale("test.png", 80, 80, true);
+									string query_images = @"INSERT INTO attachments(object_type,object_id,type,mime,file) VALUES"+
+														@"('Product',$product_id,'image', '$ext', '$image_name'),"+
+														@"('Product',$product_id,'image_thumbnail', '$ext', '$thumbnail')";
+									this.Dbh.Execute(query_images);
+								}
+								catch(GLib.Error e)
+								{
+									stderr.printf("ERROR: %s\n", e.message);
+								}
+								
 							}
+							imported++;
 						}
-						/*
-						string qc = "DELETE FROM product2category WHERE product_id = %ld".printf(product_id);
-						dbh.Execute(qc);
-						//##set product categories
-						foreach(var cat_node in product.get_array_member("categories_ids").get_elements())
-						{
-							int xcat_id = (int)cat_node.get_int();
-							query = "SELECT category_id FROM categories WHERE extern_id = %d AND store_id = %d".
-										printf(xcat_id, store_id);
-							long res = dbh.Query(query);
-							if( res > 0 )
-							{
-								int icat_id = dbh.Rows[0].GetInt("category_id");
-								query = "INSERT INTO product2category(product_id,category_id) VALUES(%ld,%d)".printf(product_id, icat_id);
-								dbh.Execute(query);
-							}
-						}
-						*/
-					}
+						this.FixProductCategories(store_id, product_id);
+						//##call sync callback
+						if( cb != null ) cb(total_prods, imported, "", "");
+						this.Dbh.EndTransaction();	
+					}//end foreach
 				}
-				this.FixProductsCategories(store_id);
-				this.Dbh.EndTransaction();	
+				
 				stdout.printf("Sync finished.\n");			
 			}
 			catch(Error e)
@@ -283,10 +282,33 @@ namespace EPos.Woocommerce
 			
 			return 0;
 		}
-		protected void FixProductsCategories(int store_id)
+		protected void FixProductCategories(int store_id, int product_id)
 		{
-			//string qc = "DELETE FROM product2category WHERE product_id = %ld".printf(product_id);
-			//this.Dbh.Execute(qc);
+			stdout.printf("FIXING PRODUCTS CATEGORIES\n================================\n");
+			string q_delete = "DELETE FROM product2category WHERE product_id = %d".printf(product_id);
+			this.Dbh.Execute(q_delete);
+			string? str_cats = SBProduct.GetMeta(product_id, "wc_categories", this.Dbh);
+			if( str_cats == null )
+				return;
+			string[] cats = str_cats.split(",");
+			string cdate = new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
+			string insert_query = "INSERT INTO product2category(product_id,category_id,creation_date) VALUES";
+			bool do_insert = false;
+			foreach(string cat_name in cats)
+			{
+				this.Dbh.Select("category_id,extern_id").From("categories").
+					Where("name = '%s'".printf(cat_name.strip())).
+					And("store_id = %d".printf(store_id));
+				var row = this.Dbh.GetRow(null);
+				if( row == null )
+					continue;
+				do_insert = true;
+				insert_query += "(%d,%d,'%s'),".printf(product_id, row.GetInt("category_id"),cdate);
+			}
+			if( do_insert )
+			{
+				this.Dbh.Execute(insert_query.substring(0, insert_query.length - 1));
+			}
 		}
 		public void SyncCustomers(int store_id)
 		{
@@ -337,20 +359,20 @@ namespace EPos.Woocommerce
 							//##add meta
 							//SBMeta.AddMeta("customer_meta", "", "customer_id", customer_id, "", this.Dbh);
 							string query = "INSERT INTO customer_meta(customer_id, meta_key,meta_value,creation_date) VALUES";
-							query += "(%d,'billing_city', '%s', '%s'),".printf(customer_id, (string)cust["billing_city"], cdate);
-							query += "(%d,'billing_state', '%s', '%s'),".printf(customer_id, (string)cust["billing_state"], cdate);
-							query += "(%d,'billing_email', '%s', '%s'),".printf(customer_id, (string)cust["billing_email"], cdate);
-							query += "(%d,'billing_phone', '%s', '%s'),".printf(customer_id, (string)cust["billing_phone"], cdate);
+							query += "(%d,'billing_city', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_city"]), cdate);
+							query += "(%d,'billing_state', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_state"]), cdate);
+							query += "(%d,'billing_email', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_email"]), cdate);
+							query += "(%d,'billing_phone', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_phone"]), cdate);
 							//##insert shipping data
-							query += "(%d,'shipping_first_name', '%s', '%s'),".printf(customer_id, (string)cust["shipping_first_name"], cdate);
-							query += "(%d,'shipping_last_name', '%s', '%s'),".printf(customer_id, (string)cust["shipping_last_name"], cdate);
-							query += "(%d,'shipping_company', '%s', '%s'),".printf(customer_id, (string)cust["shipping_company"], cdate);
-							query += "(%d,'shipping_address_1', '%s', '%s'),".printf(customer_id, (string)cust["shipping_address_1"], cdate);
-							query += "(%d,'shipping_address_2', '%s', '%s'),".printf(customer_id, (string)cust["shipping_address_2"], cdate);
-							query += "(%d,'shipping_city', '%s', '%s'),".printf(customer_id, (string)cust["shipping_city"], cdate);
-							query += "(%d,'shipping_state', '%s', '%s'),".printf(customer_id, (string)cust["shipping_state"], cdate);
-							query += "(%d,'shipping_postcode', '%s', '%s'),".printf(customer_id, (string)cust["shipping_postcode"], cdate);
-							query += "(%d,'shipping_country', '%s', '%s')".printf(customer_id, (string)cust["shipping_country"], cdate);
+							query += "(%d,'shipping_first_name', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_first_name"]), cdate);
+							query += "(%d,'shipping_last_name', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_last_name"]), cdate);
+							query += "(%d,'shipping_company', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_company"]), cdate);
+							query += "(%d,'shipping_address_1', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_address_1"]), cdate);
+							query += "(%d,'shipping_address_2', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_address_2"]), cdate);
+							query += "(%d,'shipping_city', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_city"]), cdate);
+							query += "(%d,'shipping_state', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_state"]), cdate);
+							query += "(%d,'shipping_postcode', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_postcode"]), cdate);
+							query += "(%d,'shipping_country', '%s', '%s')".printf(customer_id, this.Dbh.EscapeString((string)cust["shipping_country"]), cdate);
 							this.Dbh.Execute(query);
 						}
 						else
@@ -369,6 +391,23 @@ namespace EPos.Woocommerce
 			{
 				stderr.printf ("Error: %s\n", e.message);
 			}
+		}
+		protected string StripHtmlTags(string html)
+		{
+			string striped = "";
+			try
+			{
+				var regex = new Regex("<.*?>");
+			
+				striped = regex.replace(html.strip(), html.strip().length, 0, "");
+				//stdout.printf("%s\n%s\n", html, striped);
+			}
+			catch(RegexError e)
+			{
+				stderr.printf("RRROR: %s\n", e.message);
+				striped = html.strip();
+			}
+			return striped;
 		}
 	}
 }

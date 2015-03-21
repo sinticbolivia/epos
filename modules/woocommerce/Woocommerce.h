@@ -13,6 +13,7 @@
 #include <string.h>
 #include <gmodule.h>
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 #include <Pos.h>
@@ -101,6 +102,16 @@ typedef struct _EPosWoocommerceWidgetWoocommerceProducts EPosWoocommerceWidgetWo
 typedef struct _EPosWoocommerceWidgetWoocommerceProductsClass EPosWoocommerceWidgetWoocommerceProductsClass;
 typedef struct _EPosWoocommerceWidgetWoocommerceProductsPrivate EPosWoocommerceWidgetWoocommerceProductsPrivate;
 
+#define EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS (epos_woocommerce_window_sync_products_progress_get_type ())
+#define EPOS_WOOCOMMERCE_WINDOW_SYNC_PRODUCTS_PROGRESS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS, EPosWoocommerceWindowSyncProductsProgress))
+#define EPOS_WOOCOMMERCE_WINDOW_SYNC_PRODUCTS_PROGRESS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS, EPosWoocommerceWindowSyncProductsProgressClass))
+#define EPOS_WOOCOMMERCE_IS_WINDOW_SYNC_PRODUCTS_PROGRESS(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS))
+#define EPOS_WOOCOMMERCE_IS_WINDOW_SYNC_PRODUCTS_PROGRESS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS))
+#define EPOS_WOOCOMMERCE_WINDOW_SYNC_PRODUCTS_PROGRESS_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_WOOCOMMERCE_TYPE_WINDOW_SYNC_PRODUCTS_PROGRESS, EPosWoocommerceWindowSyncProductsProgressClass))
+
+typedef struct _EPosWoocommerceWindowSyncProductsProgress EPosWoocommerceWindowSyncProductsProgress;
+typedef struct _EPosWoocommerceWindowSyncProductsProgressClass EPosWoocommerceWindowSyncProductsProgressClass;
+
 #define EPOS_WOOCOMMERCE_WIDGET_WOOCOMMERCE_PRODUCTS_TYPE_COLUMNS (epos_woocommerce_widget_woocommerce_products_columns_get_type ())
 
 #define EPOS_WOOCOMMERCE_TYPE_WIDGET_WOOCOMMERCE_STORES (epos_woocommerce_widget_woocommerce_stores_get_type ())
@@ -113,6 +124,7 @@ typedef struct _EPosWoocommerceWidgetWoocommerceProductsPrivate EPosWoocommerceW
 typedef struct _EPosWoocommerceWidgetWoocommerceStores EPosWoocommerceWidgetWoocommerceStores;
 typedef struct _EPosWoocommerceWidgetWoocommerceStoresClass EPosWoocommerceWidgetWoocommerceStoresClass;
 typedef struct _EPosWoocommerceWidgetWoocommerceStoresPrivate EPosWoocommerceWidgetWoocommerceStoresPrivate;
+typedef struct _EPosWoocommerceWindowSyncProductsProgressPrivate EPosWoocommerceWindowSyncProductsProgressPrivate;
 
 struct _EPosWoocommerceSB_ModuleWoocommerce {
 	SinticBoliviaGtkSBGtkModule parent_instance;
@@ -123,6 +135,7 @@ struct _EPosWoocommerceSB_ModuleWoocommerceClass {
 	SinticBoliviaGtkSBGtkModuleClass parent_class;
 };
 
+typedef void (*EPosWoocommerceSyncCallback) (gint totals, gint imported, const gchar* item_name, const gchar* message, void* user_data);
 struct _EPosWoocommerceSBWCSync {
 	GObject parent_instance;
 	EPosWoocommerceSBWCSyncPrivate * priv;
@@ -235,6 +248,7 @@ struct _EPosWoocommerceWidgetWoocommerceProducts {
 	GtkTreeView* treeviewProducts;
 	gint storeId;
 	gboolean lockCategoriesEvent;
+	EPosWoocommerceWindowSyncProductsProgress* windowProgress;
 };
 
 struct _EPosWoocommerceWidgetWoocommerceProductsClass {
@@ -278,6 +292,24 @@ struct _EPosWoocommerceWidgetWoocommerceStoresClass {
 	GtkBoxClass parent_class;
 };
 
+struct _EPosWoocommerceWindowSyncProductsProgress {
+	GtkWindow parent_instance;
+	EPosWoocommerceWindowSyncProductsProgressPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* box1;
+	GtkLabel* labelProductName;
+	GtkLabel* labelBytes;
+	GtkProgressBar* progressbarDownload;
+	GtkLabel* labelTotalProducts;
+	GtkLabel* labelImportedProducts;
+	GtkProgressBar* progressbarGlobal;
+	GtkButton* buttonCancel;
+};
+
+struct _EPosWoocommerceWindowSyncProductsProgressClass {
+	GtkWindowClass parent_class;
+};
+
 
 GType epos_woocommerce_sb_modulewoocommerce_get_type (void) G_GNUC_CONST;
 void epos_woocommerce_sb_modulewoocommerce_AddHooks (EPosWoocommerceSB_ModuleWoocommerce* self);
@@ -295,9 +327,10 @@ EPosWoocommerceSBWCSync* epos_woocommerce_sbwc_sync_construct (GType object_type
 glong epos_woocommerce_sbwc_sync_SyncStore (EPosWoocommerceSBWCSync* self);
 glong epos_woocommerce_sbwc_sync_SyncCategories (EPosWoocommerceSBWCSync* self, gint store_id);
 void epos_woocommerce_sbwc_sync_FixCategoriesParent (EPosWoocommerceSBWCSync* self, gint store_id);
-glong epos_woocommerce_sbwc_sync_SyncProducts (EPosWoocommerceSBWCSync* self, gint store_id);
-void epos_woocommerce_sbwc_sync_FixProductsCategories (EPosWoocommerceSBWCSync* self, gint store_id);
+glong epos_woocommerce_sbwc_sync_SyncProducts (EPosWoocommerceSBWCSync* self, gint store_id, EPosWoocommerceSyncCallback cb, void* cb_target, GFileProgressCallback progress_callback, void* progress_callback_target);
+void epos_woocommerce_sbwc_sync_FixProductCategories (EPosWoocommerceSBWCSync* self, gint store_id, gint product_id);
 void epos_woocommerce_sbwc_sync_SyncCustomers (EPosWoocommerceSBWCSync* self, gint store_id);
+gchar* epos_woocommerce_sbwc_sync_StripHtmlTags (EPosWoocommerceSBWCSync* self, const gchar* html);
 SinticBoliviaDatabaseSBDatabase* epos_woocommerce_sbwc_sync_get_Dbh (EPosWoocommerceSBWCSync* self);
 void epos_woocommerce_sbwc_sync_set_Dbh (EPosWoocommerceSBWCSync* self, SinticBoliviaDatabaseSBDatabase* value);
 EPosWoocommerceWC_Api_Client* epos_woocommerce_wc_api_client_new (const gchar* wordpress_url, const gchar* api_key, const gchar* api_secret);
@@ -342,12 +375,14 @@ void epos_woocommerce_widget_woocommerce_customers_OnButtonSyncClicked (EPosWooc
 void epos_woocommerce_widget_woocommerce_customers_Refresh (EPosWoocommerceWidgetWoocommerceCustomers* self, gint store_id);
 gint epos_woocommerce_widget_woocommerce_customers_SyncCustomers (EPosWoocommerceWidgetWoocommerceCustomers* self);
 GType epos_woocommerce_widget_woocommerce_products_get_type (void) G_GNUC_CONST;
+GType epos_woocommerce_window_sync_products_progress_get_type (void) G_GNUC_CONST;
 GType epos_woocommerce_widget_woocommerce_products_columns_get_type (void) G_GNUC_CONST;
 EPosWoocommerceWidgetWoocommerceProducts* epos_woocommerce_widget_woocommerce_products_new (void);
 EPosWoocommerceWidgetWoocommerceProducts* epos_woocommerce_widget_woocommerce_products_construct (GType object_type);
 void epos_woocommerce_widget_woocommerce_products_Build (EPosWoocommerceWidgetWoocommerceProducts* self);
 void epos_woocommerce_widget_woocommerce_products_SetEvents (EPosWoocommerceWidgetWoocommerceProducts* self);
 void epos_woocommerce_widget_woocommerce_products_OnComboBoxStoreChanged (EPosWoocommerceWidgetWoocommerceProducts* self);
+void epos_woocommerce_widget_woocommerce_products_OnComboBoxCategoriesChanged (EPosWoocommerceWidgetWoocommerceProducts* self);
 void epos_woocommerce_widget_woocommerce_products_SetStoreCategories (EPosWoocommerceWidgetWoocommerceProducts* self, gint store_id);
 void epos_woocommerce_widget_woocommerce_products_RefreshProducts (EPosWoocommerceWidgetWoocommerceProducts* self, gint store_id, gint cat_id);
 void epos_woocommerce_widget_woocommerce_products_OnButtonSyncClicked (EPosWoocommerceWidgetWoocommerceProducts* self);
@@ -362,6 +397,9 @@ void epos_woocommerce_widget_woocommerce_stores_OnButtonNewClicked (EPosWoocomme
 void epos_woocommerce_widget_woocommerce_stores_OnButtonEditClicked (EPosWoocommerceWidgetWoocommerceStores* self);
 void epos_woocommerce_widget_woocommerce_stores_OnButtonSaveClicked (EPosWoocommerceWidgetWoocommerceStores* self);
 void epos_woocommerce_widget_woocommerce_stores_Reset (EPosWoocommerceWidgetWoocommerceStores* self);
+EPosWoocommerceWindowSyncProductsProgress* epos_woocommerce_window_sync_products_progress_new (void);
+EPosWoocommerceWindowSyncProductsProgress* epos_woocommerce_window_sync_products_progress_construct (GType object_type);
+void epos_woocommerce_window_sync_products_progress_Build (EPosWoocommerceWindowSyncProductsProgress* self);
 
 
 G_END_DECLS

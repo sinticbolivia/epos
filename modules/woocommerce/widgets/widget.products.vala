@@ -34,6 +34,7 @@ namespace EPos.Woocommerce
 		}
 		protected	int				storeId = 0;
 		protected	bool			lockCategoriesEvent = false;
+		protected	WindowSyncProductsProgress	windowProgress;
 		
 		public WidgetWoocommerceProducts()
 		{
@@ -114,6 +115,7 @@ namespace EPos.Woocommerce
 		protected void SetEvents()
 		{
 			this.comboboxStore.changed.connect(this.OnComboBoxStoreChanged);
+			this.comboboxCategories.changed.connect(this.OnComboBoxCategoriesChanged);
 			this.buttonSync.clicked.connect(this.OnButtonSyncClicked);
 		}
 		protected void OnComboBoxStoreChanged()
@@ -127,6 +129,19 @@ namespace EPos.Woocommerce
 			this.SetStoreCategories(int.parse(this.comboboxStore.active_id));
 			this.RefreshProducts(int.parse(this.comboboxStore.active_id));
 			this.lockCategoriesEvent = false;
+		}
+		protected void OnComboBoxCategoriesChanged()
+		{
+			if( this.lockCategoriesEvent )
+				return;
+			int store_id = int.parse(this.comboboxStore.active_id);
+			if( this.comboboxCategories.active_id == null || this.comboboxCategories.active_id == "-1" )
+			{
+				this.RefreshProducts(store_id);
+				return;
+			}
+			int category_id = int.parse(this.comboboxCategories.active_id);
+			this.RefreshProducts(store_id, category_id);
 		}
 		protected void SetStoreCategories(int store_id)
 		{
@@ -222,6 +237,8 @@ namespace EPos.Woocommerce
 			this.storeId = int.parse(this.comboboxStore.active_id);
 			try
 			{
+				this.windowProgress = new WindowSyncProductsProgress();
+				this.windowProgress.show();
 				Thread<int> thread = new Thread<int>.try ("Woocommerce Sync Products thread", this.SyncProducts);
 			}
 			catch(GLib.Error e)
@@ -237,11 +254,36 @@ namespace EPos.Woocommerce
 			string secret = SBStore.SGetMeta(this.storeId, "woocommerce_secret");
 			var sync = new SBWCSync(url, key, secret);
 			sync.Dbh = SBFactory.GetNewDbHandlerFromConfig(cfg);
-			sync.SyncProducts(this.storeId);
+			sync.SyncProducts(this.storeId, 
+				(totals, imported, item_name, message) => 
+				{
+					GLib.Idle.add( () => 
+					{
+						if( item_name != "" )
+							this.windowProgress.labelProductName.label = item_name;
+						this.windowProgress.labelImportedProducts.label = "%d".printf(imported);
+						this.windowProgress.labelTotalProducts.label = "%d".printf(totals);
+						double fraction = (imported * 100) / totals;
+						this.windowProgress.progressbarGlobal.fraction = fraction / 100;
+						return false;
+					});
+				},
+				(current_num_bytes, total_num_bytes) => 
+				{
+					GLib.Idle.add( () => 
+					{
+						this.windowProgress.labelBytes.label = "%d of %d bytes".printf((int)current_num_bytes, (int)total_num_bytes);
+						double fraction = (current_num_bytes * 100) / total_num_bytes;
+						this.windowProgress.progressbarDownload.fraction = fraction / 100;
+						return false;
+					});
+				}
+			);
 			sync.Dbh.Close();
 			
 			GLib.Idle.add( () => 
 			{
+				this.RefreshProducts(this.storeId);
 				return false;
 			});
 			return 0;
