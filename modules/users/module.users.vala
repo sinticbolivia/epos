@@ -155,9 +155,14 @@ namespace EPos
 		public static void login_dialog(SBModuleArgs<HashMap> args)
 		{
 			var data = (HashMap<string, Value?>)args.GetData();
-			//var dlg = new DialogLogin();
-			//data["dialog"] = dlg.GetDialog();
-			data["dialog"] = new WindowLogin();
+			if( SBModules.IsModuleLoaded("Inventory") )
+			{
+				data["dialog"] = new WindowLogin();
+			}
+			else
+			{
+				data["dialog"] = new DialogLogin();
+			}
 		}
 	}
 }

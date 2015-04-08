@@ -14,13 +14,14 @@ namespace EPos
 		protected	Image		image1;
 		protected	Label		labelTitle;
 		protected	Label		label2;
-		protected	Button		buttonCustomerImage;
-		protected	Image		imageCustomer;
-		protected	Entry		entryFirstname;
-		protected	Entry		entryLastname;
-		protected	Entry		entryCompany;
-		protected	Entry		entryCode;
-		protected	Entry		entryDateOfBirth;
+		protected	Box				boxWidgets;
+		protected	Button			buttonCustomerImage;
+		protected	Image			imageCustomer;
+		protected	Entry			entryFirstname;
+		protected	Entry			entryLastname;
+		protected	Entry			entryCompany;
+		protected	Entry			entryCode;
+		protected	Entry			entryDateOfBirth;
 		protected	RadioButton		radiobuttonFemale;
 		protected	RadioButton		radiobuttonMale;
 		protected	Entry			entryPhone;
@@ -33,6 +34,8 @@ namespace EPos
 		protected	Entry			entryZipcode;
 		protected	Entry			entryState;
 		protected	ComboBox		comboboxCountry;
+		protected	Grid			gridGroups;
+		protected	ComboBox		comboboxGroup;
 		protected	Button			buttonCancel;
 		protected	Button			buttonSave;
 		
@@ -47,7 +50,7 @@ namespace EPos
 			this.label2				= (Label)this.ui.get_object("label2");
 			//this.label2.realize
 			this.label2.selectable = true;
-			
+			this.boxWidgets				= (Box)this.ui.get_object("boxWidgets");
 			//this.label2.get_window().cursor = new Gdk.Cursor(Gdk.CursorType.HAND1);
 			this.buttonCustomerImage	= (Button)this.ui.get_object("buttonCustomerImage");
 			this.imageCustomer			= (Image)this.ui.get_object("imageCustomer");
@@ -68,6 +71,8 @@ namespace EPos
 			this.entryZipcode			= (Entry)this.ui.get_object("entryZipcode");
 			this.entryState				= (Entry)this.ui.get_object("entryState");
 			this.comboboxCountry		= (ComboBox)this.ui.get_object("comboboxCountry");
+			this.comboboxGroup			= (ComboBox)this.ui.get_object("comboboxGroup");
+			this.gridGroups				= (Grid)this.ui.get_object("gridGroups");
 			this.buttonCancel			= (Button)this.ui.get_object("buttonCancel");
 			this.buttonSave				= (Button)this.ui.get_object("buttonSave");
 			this.boxNewCustomer.reparent(this);
@@ -78,7 +83,25 @@ namespace EPos
 		{
 			this.image1.pixbuf = (SBModules.GetModule("Customers") as SBGtkModule).GetPixbuf("customer-icon-64x64.png");
 			this.imageCustomer.pixbuf = (SBModules.GetModule("Customers") as SBGtkModule).GetPixbuf("nobody.png");
+			this.comboboxGroup.model = new ListStore(2, typeof(string), typeof(string));
+			var cell = new CellRendererText();
+			this.comboboxGroup.pack_start(cell, true);
+			this.comboboxGroup.set_attributes(cell, "text", 0);
+			this.comboboxGroup.id_column = 1;
+			TreeIter iter;
+			(this.comboboxGroup.model as ListStore).append(out iter);
+			(this.comboboxGroup.model as ListStore).set(iter, 
+				0, SBText.__("-- customer group --"),
+				1, "-1"
+			);
+			this.comboboxGroup.active_id = "-1";
 			
+			var args = new SBModuleArgs<HashMap>();
+			var data = new HashMap<string, Value?>();
+			data.set("box_widgets", this.boxWidgets);
+			data.set("grid_groups", this.gridGroups);
+			args.SetData(data);
+			SBModules.do_action("build_customer_form", args);
 		}
 		protected void SetEvents()
 		{
@@ -125,14 +148,22 @@ namespace EPos
 			data.set("city", this.entryCity.text.strip());
 			data.set("zip_code", this.entryZipcode.text.strip());
 			data.set("last_modification_date", cdate);
+			var meta = new HashMap<string, string>();
+			var args0 = new SBModuleArgs<HashMap>();
+			var data0 = new HashMap<string, Value?>();
+			data0.set("data", data);
+			data0.set("meta", meta);
+			args0.SetData(data0);
+			SBModules.do_action("before_save_customer", args0);
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.BeginTransaction();
 			string title = SBText.__("New customer created");
 			string msg = SBText.__("A new customer has been added.");
 			if( this.customerId <= 0 )
 			{
 				//##create a new customer
 				data.set("creation_date", cdate);
-				dbh.Insert("customers", data);
+				this.customerId = (int)dbh.Insert("customers", data);
 			}
 			else
 			{
@@ -142,6 +173,20 @@ namespace EPos
 				title = SBText.__("Customer update");
 				msg = SBText.__("The customer has been updated.");
 			}
+			//##add/update meta
+			foreach(var entry in meta.entries)
+			{
+				SBMeta.UpdateMeta("customer_meta", entry.key, entry.value, "customer_id", this.customerId);
+			}
+			var args1 = new SBModuleArgs<HashMap>();
+			var data1 = new HashMap<string, Value?>();
+			data1.set("data", data);
+			data1.set("meta", meta);
+			data1.set("customer_id", this.customerId);
+			args1.SetData(data1);
+			SBModules.do_action("after_save_customer", args1);
+			
+			dbh.EndTransaction();
 			var dmsg = new MessageDialog(null, DialogFlags.MODAL, MessageType.INFO, ButtonsType.CLOSE, msg);
 			dmsg.title = title;
 			dmsg.run();
@@ -169,7 +214,11 @@ namespace EPos
 			
 			this.labelTitle.label		= SBText.__("Edit Customer");
 			this.entryFirstname.grab_focus();
-			
+			var args = new SBModuleArgs<HashMap<string, Value?>>();
+			var data = new HashMap<string, Value?>();
+			data.set("customer_id", c.Id);
+			args.SetData(data);
+			SBModules.do_action("load_customer_data", args);
 		}
 	}
 }

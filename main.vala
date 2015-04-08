@@ -5,8 +5,9 @@ using SinticBolivia;
 using SinticBolivia.Database;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce 
+namespace EPos
 {
+	/*
 	void show_loading(string message)
 	{
 		var builder = (Builder)SBGlobals.GetVar("main_gui_builder");
@@ -26,6 +27,7 @@ namespace Woocommerce
 		spinner.stop();
 		dlg.hide();
 	}
+	*/
 	public class Wcpos : Object
 	{
 		protected 	string _UI_FILE = "";
@@ -44,6 +46,7 @@ namespace Woocommerce
 		protected	Gtk.MenuItem	menuItemReports;
 		
 		protected	CheckMenuItem	menuitemHideQuickIcons;
+		protected	ImageMenuItem	imagemenuitemAbout;
 		protected 	Box				_boxQuickIcons;
 		protected	Box				_boxMainContent;
 		public		Label			labelCurrentUser;
@@ -100,7 +103,7 @@ namespace Woocommerce
 				this._mainWindow.icon = new Gdk.Pixbuf.from_file(SBFileHelper.SanitizePath("share/images/sinticbolivia-icon-40x40.png"));
 				this.imagemenuitemQuit = this._builder.get_object("imagemenuitemQuit") as ImageMenuItem;
 				this.menuitemHideQuickIcons = (CheckMenuItem)this._builder.get_object("menuitemHideQuickIcons");
-				
+				this.imagemenuitemAbout		= (ImageMenuItem)this._builder.get_object("imagemenuitemAbout");
 				var eventboxQuickIcons 	= (EventBox)this._builder.get_object("eventboxQuickIcons");
 				eventboxQuickIcons.name = "eventboxQuickIcons";
 				this._boxQuickIcons		= (Box)this._builder.get_object("boxQuickIcons");
@@ -203,6 +206,7 @@ namespace Woocommerce
 					this.eventboxQuickIcons.visible = false;
 				}
 			});
+			this.imagemenuitemAbout.activate.connect(this.OnMenuItemAboutActivate);
 			this.buttonHome.clicked.connect(this.OnButtonHomeClicked);
 			//this.buttonPointOfSale.clicked.connect(this.OnButtonPointOfSaleClicked);
 			this._switch.notify["active"].connect(this.OnSwitchActive);
@@ -252,6 +256,10 @@ namespace Woocommerce
 		public void on_destroy(Widget window)
 		{
 			this.Quit();
+		}
+		protected void OnMenuItemAboutActivate()
+		{
+			
 		}
 		protected void OnButtonHomeClicked()
 		{
@@ -562,7 +570,42 @@ namespace Woocommerce
 			}
 			dbh.Open();
 			SBGlobals.SetVar("dbh", dbh);
-			
+			//##set error loggin handler
+			GLib.Log.set_default_handler( (domain, log_levels, message) => 
+			{
+				string log_file = "";
+				stdout.printf("%s\n", message);
+				if( log_levels == LogLevelFlags.LEVEL_ERROR )
+				{
+					log_file = "error.log";
+				}
+				if( log_file.length <= 0 )
+				{
+					return;
+				}
+				File fh = File.new_for_path(log_file);
+				
+				try
+				{
+					FileOutputStream stream = null;
+					if( !FileUtils.test(log_file, FileTest.IS_REGULAR) )
+					{
+						stream = fh.create(FileCreateFlags.NONE);
+						
+					}
+					else
+					{
+						stream = fh.append_to(FileCreateFlags.NONE);
+					}
+					stream.write(("ERROR: %s\n".printf(message)).data);
+					//stream = null;
+				}
+				catch(GLib.Error e)
+				{
+					stdout.printf("ERROR: %s\n", e.message);
+				}
+				
+			});
 			//##creare application main window
 			var app = new Wcpos();
 			//app.Hide();

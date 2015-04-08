@@ -6,7 +6,7 @@ using SinticBolivia.Database;
 using SinticBolivia.Gtk;
 using EPos;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetPurchaseOrder : Gtk.Box
 	{
@@ -65,7 +65,8 @@ namespace Woocommerce
 			var grid2					= (Grid)this.ui.get_object("grid2");
 			this.datepickerOrderDate	= new SBDatePicker();
 			this.datepickerDeliveryDate	= new SBDatePicker();
-			
+			this.datepickerOrderDate.Icon = GtkHelper.GetPixbuf("share/images/calendar-icon-16x16.png");
+			this.datepickerDeliveryDate.Icon = GtkHelper.GetPixbuf("share/images/calendar-icon-16x16.png");
 			this.datepickerOrderDate.show();
 			this.datepickerDeliveryDate.show();
 			grid2.attach(this.datepickerOrderDate, 3, 0, 1, 1);
@@ -192,7 +193,7 @@ namespace Woocommerce
 			this.buttonAddProduct.clicked.connect(this.OnButtonAddProductClicked);
 			var col = (TreeViewColumn)this.treeviewProducts.get_columns().nth_data(Columns.QTY);
 			var cell = (CellRendererText)col.get_cells().nth_data(0);
-			
+			var cell_cost = (CellRendererText)this.treeviewProducts.get_column(Columns.COST).get_cells().nth_data(0);
 			//##add event to update order item quantity
 			cell.edited.connect( (path, new_text) => 
 			{
@@ -204,7 +205,16 @@ namespace Woocommerce
 				this.calculateRowTotal(iter);
 				this.calculateTotals();
 			});
-			
+			//##add event to update item cost
+			cell_cost.edited.connect( (path, new_text) => 
+			{
+				double cost = double.parse(new_text.strip());
+				TreeIter iter;
+				this.treeviewProducts.model.get_iter(out iter, new TreePath.from_string(path));
+				(this.treeviewProducts.model as ListStore).set_value(iter, Columns.COST, "%.2f".printf(cost));
+				this.calculateRowTotal(iter);
+				this.calculateTotals();
+			});
 			this.treeviewProducts.button_release_event.connect(this.OnTreeViewProductsButtonReleaseEvent);
 			this.buttonSave.clicked.connect(this.OnButtonSaveClicked);
 			this.buttonCancel.clicked.connect(this.OnButtonCancelClicked);
@@ -462,6 +472,7 @@ namespace Woocommerce
 				err.destroy();
 				return;
 			}
+			var user = (SBUser)SBGlobals.GetVar("user");
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string cdate 	= new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
 			int store_id 	= int.parse(this.comboboxStores.active_id);
@@ -523,16 +534,18 @@ namespace Woocommerce
 			if( this.order == null )
 			{
 				//##create a new purchase order
+				order.set("user_id", user.Id);
 				order.set("creation_date", cdate);
 				
 				long order_id = dbh.Insert("purchase_orders", order);
 				//##Set purchar order code
 				string code = "%s-%s".printf(transaction_type.Key, Utils.FillCeros((int)order_id, 6));
 				var data = new HashMap<string, Value?>();
+				
 				var w = new HashMap<string, Value?>();
 				data.set("code", code);
 				w.set("order_id", order_id);
-				dbh.Update("purcharse_orders", data, w);
+				dbh.Update("purchase_orders", data, w);
 				foreach(HashMap<string, Value?> item in items)
 				{
 					item.set("order_id", order_id);

@@ -4,7 +4,7 @@ using SinticBolivia;
 using SinticBolivia.Gtk;
 using Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	class WidgetInventoryReport : Gtk.Box
 	{

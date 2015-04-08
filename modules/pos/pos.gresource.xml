@@ -10,12 +10,18 @@
 		<file compressed="true">ui/window.customer-lookup.glade</file>
 		<file compressed="true">ui/window.search-orders.glade</file>
 		<file compressed="true">ui/widget.pos-config.glade</file>
+		<file compressed="true">ui/create-customer.glade</file>
+		<file compressed="true">ui/price-levels.glade</file>
 		<file compressed="true">images/customer-48x48.png</file>
 		<file compressed="true">images/pos-48x48.png</file>
 		<file compressed="true">images/sale-icon-48x48.png</file>
 		<file compressed="true">images/product-lookup-48x48.png</file>
 		<file compressed="true">images/delete-icon-24x24.png</file>
 		<file compressed="true">images/placeholder-80x80.png</file>
+		<file compressed="true">images/price-levels.png</file>
+		<file compressed="true">images/tickets-icon01-48x48.png</file>
+		<file compressed="true">images/remove-20x20.png</file>
+		<file compressed="true">images/pos01-25x25.png</file>
 		<file compressed="true">sql/pos.mysql.sql</file>
 		<file compressed="true">sql/pos.sqlite3.sql</file>
 	</gresource>

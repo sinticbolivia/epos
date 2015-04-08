@@ -3,7 +3,7 @@ using Gee;
 using SinticBolivia;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class PurchaseOrder : Order
 	{

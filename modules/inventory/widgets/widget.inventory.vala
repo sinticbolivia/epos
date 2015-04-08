@@ -4,11 +4,10 @@ using Gee;
 using SinticBolivia;
 using SinticBolivia.Database;
 using SinticBolivia.Gtk;
-using EPos;
 
-namespace Woocommerce
+namespace EPos
 {
-	public class WidgetIventory : Gtk.Box
+	public class WidgetInventory : Gtk.Box
 	{
 		protected Builder	ui;
 		
@@ -31,6 +30,7 @@ namespace Woocommerce
 		protected	ComboBox	comboboxSalesDocument;
 		protected	ComboBox	comboboxPurchaseDocument;
 		protected	ComboBox	comboboxRefundDocument;
+		protected	ComboBox	comboboxAdjustmentDoc;
 		protected 	Button		buttonSaveStore;
 		protected 	Button		buttonCancelStore;
 		//##categories widgets declaration
@@ -66,6 +66,8 @@ namespace Woocommerce
 		protected Label		labelTotalProducts;
 		protected Label		labelViewProducts;
 		protected Label		labelViewTotal;
+		protected	bool	lockCategoryEvent = false;
+		protected	int		productsPage{get;set;default = 1;}
 		
 		//##useful members
 		protected int		_category_id = 0;
@@ -85,7 +87,7 @@ namespace Woocommerce
 			N_COLUMNS
 		}
 		
-		public WidgetIventory()
+		public WidgetInventory()
 		{
 			GLib.Object();
 			//this.ui					= SB_ModuleInventory.GetGladeUi("products.glade");
@@ -118,6 +120,7 @@ namespace Woocommerce
 			this.comboboxSalesDocument		= (ComboBox)this.ui.get_object("comboboxSalesDocument");
 			this.comboboxPurchaseDocument	= (ComboBox)this.ui.get_object("comboboxPurchaseDocument");
 			this.comboboxRefundDocument		= (ComboBox)this.ui.get_object("comboboxRefundDocument");
+			this.comboboxAdjustmentDoc		= (ComboBox)this.ui.get_object("comboboxAdjustmentDoc");
 			this.buttonSaveStore	= (Button)this.ui.get_object("buttonSaveStore");
 			this.buttonCancelStore	= (Button)this.ui.get_object("buttonCancelStore");
 			//##get categories widgets
@@ -159,8 +162,8 @@ namespace Woocommerce
 			this.BuildProducts();
 			
 			this.RefreshStores();
-			this.RefreshCategories();
-			this.RefreshProducts();
+			//this.RefreshCategories();
+			//this.RefreshProducts();
 			
 			this.SetEvents();
 			this.boxProducts.reparent(this);	
@@ -211,6 +214,20 @@ namespace Woocommerce
 			this.comboboxStore.changed.connect(this.OnComboboxStoreChanged);
 			this.comboboxCategory.changed.connect(this.OnComboboxCategoryChanged);
 			this.buttonRefreshProducts.clicked.connect(this.OnButtonRefreshProductsClicked);
+			this.buttonPrev.clicked.connect( () => 
+			{
+				this.productsPage = (this.productsPage <= 0 ) ? 1 : this.productsPage - 1;
+			});
+			this.buttonNext.clicked.connect( () => 
+			{
+				this.productsPage = this.productsPage + 1;
+			});
+			this.notify["productsPage"].connect( () => 
+			{
+				int store_id = (this.comboboxStore.active_id == null || this.comboboxStore.active_id == "-1") ? -1 : int.parse(this.comboboxStore.active_id);
+				int cat_id = (this.comboboxCategory.active_id == null || this.comboboxCategory.active_id == "-1") ? -1 : int.parse(this.comboboxCategory.active_id);
+				this.RefreshProducts(store_id, cat_id);
+			});
 		}
 		protected void BuildStores()
 		{
@@ -313,6 +330,17 @@ namespace Woocommerce
 				0, SBText.__("-- document --"),
 				1, "-1"
 			);
+			//##build adjustment combobox
+			this.comboboxAdjustmentDoc.model = new ListStore(2, typeof(string), typeof(string));
+			cell = new CellRendererText();
+			this.comboboxAdjustmentDoc.pack_start(cell, true);
+			this.comboboxAdjustmentDoc.set_attributes(cell, "text", 0);
+			this.comboboxAdjustmentDoc.id_column = 1;
+			(this.comboboxAdjustmentDoc.model as ListStore).append(out iter);
+			(this.comboboxAdjustmentDoc.model as ListStore).set(iter, 
+				0, SBText.__("-- document --"),
+				1, "-1"
+			);
 			
 			foreach(var row in rows)
 			{
@@ -321,8 +349,14 @@ namespace Woocommerce
 					0, "%s (%s)".printf(row.Get("transaction_name"), row.Get("transaction_key")),
 					1, row.Get("transaction_type_id")
 				);
+				(this.comboboxAdjustmentDoc.model as ListStore).append(out iter);
+				(this.comboboxAdjustmentDoc.model as ListStore).set(iter, 
+					0, "%s (%s)".printf(row.Get("transaction_name"), row.Get("transaction_key")),
+					1, row.Get("transaction_type_id")
+				);
 			}
 			this.comboboxRefundDocument.active_id = "-1";
+			this.comboboxAdjustmentDoc.active_id = "-1";
 			//##call hooks
 			var args = new SBModuleArgs<HashMap>();
 			var data = new HashMap<string, Value?>();
@@ -665,23 +699,27 @@ namespace Woocommerce
 		}
 		protected void RefreshProducts(int store_id = -1, int category_id = -1)
 		{
-			int rows_per_page = 80;
+			stdout.printf("RefreshProducts(%d, %d)\n", store_id, category_id);
+			int rows_per_page = 100;
 			long total_rows = 0;
-			ArrayList<SBProduct> products = new ArrayList<SBProduct>();
+			var products = new ArrayList<SBProduct>();
 			if( category_id > 0 )
 			{
-				products = (ArrayList<SBProduct>)InventoryHelper.GetCategoryProducts(category_id, 1, rows_per_page, out total_rows);
+				products = InventoryHelper.GetCategoryProducts(category_id, this.productsPage, rows_per_page, out total_rows);
 			}
 			else if( store_id > 0 )
-				products = (ArrayList<SBProduct>)InventoryHelper.GetStoreProducts(store_id, 1, rows_per_page, out total_rows);
+				products = InventoryHelper.GetStoreProducts(store_id, this.productsPage, rows_per_page, out total_rows);
 			else
-				products = (ArrayList<SBProduct>)InventoryHelper.GetProducts(1, rows_per_page, out total_rows);
-				
-			this.treeviewProducts.hide();
+				products = InventoryHelper.GetProducts(this.productsPage, rows_per_page, out total_rows);
+			long total_pages = (long)Math.ceil(total_rows / rows_per_page);
+			this.labelViewProducts.label = "%d".printf(this.productsPage);
+			this.labelViewTotal.label = "%ld".printf(total_pages);
+			//this.treeviewProducts.hide();
 			(this.treeviewProducts.model as ListStore).clear();
 			
 			TreeIter iter;
 			int row = 1;
+			string images_path = SBFileHelper.SanitizePath("images/store_%d/".printf(store_id));
 			
 			foreach(var prod in products)
 			{
@@ -689,7 +727,7 @@ namespace Woocommerce
 				try
 				{	
 					string? thumb = prod.GetThumbnail();
-					string img_file = (thumb != null) ? SBFileHelper.SanitizePath("images/%s".printf(thumb)) : "fault.no.gif";
+					string img_file = "%s%s".printf(images_path, (thumb != null) ? thumb : "fault.no.gif");
 					
 					if( FileUtils.test(img_file, FileTest.EXISTS) )
 					{
@@ -699,7 +737,7 @@ namespace Woocommerce
 						
 						if( pixbuf.width > 64)
 						{
-							stdout.printf("Resizing image\n");
+							//stdout.printf("Resizing image\n");
 							pixbuf = pixbuf.scale_simple(64, 64, Gdk.InterpType.BILINEAR);
 						}
 						
@@ -744,10 +782,10 @@ namespace Woocommerce
 				
 				row++;
 			}
-			this.treeviewProducts.show();
+			//this.treeviewProducts.show();
 			this.labelTotalProducts.label = total_rows.to_string();
-			this.labelViewProducts.label = products.size.to_string();
-			this.labelViewTotal.label = total_rows.to_string();
+			//this.labelViewProducts.label = products.size.to_string();
+			//this.labelViewTotal.label = total_rows.to_string();
 		}
 		protected void OnButtonAddStoreClicked()
 		{
@@ -780,7 +818,7 @@ namespace Woocommerce
 			this.comboboxSalesDocument.active_id = row.Get("sales_transaction_type_id");
 			this.comboboxPurchaseDocument.active_id = row.Get("purchase_transaction_type_id");
 			this.comboboxRefundDocument.active_id = row.Get("refund_transaction_type_id");
-			
+			this.comboboxAdjustmentDoc.active_id	= SBStore.SGetMeta(row.GetInt("store_id"), "adjustment_doc");
 			var data1 = new HashMap<string, Value?>();
 			data1.set("box_store", this.boxStore);
 			data1.set("store_id", (int)v_store_id);
@@ -915,6 +953,7 @@ namespace Woocommerce
 				msg.run();
 				msg.dispose();
 			}
+			SBStore.SUpdateMeta(this._store_id, "adjustment_doc", this.comboboxAdjustmentDoc.active_id);
 			var data1 = new HashMap<string, Value?>();
 			data1.set("box_store", this.boxStore);
 			data1.set("store_id", this._store_id);
@@ -1103,9 +1142,11 @@ namespace Woocommerce
 		{
 			if( this.comboboxStore.active_id == null || this.comboboxStore.active_id == "-1" )
 			{
+				(this.treeviewProducts.model as ListStore).clear();
 				return;
 			}
 			int store_id = int.parse(this.comboboxStore.active_id);
+			this.lockCategoryEvent = true;
 			var categories = (ArrayList<SBLCategory>)InventoryHelper.GetCategories(store_id);
 			(this.comboboxCategory.model as TreeStore).clear();
 			TreeIter iter;
@@ -1120,9 +1161,12 @@ namespace Woocommerce
 			}
 			this.comboboxCategory.active_id = "-1";
 			this.RefreshProducts(store_id);
+			this.lockCategoryEvent = false;
 		}
 		protected void OnComboboxCategoryChanged()
 		{
+			if( this.lockCategoryEvent )
+				return;
 			if( this.comboboxStore.active_id == null || this.comboboxStore.active_id == "-1" )
 			{
 				return;

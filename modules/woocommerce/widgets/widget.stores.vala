@@ -48,6 +48,7 @@ namespace EPos.Woocommerce
 		}
 		protected void Build()
 		{
+			this.image1.pixbuf	= (SBModules.GetModule("Woocommerce") as SBGtkModule).GetPixbuf("woocommerce_logo-64x64.png");
 			this.treeviewStores.model = new ListStore(4,
 				typeof(int),
 				typeof(int),

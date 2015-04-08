@@ -95,8 +95,11 @@ namespace EPos.Woocommerce
 			args.set("page", page.to_string());
 			var products = new ArrayList<HashMap<string, Value?>>();
 			string res = this._makeApiCall("products", args);
-			if( this.debug ) stderr.printf (res);
-			
+			if( this.debug ) 
+			{
+				stderr.printf (res);
+				//GLib.log(null, LogLevelFlags.LEVEL_ERROR, "%s\n".printf(res));
+			}
 			try
 			{
 				total_products = int.parse(this._responseHeaders.get_one("X-WC-Total"));
@@ -128,6 +131,7 @@ namespace EPos.Woocommerce
 					prod.set("price", double.parse(node.get_object().get_string_member("price")));
 					prod.set("regular_price", double.parse(node.get_object().get_string_member("regular_price")));
 					prod.set("sale_price", sale_price);
+					prod.set("tax_class", node.get_object().get_string_member("tax_class"));
 					prod.set("stock_quantity", (int)node.get_object().get_int_member("stock_quantity"));
 					prod.set("description", node.get_object().get_string_member("description"));
 					prod.set("featured_src", featured_src != null ? featured_src : "");
@@ -173,15 +177,24 @@ namespace EPos.Woocommerce
 		public HashMap<string, Value?> PlaceOrder(HashMap<string,string>? args = null)
 		{
 			var woo_order = new HashMap<string, Value?>();
-			string res = this._makeApiCall("orders", args, "POST", true);
-			if( this.debug ) stderr.printf (res);
+			string res = this.RemovePhpWarnings(this._makeApiCall("orders", args, "POST", true));
+			if( res.length <= 0 )
+			{
+				woo_order.set("pending_to_sync", true);
+				return woo_order;
+			}
+			if( this.debug ) stdout.printf ("%s\n", res);
 			var parser = new Json.Parser ();
 			try
 			{
 				parser.load_from_data(res, -1);
 				var main_obj = parser.get_root().get_object();
 				if( !main_obj.has_member("order") )
+				{
+					GLib.log(null, LogLevelFlags.LEVEL_ERROR, "The json response has no member 'order'.\nJSON:\n%s\n".printf(res));
 					return woo_order;
+				}
+					
 				var json_order = main_obj.get_object_member("order");
 				woo_order.set("id", (int)json_order.get_int_member("id"));
 				woo_order.set("status", json_order.get_string_member("status"));
@@ -189,7 +202,8 @@ namespace EPos.Woocommerce
 			}
 			catch(Error e)
 			{
-				stderr.printf("ERROR: %s\n", e.message);
+				stdout.printf("ERROR: %s\n", e.message);
+				GLib.log(null, LogLevelFlags.LEVEL_ERROR, "ERROR: %s\nJSON:\n%s\n", e.message, res);
 				
 			}
 			return woo_order;
@@ -220,27 +234,31 @@ namespace EPos.Woocommerce
 			}
 			return user;
 		}
-		public Json.Object CreateCustomer(HashMap<string,string> data)
+		public HashMap<string, Value?> CreateCustomer(HashMap<string,string> data)
 		{
-			Json.Object obj = new Json.Object();
+			var new_cust = new HashMap<string, Value?>();
 			
 			try
 			{
-				string res = this._makeApiCall("customers/new", data, "POST", true);
+				string res = this._makeApiCall("customers", data, "POST", true);
+				if( this.debug ) stdout.printf("%s\n", res);
 				Json.Parser parser = new Json.Parser();
 				parser.load_from_data(res, -1);
-				obj = parser.get_root().get_object();
-				if( this.debug )
-				{
-					stdout.printf("RESPONSE: \n%s\n", res);
-				}
+				var main_obj = parser.get_root().get_object();
+				if( !main_obj.has_member("customer") )
+					return new_cust;
+				var customer = main_obj.get_object_member("customer");
+				new_cust.set("id", (int)customer.get_int_member("id"));
+				new_cust.set("email", customer.get_string_member("email"));
+				new_cust.set("username", customer.get_string_member("username"));
+				new_cust.set("avatar_url", customer.get_string_member("avatar_url"));
 			}
 			catch(Error e)
 			{
 				stderr.printf("ERROR: %s\n", e.message);
 			}
 			
-			return obj;
+			return new_cust;
 		}
 		public ArrayList<HashMap<string, Value?>> GetCustomers(int limit, 
 																	int page, 
@@ -369,10 +387,10 @@ namespace EPos.Woocommerce
 			if( this.debug ) 
 			{
 				//stdout.printf("HEADER => %s\n", message.request_headers.get_list());
-				stderr.printf("url => %s\n", url);
+				stdout.printf("url => %s\n", url);
 				if( method == "POST" )
 				{
-					stdout.printf("%sPOST => %s\n", (send_raw) ? "RAW " : "", (string)post_vars.data);
+					stdout.printf("%sPOST =>\n%s\n", (send_raw) ? "RAW " : "", (string)post_vars.data);
 				}
 			}
     		int status = (int)session.send_message(message);
@@ -504,5 +522,13 @@ namespace EPos.Woocommerce
 			return signature;
 		}
 		*/
+		protected string RemovePhpWarnings(string raw_json, string start_char = "{")
+		{
+			if( raw_json.index_of("<b>Warning</b>:") == -1 )
+				return raw_json;
+			int index = raw_json.index_of(start_char);
+			
+			return raw_json.substring(index);
+		}
 	}
 }

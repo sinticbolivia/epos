@@ -103,6 +103,7 @@ namespace EPos.Woocommerce
 			dbh.Select("s.*").From("sales s, sale_meta sm").
 				Where("s.sale_id = sm.sale_id").
 				And("s.store_id = %d".printf(store_id)).
+				And("s.status = 'completed'").
 				And("sm.meta_key = 'wc_sync_status'").
 				And("sm.meta_value = 'pending'");
 				
@@ -116,91 +117,65 @@ namespace EPos.Woocommerce
 			
 			return orders;
 		}
-		/*
-		public static bool RegisterWoocommerceOrder(SBTransaction order, out int wc_order_id, out string error)
+		public static string BuildCustomerJson(SBCustomer customer)
 		{
-			size_t length = 0;
-			string json = "";
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			var store = new SBStore.from_id(order.StoreId);
-			if( store.Id <= 0 )
+			string first_name = customer.Get("first_name").strip();
+			string last_name = customer.Get("last_name").strip();
+			string email 			= customer.Get("email").strip();
+			string billing_email 	= (customer.Meta["billing_email"] != null) ? 
+										(string)customer.Meta["billing_email"] : email;
+			if( email.length <= 0 && billing_email.strip().length > 0 )
 			{
-				error = "ERROR: Woocommerce store with id = %d does not exists into database\n".printf(order.StoreId);
-				return false;
+				email = billing_email;
+			}
+			if( email.length <= 0 )
+			{
+				email = "%s.%s@epos.net".printf(last_name.down(), first_name.down());
 			}
 			
-			var gen = new Json.Generator();
-			var root = new Json.Node(Json.NodeType.OBJECT);
-			Json.Object wc_order = new Json.Object();
-			var products = new Json.Array();
-			foreach(var item in order.Items )
-			{
-				//get product external id
-				string query = "SELECT extern_id FROM products WHERE product_id = %d".printf(item.ProductId);
-				var row = dbh.GetRow(query);
-				if( row == null ) continue;
-					
-				int xid = row.GetInt("extern_id");
-				Json.Object product = new Json.Object();
-				product.set_int_member("id", xid);
-				product.set_int_member("quantity", item.Quantity);
-				products.add_object_element(product);
-			}
-			wc_order.set_array_member("products", products);
-			wc_order.set_int_member("user_id", order.UserId);
-			wc_order.set_int_member("customer_id", order.CustomerId);
-			wc_order.set_string_member("payment_method", order.GetMeta("payment_method"));
-			wc_order.set_string_member("notes", order.Notes);
-			wc_order.set_int_member("terminal_id", 1);
-			wc_order.set_string_member("address", store.Address);
-			wc_order.set_string_member("city", "point of sale city goes here");
-			var now = new DateTime.now_local ();
-			wc_order.set_string_member("date", now.format("%x %X"));
-	  
-			root.set_object(wc_order);
-			gen.set_root(root);
+			var gen 		= new Json.Generator();
+			var root_node 	= new Json.Node(Json.NodeType.OBJECT);
+			var root_obj	= new Json.Object();
+			var jcustomer	= new Json.Object();
 			
-			json = gen.to_data(out length);
+			root_obj.set_object_member("customer", jcustomer);
+			root_node.set_object(root_obj);
+			gen.set_root(root_node);
 			
-			//get woocommerce api handler
-			var wc_api = new WC_Api_Client(store.GetMeta("wc_url"), 
-											store.GetMeta("wc_api_key"),
-											store.GetMeta("wc_api_secret")
-			);
-			HashMap<string,string> args = new HashMap<string,string>();
-			args.set("raw_data", json);
+			var billing_address = new Json.Object();
+			var shipping_address = new Json.Object();
+			jcustomer.set_object_member("billing_address", billing_address);
+			jcustomer.set_object_member("shipping_address", shipping_address);
 			
-			wc_api.debug = true;
-			stderr.printf("Generated json: %s\n", json);
-			var res = wc_api.PlaceOrder(args);
+			jcustomer.set_string_member("email", email);
+			jcustomer.set_string_member("first_name", first_name);
+			jcustomer.set_string_member("last_name", last_name);
+			jcustomer.set_string_member("username", email);
+			//##build billing address
+			billing_address.set_string_member("first_name", (customer.Meta["billing_first_name"] != null) ? customer.Meta["billing_first_name"] : first_name);
+			billing_address.set_string_member("last_name", (customer.Meta["billing_last_name"] != null) ? customer.Meta["billing_last_name"] : last_name);
+			billing_address.set_string_member("company", (customer.Meta["billing_company"] != null) ? customer.Meta["billing_company"] : customer.Get("company"));
+			billing_address.set_string_member("address_1", (customer.Meta["billing_address_1"] != null) ? customer.Meta["billing_address_2"] : "");
+			billing_address.set_string_member("address_2", (customer.Meta["billing_address_2"] != null) ? customer.Meta["billing_address_2"] : "");
+			billing_address.set_string_member("city", (customer.Meta["billing_city"] != null) ? customer.Meta["billing_city"] : "");
+			billing_address.set_string_member("state", (customer.Meta["billing_state"] != null) ? customer.Meta["billing_state"] : "");
+			billing_address.set_string_member("postcode", (customer.Meta["billing_postcode"] != null) ? customer.Meta["billing_postcode"] : "");
+			billing_address.set_string_member("country", (customer.Meta["billing_cuntry"] != null) ? customer.Meta["billing_country"] : "");
+			billing_address.set_string_member("email", (customer.Meta["billing_email"] != null) ? customer.Meta["billing_email"] : "");
+			billing_address.set_string_member("phone", (customer.Meta["billing_phone"] != null) ? customer.Meta["billing_phone"] : "");
+			//##build shipping address
+			shipping_address.set_string_member("first_name", (customer.Meta["shipping_first_name"] != null) ? customer.Meta["shipping_first_name"] : "");
+			shipping_address.set_string_member("last_name", (customer.Meta["shipping_last_name"] != null) ? customer.Meta["shipping_last_name"] : "");
+			shipping_address.set_string_member("company", (customer.Meta["shipping_company"] != null) ? customer.Meta["shipping_company"] : "");
+			shipping_address.set_string_member("address_1", (customer.Get("shipping_address_1") != null ) ? customer.Get("shipping_address_1") : "");
+			shipping_address.set_string_member("address_2", (customer.Get("shipping_address_2") != null ) ? customer.Get("shipping_address_2") : "");
+			shipping_address.set_string_member("city", (customer.Meta["shipping_city"] != null) ? customer.Meta["shipping_city"] : customer.Get("city"));
+			shipping_address.set_string_member("state", (customer.Meta["shipping_state"] != null) ? customer.Meta["shipping_state"] : "");
+			shipping_address.set_string_member("postcode", (customer.Meta["shipping_postcode"] != null) ? customer.Meta["shipping_postcode"] : "");
+			shipping_address.set_string_member("country", (customer.Meta["shipping_country"] != null) ? customer.Meta["shipping_country"] : "");
 			
-			bool result = false;
-			
-			if( res.has_member("order") )
-			{
-				
-				int64 new_id = res.get_object_member("order").get_int_member("id");
-				stdout.printf("new_id => %d\n", (int)new_id);
-				wc_order_id = (int)new_id;
-				result = true;
-			}
-			else if( res.has_member("error") ) 
-			{
-				error = SBText.__("An error ocurred while trying to place the order.\nCode: %s\nERROR: %s").
-							printf(res.get_array_member("errors").get_element(0).get_object().get_string_member("code"),
-									res.get_array_member("errors").get_element(0).get_object().get_string_member("message")
-							);
-				error += res.get_string_member("error");
-				result = false;
-			}
-			else
-			{
-				error = SBText.__("An unknow error has ocurred, please contact with support.");
-				result = false;
-			}
-			
-			return result;
+			size_t length;
+			return gen.to_data(out length);
 		}
-		*/
 	}
 }

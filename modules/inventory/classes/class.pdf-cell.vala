@@ -66,8 +66,10 @@ namespace EPos
 			this.Height	= (this.FontSize * this.lines.size * 1.5f);
 			//stdout.printf("(%s), lines: %d, width: %f, height: %f, span: %d,\n", text, this.lines.size, this.Width, this.Height, this.Span);
 		}
-		public void SetImage(HPDF.Image image)
+		public void SetImage(HPDF.Image? image)
 		{
+			if( image == null )
+				return;
 			this.Row.Table.PdfPage.DrawImage(image, this.SourceX, this.SourceY - image.GetHeight(), image.GetWidth(), image.GetHeight());
 			this.Height	= image.GetHeight();
 		}

@@ -90,10 +90,3 @@ CREATE TABLE IF NOT EXISTS turns(
 	terminal_id			integer,
 	creation_date 		datetime
 );
-CREATE TABLE IF NOT EXISTS tax_rates(
-	tax_id 					integer not null primary key autoincrement,
-	name					varchar(256),
-	rate					decimal(10, 2),
-	last_modification_date	datetime,
-	creation_date			datetime
-);

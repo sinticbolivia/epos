@@ -4,7 +4,7 @@ using SinticBolivia;
 using SinticBolivia.Database;
 using EPos;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class InventoryHelper : Object
 	{
@@ -48,11 +48,11 @@ namespace Woocommerce
 			
 			return records;
 		}
-		public static ArrayList<EProduct> GetProducts(int page, int rows_per_page, out long total_records)
+		public static ArrayList<SBProduct> GetProducts(int page, int rows_per_page, out long total_records)
 		{
-			var records = new ArrayList<EProduct>();
+			var records = new ArrayList<SBProduct>();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			int offset = (page == 1) ? 0 : (page - 1);
+			int offset = (page == 1) ? 0 : ((page - 1) * rows_per_page);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM products";
 			var _row = dbh.GetRow(query_count);
 			if(  _row == null )
@@ -63,24 +63,26 @@ namespace Woocommerce
 			string query = @"SELECT * FROM products "+
 							"ORDER BY creation_date "+
 							"DESC LIMIT $offset, $rows_per_page";
-							
+			
 			var rows = dbh.GetResults(query);
 			
 			foreach(var row in rows)
 			{
-				//var product = new SBProduct.with_db_data(row);
-				var product = new EProduct();
-				product.SetDbData(row, false, true);
+				var product = new SBProduct.with_db_data(row);
+				//var product = new EProduct();
+				//product.SetDbData(row, false, true);
 				records.add(product);
 			}
 			
 			return records;
 		}
-		public static ArrayList<EProduct> GetStoreProducts(int store_id, int page, int rows_per_page, out long total_records)
+		public static ArrayList<SBProduct> GetStoreProducts(int store_id, int page, int rows_per_page, 
+															out long total_records,
+															SBDatabase? _dbh = null)
 		{
-			var records = new ArrayList<EProduct>();
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			int offset = (page == 1) ? 0 : (page - 1);
+			var records = new ArrayList<SBProduct>();
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
+			int offset = (page == 1) ? 0 : ((page - 1) * rows_per_page);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM products WHERE store_id = %d".printf(store_id);
 			var _row = dbh.GetRow(query_count);
 			if(  _row == null )
@@ -93,19 +95,19 @@ namespace Woocommerce
 			
 			foreach(var row in rows)
 			{
-				//var product = new SBProduct.with_db_data(row);
-				var product = new EProduct();
-				product.SetDbData(row, false, true);
+				var product = new SBProduct.with_db_data(row);
+				//var product = new EProduct();
+				//product.SetDbData(row, false, true);
 				records.add(product);
 			}
 			
 			return records;
 		}
-		public static ArrayList<EProduct> GetCategoryProducts(int cat_id, int page, int rows_per_page, out long total_records)
+		public static ArrayList<SBProduct> GetCategoryProducts(int cat_id, int page, int rows_per_page, out long total_records)
 		{
-			var records = new ArrayList<EProduct>();
+			var records = new ArrayList<SBProduct>();
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			int offset = (page == 1) ? 0 : (page - 1);
+			int offset = (page == 1) ? 0 : ((page - 1) * rows_per_page);
 			string query_count = "SELECT COUNT(product_id) as total_rows FROM product2category WHERE category_id = %d".printf(cat_id);
 			var _row = dbh.GetRow(query_count);
 			if(  _row == null )
@@ -121,13 +123,13 @@ namespace Woocommerce
 			if( rows_per_page > 0 )
 				query += @"LIMIT $offset, $rows_per_page";
 			
-			var rows = (ArrayList<SBDBRow>)dbh.GetResults(query);
+			var rows = dbh.GetResults(query);
 			
 			foreach(var row in rows)
 			{
 				//var product = new SBProduct.with_db_data(row);
-				var product = new EProduct();
-				product.SetDbData(row, false, true);
+				var product = new SBProduct.with_db_data(row);
+				//product.SetDbData(row, false, true);
 				records.add(product);
 			}
 			

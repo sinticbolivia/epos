@@ -15,9 +15,12 @@ namespace EPos.Woocommerce
 		protected	ComboBox		comboboxCategories;
 		protected	Button			buttonDetails;
 		protected	Button			buttonSync;
+		protected	Button			buttonApplyTax;	
 		protected	Entry			entrySearch;
 		protected	ComboBox		comboboxSearchBy;
 		protected	TreeView		treeviewProducts;
+		protected	TreeViewColumn	treeviewColumnSelect;
+		protected	CheckButton		checkbuttonSelect;
 		protected	enum			Columns
 		{
 			SELECT,
@@ -29,6 +32,7 @@ namespace EPos.Woocommerce
 			SKU,
 			QUANTITY,
 			PRICE,
+			TAX,
 			CATEGORIES,
 			N_COLS
 		}
@@ -45,6 +49,7 @@ namespace EPos.Woocommerce
 			this.comboboxCategories	= (ComboBox)this.ui.get_object("comboboxCategories");
 			this.buttonDetails		= (Button)this.ui.get_object("buttonDetails");
 			this.buttonSync			= (Button)this.ui.get_object("buttonSync");
+			this.buttonApplyTax		= (Button)this.ui.get_object("buttonApplyTax");
 			this.entrySearch		= (Entry)this.ui.get_object("entrySearch");
 			this.comboboxSearchBy	= (ComboBox)this.ui.get_object("comboboxSearchBy");
 			this.treeviewProducts	= (TreeView)this.ui.get_object("treeviewProducts");
@@ -67,6 +72,22 @@ namespace EPos.Woocommerce
 			this.comboboxCategories.pack_start(cell, true);
 			this.comboboxCategories.set_attributes(cell, "text", 0);
 			this.comboboxCategories.id_column = 1;
+			//##build combobox search by
+			this.comboboxSearchBy.model = new ListStore(2, typeof(string), typeof(string));
+			cell = new CellRendererText();
+			this.comboboxSearchBy.pack_start(cell, true);
+			this.comboboxSearchBy.set_attributes(cell, "text", 0);
+			this.comboboxSearchBy.id_column = 1;
+			TreeIter iter;
+			(this.comboboxSearchBy.model as ListStore).append(out iter);
+			(this.comboboxSearchBy.model as ListStore).set(iter, 0, SBText.__("Name"), 1, "name");
+			(this.comboboxSearchBy.model as ListStore).append(out iter);
+			(this.comboboxSearchBy.model as ListStore).set(iter, 0, SBText.__("SKU"), 1, "sku");
+			(this.comboboxSearchBy.model as ListStore).append(out iter);
+			(this.comboboxSearchBy.model as ListStore).set(iter, 0, SBText.__("ID"), 1, "id");
+			(this.comboboxSearchBy.model as ListStore).append(out iter);
+			(this.comboboxSearchBy.model as ListStore).set(iter, 0, SBText.__("Woo ID"), 1, "woo_id");
+			this.comboboxSearchBy.active_id = "name";
 			
 			this.treeviewProducts.model = new ListStore(Columns.N_COLS,
 				typeof(bool), //select
@@ -78,6 +99,7 @@ namespace EPos.Woocommerce
 				typeof(string), //sku
 				typeof(int), //qty
 				typeof(string), //price
+				typeof(string), //tax
 				typeof(string) //categories
 			);
 			string[,] cols = 
@@ -91,12 +113,19 @@ namespace EPos.Woocommerce
 				{SBText.__("SKU"), "text", "180", "left", "", ""},
 				{SBText.__("Qty"), "text", "50", "center", "", ""},
 				{SBText.__("Price"), "text", "60", "right", "", ""},
-				{SBText.__("Categories"), "text", "220", "left", "", ""},
+				{SBText.__("Tax"), "text", "60", "center", "", ""},
+				{SBText.__("Categories"), "text", "220", "left", "", ""}
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewProducts);
+			this.treeviewColumnSelect = this.treeviewProducts.get_column(Columns.SELECT);
+			this.checkbuttonSelect = new CheckButton();
+			this.checkbuttonSelect.show();
+			this.treeviewColumnSelect.widget		= this.checkbuttonSelect;
+			this.treeviewColumnSelect.clickable 	= true;
+			
 			this.treeviewProducts.rules_hint = true;
 			//##refresh stores
-			TreeIter iter;
+			
 			(this.comboboxStore.model as ListStore).append(out iter);
 			(this.comboboxStore.model as ListStore).set(iter, 
 				0, SBText.__("-- store --"),
@@ -117,6 +146,13 @@ namespace EPos.Woocommerce
 			this.comboboxStore.changed.connect(this.OnComboBoxStoreChanged);
 			this.comboboxCategories.changed.connect(this.OnComboBoxCategoriesChanged);
 			this.buttonSync.clicked.connect(this.OnButtonSyncClicked);
+			this.buttonApplyTax.clicked.connect(this.OnButtonApplyTaxClicked);
+			this.entrySearch.key_release_event.connect(this.OnEntrySearchKeyReleaseEvent);
+			this.treeviewColumnSelect.clicked.connect( () => 
+			{
+				this.checkbuttonSelect.active = !this.checkbuttonSelect.active;
+			});
+			this.checkbuttonSelect.clicked.connect(this.OnCheckButtonSelectClicked);
 		}
 		protected void OnComboBoxStoreChanged()
 		{
@@ -205,6 +241,7 @@ namespace EPos.Woocommerce
 				{
 					thumb = store_folder + thumb;
 				}
+				var tax = EPosHelper.GetTaxRate(int.parse(prod.Meta["tax_rate_id"]));
 				(this.treeviewProducts.model as ListStore).append(out iter);
 				(this.treeviewProducts.model as ListStore).set(iter,
 					Columns.SELECT, false,
@@ -216,6 +253,7 @@ namespace EPos.Woocommerce
 					Columns.SKU, prod.Code,
 					Columns.QUANTITY, prod.Quantity,
 					Columns.PRICE, "%.2f".printf(prod.Price),
+					Columns.TAX, (tax != null) ? "%.2f%s".printf((double)tax["rate"], "%") : "---",
 					Columns.CATEGORIES, prod.Meta["wc_categories"] != null ? (string)prod.Meta["wc_categories"] : ""
 				);
 				i++;
@@ -245,6 +283,94 @@ namespace EPos.Woocommerce
 			{
 				stderr.printf("ERROR: %s\n", e.message);
 			}
+		}
+		protected void OnButtonApplyTaxClicked()
+		{
+			var dlg = new Dialog();
+			var box = new Box(Orientation.HORIZONTAL, 5);
+			box.add(new Label(SBText.__("Tax Rate:")));
+			var combobox = new ComboBox();
+			combobox.model = new ListStore(2, typeof(string), typeof(string));
+			//##fill tax rates
+			TreeIter iter;
+			(combobox.model as ListStore).append(out iter);
+			(combobox.model as ListStore).set(iter, 0, SBText.__("-- tax rate --"), 1, "-1");
+			foreach(var rate in EPosHelper.GetTaxes())
+			{
+				(combobox.model as ListStore).append(out iter);
+				(combobox.model as ListStore).set(iter, 
+					0, (string)rate["name"], 
+					1, ((int)rate["tax_id"]).to_string()
+				);
+			}
+			combobox.active_id = "-1";
+			var cell = new CellRendererText();
+			combobox.pack_start(cell, true);
+			combobox.set_attributes(cell, "text", 0);
+			combobox.id_column = 1;
+			box.add(combobox);
+			box.show_all();
+			dlg.get_content_area().add(box);
+			var btn_cancel = (Button)dlg.add_button(SBText.__("Cancel"), ResponseType.CANCEL);
+			var btn_apply = (Button)dlg.add_button(SBText.__("Apply"), ResponseType.YES);
+			if( dlg.run() == ResponseType.YES )
+			{
+				if( combobox.active_id != null && combobox.active_id != "-1" )
+				{
+					int tax_id = int.parse(combobox.active_id);
+					//var tax_rate = EPosHelper.GetTaxRate(tax_id);
+					
+					this.treeviewProducts.model.foreach( (model, path , iter) => 
+					{
+						Value selected, pid;
+						model.get_value(iter, Columns.SELECT, out selected);
+						if( (bool)selected )
+						{
+							model.get_value(iter, Columns.ID, out pid);
+							SBMeta.UpdateMeta("product_meta", "tax_rate_id", tax_id.to_string(), "product_id", (int)pid);
+						}
+						return false;
+					});
+				}
+				
+			}
+			dlg.destroy();
+			/*
+			var msg = new InfoDialog()
+			{
+				Title = SBText.__("Apply tax rate"),
+				Message = SBText.__("Are you sure to applyt the tax rate?")
+			};
+			msg.add_button(SBText.__("Yes"), ResponseType.YES);
+			if(msg.run() == ResponseType.YES)
+			{
+				this.treeviewProducts.model.foreach( (model, path , iter) => 
+				{
+					return false;
+				});
+			}
+			msg.destroy();
+			*/
+		}
+		protected bool OnEntrySearchKeyReleaseEvent(Gdk.EventKey e)
+		{
+			if( e.keyval != 65293)
+				return true; 
+				
+			return true;
+		}
+		protected void OnCheckButtonSelectClicked()
+		{
+			bool select = false;
+			if( this.checkbuttonSelect.active )
+			{
+				select = true;
+			}
+			this.treeviewProducts.model.foreach( (model, path, iter) => 
+			{
+				(model as ListStore).set_value(iter, Columns.SELECT, select);
+				return false;
+			});
 		}
 		protected int SyncProducts()
 		{
@@ -283,7 +409,14 @@ namespace EPos.Woocommerce
 			
 			GLib.Idle.add( () => 
 			{
-				this.RefreshProducts(this.storeId);
+				this.windowProgress.buttonCancel.label = SBText.__("Close");
+				this.windowProgress.buttonCancel.clicked.connect( () => 
+				{
+					this.windowProgress.destroy();
+					this.RefreshProducts(this.storeId);
+					
+				});
+				
 				return false;
 			});
 			return 0;

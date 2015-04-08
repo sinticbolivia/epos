@@ -51,7 +51,9 @@ namespace EPos
 					dbh.Execute("ALTER TABLE purchase_order_items ADD COLUMN quantity_received INT DEFAULT 0 AFTER quantity");
 				}
 			}
-			
+			else if( dbh.Engine == "sqlite" || dbh.Engine == "sqlite3" )
+			{
+			}
 		}
 		public void Enabled()
 		{
@@ -60,7 +62,7 @@ namespace EPos
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string sql_file = "";
 			
-			if(dbh.Engine == "sqlite3") 
+			if(dbh.Engine == "sqlite" || dbh.Engine == "sqlite3") 
 			{
 				sql_file = "sql/inventory.sqlite3.sql";
 			}
@@ -74,11 +76,17 @@ namespace EPos
 			var ds = new DataInputStream(istream);
 			string sql = "";
 			string? line = "";
-			while( (line = ds.read_line()) != null )
+			try
 			{
-				sql += line;
+				while( (line = ds.read_line()) != null )
+				{
+					sql += line;
+				}
 			}
-			//stdout.printf("SQL: %s\n", sql);
+			catch(GLib.IOError e)
+			{
+			}
+			stdout.printf("SQL: %s\n", sql);
 			foreach(string q in sql.split(";"))
 			{
 				if(q.strip().length <= 0) continue;
@@ -113,7 +121,7 @@ namespace EPos
 				{"edit_purchase_orders", "", SBText.__("Edit Purchase Orders")},
 				{"receive_purchase_orders", "", SBText.__("Receive Purchase Orders")},
 				{"return_purchase_orders", "", SBText.__("Return Purchase Orders")},
-				{"cancell_purchase_orders", "", SBText.__("Cancell Purchase Orders")}
+				{"cancel_purchase_orders", "", SBText.__("Cancel Purchase Orders")}
 			};
 			
 			dbh.BeginTransaction();
@@ -196,7 +204,7 @@ namespace EPos
 				{
 					if( notebook.GetPage("inventory") == null )
 					{
-						var inv = new WidgetIventory();
+						var inv = new EPos.WidgetInventory();
 						inv.show();
 						notebook.AddPage("inventory", "Inventory", inv);
 					}
@@ -295,7 +303,7 @@ namespace EPos
 			{
 				if( notebook.GetPage("inventory") == null )
 				{
-					var inv = new WidgetIventory();
+					var inv = new WidgetInventory();
 					inv.show();
 					notebook.AddPage("inventory", "Inventory", inv);
 				}
@@ -386,6 +394,20 @@ namespace EPos
 				notebook.SetCurrentPageById("assemblies");
 			});
 			menuitem_inventory.submenu.add(mi_assemblies);
+			
+			var mi_adjust = new Gtk.MenuItem.with_label(SBText.__("Adjustments"));
+			mi_adjust.show();
+			mi_adjust.activate.connect( () => 
+			{
+				if( notebook.GetPage("adjustments") == null )
+				{
+					var w = new WidgetAdjustments();
+					w.show();
+					notebook.AddPage("adjustments", SBText.__("Adjustments"), w);
+				}
+				notebook.SetCurrentPageById("adjustments");
+			});
+			menuitem_inventory.submenu.add(mi_adjust);
 		}
 		public static void hook_reports_menu(SBModuleArgs<Gtk.Menu> args)
 		{

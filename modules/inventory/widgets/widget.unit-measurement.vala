@@ -4,9 +4,9 @@ using Gtk;
 using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
-using SinticBolivia.Utils;
+//using SinticBolivia.Utils;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetUnitOfMeasurement : Box
 	{

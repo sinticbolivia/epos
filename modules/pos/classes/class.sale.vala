@@ -32,6 +32,13 @@ namespace EPos
 			get{return this.dbData.GetInt("customer_id");}
 			set{this.dbData.Set("customer_id", value.to_string());}
 		}
+		/*
+		public		int						UserId
+		{
+			get{return this.dbData.GetInt("user_id");}
+			set{this.dbData.set("user_id", value.to_string());}
+		}
+		*/
 		public		string					Notes
 		{
 			get{return this.dbData.Get("notes");}

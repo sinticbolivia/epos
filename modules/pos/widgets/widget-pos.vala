@@ -26,14 +26,18 @@ namespace EPos
 			QTY,
 			PRODUCT_NAME,
 			PRICE,
+			SUB_TOTAL,
+			TAX,
 			TOTAL,
 			ACTION,
 			PRODUCT_ID,
 			EXTERNAL_ID,
+			TAX_RATE,
 			NUM_COLS
 		}
 		protected 	Builder 		_builder;
 		public		Window			windowPos;
+		public		Box				box1;
 		public		Paned			panedPos;
 		public 		ComboBox 		comboboxCategories;
 		public		Entry			entrySearchProduct;
@@ -44,9 +48,12 @@ namespace EPos
 		public		Label			labelTotalProducts;
 		public 		ToggleButton	togglebuttonListView;
 		public 		ToggleButton	togglebuttonGridView;
+		protected	ButtonBox		buttonboxPosButtons;
 		public 		Button 			buttonRefreshProducts;
+		public		Button			buttonCreateCustomer;
 		public		Button			buttonCancel;
 		public		Button			buttonRegisterSale;
+		protected	Grid			gridTotals;
 		public		Label			labelSubTotal;
 		public		Label			labelTotal;
 		protected	Label			labelTax;
@@ -54,22 +61,25 @@ namespace EPos
 		public		Entry			entryDiscount;
 		public 		ComboBox 		comboboxPaymentMethod;
 		public 		Entry			entrySearchCustomer;
+		protected	Button			buttonGuestCustomer;
+		protected	Button			buttonClearCustomer;
 		public		TextView		textviewNotes;
 		protected	bool			_dataLoaded = false;
 		protected	bool			_categoriesLoaded = false;
 		protected	bool			_productsLoaded		= false;
 		protected	bool			_offline = true;
-		//protected	Grid			_grid = null;
 		protected	string			_currentView = "list";
 		protected	bool			lock_grid_view = false;
 		protected	bool			lock_list_view = false;
 		protected	int				customerId = 0;
 		protected	bool			customerCreated = false;
+		protected	ArrayList<SBProduct>	productsToFill;
 		
 		public WidgetPOS()
 		{
 			this._builder = (SBModules.GetModule("Pos") as SBGtkModule).GetGladeUi("wc-pos.glade");
-			
+			this.productsToFill	= new ArrayList<SBProduct>();
+		
 			/*
 			Type type = typeof(WidgetPOS);
 			var self = Object.new(type);
@@ -81,6 +91,8 @@ namespace EPos
 			*/
 			//##get widgets from glade file
 			this.windowPos				= (Window)this._builder.get_object("windowPos");
+			this.box1					= (Box)this._builder.get_object("box1");
+			this.labelStoreName			= (Label)this._builder.get_object("labelStoreName");
 			this.panedPos				= (Paned)this._builder.get_object("panedPos");
 			this.comboboxCategories 	= (ComboBox)this._builder.get_object("comboboxCategories");
 			this.entrySearchProduct		= (Entry)this._builder.get_object("entrySearchProduct");
@@ -88,9 +100,12 @@ namespace EPos
 			this.labelTotalProducts		= (Label)this._builder.get_object("labelTotalProducts");
 			this.togglebuttonListView	= (ToggleButton)this._builder.get_object("togglebuttonListView");
 			this.togglebuttonGridView	= (ToggleButton)this._builder.get_object("togglebuttonGridView");
+			this.buttonboxPosButtons	= (ButtonBox)this._builder.get_object("buttonboxPosButtons");
 			this.buttonRefreshProducts 	= (Button)this._builder.get_object("buttonRefreshProducts");
+			this.buttonCreateCustomer	= (Button)this._builder.get_object("buttonCreateCustomer");
 			this.buttonCancel			= (Button)this._builder.get_object("buttonCancel");
 			this.buttonRegisterSale		= (Button)this._builder.get_object("buttonRegisterSale");
+			this.gridTotals				= (Grid)this._builder.get_object("gridTotals");
 			this.labelSubTotal			= (Label)this._builder.get_object("labelSubTotal");
 			this.labelTotal				= (Label)this._builder.get_object("labelTotal");
 			this.labelTax				= (Label)this._builder.get_object("labelTax");
@@ -100,19 +115,36 @@ namespace EPos
 			this.treeviewOrderItems 	= (TreeView)this._builder.get_object("treeviewOrderItems");
 			this.comboboxPaymentMethod 	= (ComboBox)this._builder.get_object("comboboxPaymentMethod");
 			this.entrySearchCustomer	= (Entry)this._builder.get_object("entrySearchCustomer");
+			this.buttonGuestCustomer	= (Button)this._builder.get_object("buttonGuestCustomer");
+			this.buttonClearCustomer	= (Button)this._builder.get_object("buttonClearCustomer");
 			this.textviewNotes			= (TextView)this._builder.get_object("textviewNotes");
 			this.Build();
 			//this.LoadData();
 			this.SetEvents();
 			
-			this.panedPos.reparent(this);
-			
-			this.togglebuttonListView.active = true;
-
+			this.box1.reparent(this);
 		}
 		protected void Build()
 		{
-			//build combobox categories
+			this.labelSubTotal.name = "label-subtotal";
+			this.labelTax.name		= "label-tax-total";
+			this.labelTotal.name	= "label-total";
+			
+			var args = new SBModuleArgs<HashMap<string, Value?>>();
+			var data = new HashMap<string, Value?>();
+			data["dbh"]			= this.Dbh;
+			data["box_totals"] 	= this.gridTotals;
+			data["buttons"] 	= new ArrayList<Button>();
+			args.SetData(data);
+			SBModules.do_action("pos_buttons", args);
+			//##build pos buttons
+			foreach(var btn  in (data["buttons"] as ArrayList<Button>))
+			{
+				btn.show();
+				this.buttonboxPosButtons.add(btn);
+			}
+			
+			//##build combobox categories
 			this.comboboxCategories.model = new TreeStore(2, typeof(string), typeof(string));
 			var cell = new CellRendererText();
 			this.comboboxCategories.pack_start(cell, false);
@@ -139,19 +171,24 @@ namespace EPos
 															typeof(int), //product quantity
 															typeof(string), //product name
 															typeof(string), //product price
+															typeof(string), //subtotal
+															typeof(string), //tax
 															typeof(string), //total
 															typeof(Gdk.Pixbuf), //remove button
 															typeof(int), //product_id
-															typeof(int) //external id
+															typeof(int), //external id
+															typeof(string) //tax rate
 			);
 			this.treeviewOrderItems.rules_hint = true;
 			string[,] cols = 
 			{
-				{SBText.__("Qty"), "text", "60", "center", "editable", "resizable"},
+				{SBText.__("Qty"), "text", "40", "center", "editable", "resizable"},
 				{SBText.__("Product"), "text", "200", "left", "", "resizable"},
-				{SBText.__("Price"), "text", "90", "right", "editable", "resizable"},
-				{SBText.__("Total"), "text", "100", "right", "", "resizable"},
-				{SBText.__("Remove"), "pixbuf", "50", "center", "", "resizable"}
+				{SBText.__("Price"), "text", "60", "right", "editable", "resizable"},
+				{SBText.__("Sub Total"), "text", "65", "right", "", ""},
+				{SBText.__("Tax"), "text", "60", "right", "", ""},
+				{SBText.__("Total"), "text", "90", "right", "", "resizable"},
+				{SBText.__(""), "pixbuf", "40", "center", "", "resizable"}
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewOrderItems);
 			this.treeviewOrderItems.get_column(OrderColumns.ACTION).max_width = 90;
@@ -163,6 +200,10 @@ namespace EPos
 			{
 				return true;
 			});
+			this.buttonGuestCustomer.visible = false;
+			var args1 = new SBModuleArgs<Grid>();
+			args1.SetData(this.gridTotals);
+			SBModules.do_action("pos_totals_grid", args1);
 		}
 		protected void SetEvents()
 		{
@@ -170,7 +211,7 @@ namespace EPos
 			//this.map.connect( () => 
 			{
 				int w = this.get_allocated_width();
-				this.panedPos.position = (int)(w * 0.55);
+				this.panedPos.position = (int)(w * 0.53);
 			});
 			//##set events
 			this.comboboxCategories.changed.connect(this.OnComboBoxCategoriesChanged);
@@ -180,14 +221,18 @@ namespace EPos
 			//this.togglebuttonGridView.clicked.connect(this.OnToggleButtonGridViewClicked);
 			//this.togglebuttonListView.clicked.connect(this.OnToggleButtonListViewClicked);
 			this.buttonRefreshProducts.clicked.connect(this.OnButtonRefreshProductsClicked);
+			this.buttonCreateCustomer.clicked.connect(this.OnButtonCreateCustomerClicked);
 			this.buttonCancel.clicked.connect(this.resetOrder);
 			this.buttonRegisterSale.clicked.connect(this.OnButtonRegisterSaleClicked);
-			//add event to remove product from order
+			//##add event to remove product from order
 			this.treeviewOrderItems.button_release_event.connect(this.OnOrderItemsButtonReleaseEvent);
 			(this.treeviewOrderItems.get_column(OrderColumns.QTY).get_cells().nth_data(0) as CellRendererText).edited.connect(this.OnOrderItemQtyEdited);		
 			(this.treeviewOrderItems.get_column(OrderColumns.PRICE).get_cells().nth_data(0) as CellRendererText).edited.connect(this.OnOrderItemPriceEdited);
 			this.entrySearchCustomer.key_release_event.connect(this.OnSearchCustomerKeyReleaseEvent);
 			this.entrySearchCustomer.completion.match_selected.connect(this.OnCustomerSelected);
+			this.entrySearchCustomer.icon_release.connect(this.OnEntrySearchCustomerIconRelease);
+			this.buttonGuestCustomer.clicked.connect(this.OnButtonGuestCustomerClicked);
+			this.buttonClearCustomer.clicked.connect(this.OnButtonClearCustomerClicked);
 		}
 		protected void _buildProductTreeView()
 		{
@@ -221,13 +266,17 @@ namespace EPos
 		public override void LoadData()
 		{
 			this._fillCategories();
-			
+			/*
 			string query = "SELECT COUNT(*) as total_products FROM products WHERE store_id = %d".
 								printf(this.storeId);
 			long total_products = this.Dbh.GetRow(query).GetInt("total_products");
-			var prods = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
-			this._fillProducts(prods, "list");
+			this.productsToFill = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
+			stdout.printf("LoadData(), size: %d\n", this.productsToFill.size);
+			this._fillProducts("list");
 			this.labelTotalProducts.label = total_products.to_string();
+			*/
+			this.togglebuttonListView.active = true;
+			
 		}
 		protected void _fillCategories()
 		{
@@ -265,44 +314,73 @@ namespace EPos
 			//Gdk.threads_leave();
 			this._categoriesLoaded = true;
 		}
-		public void _fillProducts(ArrayList<SBProduct> rows, string view = "list")
+		public void _fillProducts(string view = "list")
 		{
-			//Gdk.threads_enter();
-			if( this.scrolledwindow1.get_child() != null )
+			this._currentView = view;
+			this.labelTotalProducts.label = "%d".printf(this.productsToFill.size);
+			try
 			{
-				this.scrolledwindow1.get_child().destroy();
+				new Thread<int>.try("Fill pos products thread", this.ThreadFillProducts);
 			}
-			if( rows.size <= 0 )
+			catch(GLib.Error e)
 			{
-				return;
+				stderr.printf("THREAD ERROR: %s\n", e.message);
 			}
+			
+		}
+		protected int ThreadFillProducts()
+		{
+			string view = this._currentView;
+			stdout.printf("(Thread)total products to fill: %d, View:%s\n", this.productsToFill.size, view);
+			
+			GLib.Idle.add( () => 
+			{
+				if( this.scrolledwindow1.get_child() != null )
+				{
+					this.scrolledwindow1.get_child().destroy();
+				}
+				if( view == "list" )
+				{
+					this._buildProductTreeView();
+					this.scrolledwindow1.add(this.treeviewProducts);
+					this.scrolledwindow1.show_all();
+				}
+				else if( view == "grid" )
+				{
+					this.fixedProducts = new SBFixed()
+					{
+						Width = this.scrolledwindow1.get_allocated_width()
+					};
+					this.fixedProducts.SetWidgetSize(100, 110);
+					this.fixedProducts.show();
+					this.scrolledwindow1.add_with_viewport(this.fixedProducts);
+					this.scrolledwindow1.show_all();
+				}
+				return false;
+			}); //end idle
+			
 			string images_path = SBFileHelper.SanitizePath("images/store_%d/".printf(this.storeId));
 			var placeholder = (SBModules.GetModule("Pos") as SBGtkModule).GetPixbuf("placeholder-80x80.png");
-			if( view == "list" )
+			foreach(var prod in this.productsToFill)
 			{
-				this._buildProductTreeView();
-				this.scrolledwindow1.add(this.treeviewProducts);
-				string add_icon	= SBFileHelper.SanitizePath("share/images/add-icon.png");		
-				var add_pixbuf = new Gdk.Pixbuf.from_file(add_icon);	
-				
-				try
+				string product_image = images_path + prod.GetThumbnail();
+				Gdk.Pixbuf? prod_pixbuf = null;
+				if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
 				{
-					foreach(var prod in rows)
+					prod_pixbuf = new Gdk.Pixbuf.from_file(product_image);
+					if( prod_pixbuf.width > 80 )
 					{
-						string product_image = images_path + prod.GetThumbnail();
-						
-						Gdk.Pixbuf? prod_pixbuf = null;
-						if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
-						{
-							prod_pixbuf = new Gdk.Pixbuf.from_file(product_image);
-							if( prod_pixbuf.width > 80 )
-							{
-								prod_pixbuf = prod_pixbuf.scale_simple(80, 80, Gdk.InterpType.BILINEAR);
-							}
-						}
-						
+						prod_pixbuf = prod_pixbuf.scale_simple(80, 80, Gdk.InterpType.BILINEAR);
+					}
+				}
+				
+				if( view == "list" )
+				{
+					string add_icon	= SBFileHelper.SanitizePath("share/images/add-icon.png");		
+					var add_pixbuf = new Gdk.Pixbuf.from_file(add_icon);
+					GLib.Idle.add( () => 
+					{
 						TreeIter iter;
-						
 						(this.treeviewProducts.model as ListStore).append(out iter);
 						(this.treeviewProducts.model as ListStore).set(iter,
 													0, prod_pixbuf == null ? placeholder : prod_pixbuf,
@@ -313,96 +391,69 @@ namespace EPos
 													5, add_pixbuf,
 													6, prod.Id
 						);
-					}
-					
-					
+						return false;
+					});
+					//this.treeviewProducts.show_all();
 				}
-				catch(Error e)
+				else if( view == "grid" ) 
 				{
-					MessageDialog msg = new MessageDialog(null, DialogFlags.MODAL, MessageType.ERROR, ButtonsType.CLOSE, 
-													e.message);
-					msg.run();
-					msg.destroy();
-				}
-				this.treeviewProducts.show_all();
-			}
-			else if( view == "grid" )
-			{
-				this.fixedProducts = new SBFixed()
-				{
-					Width = this.scrolledwindow1.get_allocated_width()
-				};
-				this.fixedProducts.SetWidgetSize(100, 110);
-				this.fixedProducts.show();
-				this.scrolledwindow1.add_with_viewport(this.fixedProducts);
-							
-				foreach(var prod in rows)
-				{
-					string product_image = images_path + prod.GetThumbnail();
-					
-					try
+					string label = "Price: %.2lf".printf(prod.Price);
+					Button btn = new Button.with_label(label);
+					btn.show();
+					//btn.tooltip_text = product.get_string_member("title");
+					btn.has_tooltip = true;
+					var tooltip_window = new Window(){skip_taskbar_hint = true};
+					tooltip_window.decorated = false;
+					var box = new Box(Gtk.Orientation.VERTICAL, 5){margin = 10};
+					box.pack_start(new Label("Name: %s".printf(prod.Name) ){xalign = 0});
+					box.pack_start(new Label("Price: %.2lf".printf(prod.Price)){xalign = 0});
+					box.pack_start(new Label("Stock: %d".printf(prod.Quantity)){xalign = 0});
+					box.pack_start(new Label("Woo ID: %d".printf(prod.GetInt("extern_id"))){xalign = 0});
+					box.show_all();
+					tooltip_window.add(box);
+					tooltip_window.name = "gtk-tooltip";
+					btn.set_tooltip_window(tooltip_window);
+					btn.query_tooltip.connect( (_x, _y, _keyboard_tooltip, _tooltip) => 
 					{
-						Gdk.Pixbuf? prod_pixbuf = null;
-						if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
-						{
-							prod_pixbuf = new Gdk.Pixbuf.from_file(product_image);
-						}
-						
-						string label = "Price: %.2lf".printf(prod.Price);
-						Button btn = new Button.with_label(label);
-						//btn.tooltip_text = product.get_string_member("title");
-						btn.has_tooltip = true;
-						var tooltip_window = new Window(){skip_taskbar_hint = true};
-						tooltip_window.decorated = false;
-						var box = new Box(Gtk.Orientation.VERTICAL, 5){margin = 10};
-						box.pack_start(new Label("Name: %s".printf(prod.Name) ){xalign = 0});
-						box.pack_start(new Label("Price: %.2lf".printf(prod.Price)){xalign = 0});
-						box.pack_start(new Label("Stock: %d".printf(prod.Quantity)){xalign = 0});
-						box.pack_start(new Label("Woo ID: %d".printf(prod.GetInt("extern_id"))){xalign = 0});
-						box.show_all();
-						tooltip_window.add(box);
-						tooltip_window.name = "gtk-tooltip";
-						btn.set_tooltip_window(tooltip_window);
-						btn.query_tooltip.connect( (_x, _y, _keyboard_tooltip, _tooltip) => 
-						{
-							//btn.get_tooltip_window().show_all();
-							return true;
-						});
-						btn.expand = false;
-						btn.vexpand = false;
-						btn.hexpand = false;
-						btn.set_size_request(80,80);
-						btn.image = new Image.from_pixbuf(prod_pixbuf != null ? prod_pixbuf : placeholder);
-						btn.image_position = PositionType.TOP;
-						btn.clicked.connect( () => 
-						{
-							this._addProductToOrder(prod);
-						});
+						//btn.get_tooltip_window().show_all();
+						return true;
+					});
+					btn.expand = false;
+					btn.vexpand = false;
+					btn.hexpand = false;
+					btn.set_size_request(80,80);
+					btn.image = new Image.from_pixbuf(prod_pixbuf != null ? prod_pixbuf : placeholder);
+					btn.image_position = PositionType.TOP;
+					btn.clicked.connect( () => 
+					{
+						this._addProductToOrder(prod);
+					});
+					GLib.Idle.add( () => 
+					{
 						this.fixedProducts.AddWidget(btn);
-					}
-					catch(GLib.Error e)
-					{
-						stdout.printf("ERROR: %s\n", e.message);
-					} 
+						return false;
+					});
 				}
-				//this.togglebuttonGridView.active = true;
-			}	
-			this._currentView = view;
-			this.scrolledwindow1.show_all();		
-			//Gdk.threads_leave();
-			this._productsLoaded = true;
+			}//end foreach
+			
+			return 0;
 		}
+		protected uint timeout = 0;
+		
 		protected bool OnEntrySearchProductKeyRelease()
 		{
-			if( this.entrySearchProduct.text.strip().length <= 0 )
+			string keyword = this.entrySearchProduct.text.strip();
+			if( keyword.length <= 0 )
 			{
 				this.OnComboBoxCategoriesChanged();
 				return false;
 			}
+			GLib.Source.remove(this.timeout);
 			
-			string keyword = this.entrySearchProduct.text.strip();
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
-			string query = "SELECT p.*, a.file AS thumbnail "+
+			this.timeout = GLib.Timeout.add(400, () => 
+			{
+				stdout.printf("searching products\n");
+				string query = "SELECT p.*, a.file AS thumbnail "+
 								"FROM products p "+
 									"LEFT JOIN attachments a ON a.object_id = p.product_id " +
 								"WHERE product_name LIKE '%s' "+
@@ -411,17 +462,19 @@ namespace EPos
 								"AND LOWER(a.object_type) = 'product' " +
 								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
 								"GROUP BY p.product_id ";
-			query = query.printf("%"+keyword+"%", this.storeId);
+				query = query.printf("%"+keyword+"%", this.storeId);
+				
+				var rows = this.Dbh.GetResults(query);
+				this.productsToFill = new ArrayList<SBProduct>();
+				foreach(var row in rows)
+				{
+					var p = new SBProduct.with_db_data(row);
+					this.productsToFill.add(p);
+				}
+				this._fillProducts(this._currentView);
+				return false;
+			});		
 			
-			var rows = this.Dbh.GetResults(query);
-			var prods = new ArrayList<SBProduct>();
-			foreach(var row in rows)
-			{
-				var p = new SBProduct.with_db_data(row);
-				prods.add(p);
-			}
-			this._fillProducts(prods, this._currentView);
-		
 			return true;
 		}
 		/*
@@ -451,6 +504,24 @@ namespace EPos
 			dlg.run();
 			dlg.dispose();
 		}
+		protected void OnButtonCreateCustomerClicked()
+		{
+			var w 		= new DialogCreateCustomer();
+			w.StoreId 	= this.storeId;
+			w.Dbh		= this.Dbh;
+			w.modal = true;
+			w.show();
+			w.destroy.connect( () => 
+			{
+				if( w.CustomerData != null )
+				{
+					this.customerId = (int)w.CustomerData["customer_id"];
+					this.entrySearchCustomer.text = "%s %s".printf((string)w.CustomerData["first_name"], 
+																	(string)w.CustomerData["last_name"]);
+					this.customerCreated = true;
+				}
+			});
+		}
 		/**
 		 * Add Product to order
 		 * 
@@ -477,8 +548,10 @@ namespace EPos
 				(this.treeviewProducts.model as ListStore).get_value(iter, ProductColumns.ID, out v_pid);
 				var product = new SBProduct(){Dbh = this.Dbh};
 				product.GetDbData((int)v_pid);
+				
 				if( product.Id > 0 )
 				{
+					product.GetDbMeta();
 					this._addProductToOrder(product);									
 				}
 			}
@@ -529,18 +602,24 @@ namespace EPos
 		}
 		protected void _calculateOrderItermTotal(TreeIter iter)
 		{
-			Value v_qty, v_price;
+			Value v_qty, v_price, v_tax_rate;
+			
 			(this.treeviewOrderItems.model as ListStore).get_value(iter, OrderColumns.QTY, out v_qty);
 			(this.treeviewOrderItems.model as ListStore).get_value(iter, OrderColumns.PRICE, out v_price);
-			double total = (int)v_qty * double.parse((string)v_price);
+			(this.treeviewOrderItems.model as ListStore).get_value(iter, OrderColumns.TAX_RATE, out v_tax_rate);
+			double tax_rate = double.parse((string)v_tax_rate);
+			double sub_total = (int)v_qty * double.parse((string)v_price);
+			
+			double tax_amount = sub_total * tax_rate;
+			double total = sub_total + tax_amount;
+			(this.treeviewOrderItems.model as ListStore).set_value(iter, OrderColumns.SUB_TOTAL, "%.2f".printf(sub_total));
+			(this.treeviewOrderItems.model as ListStore).set_value(iter, OrderColumns.TAX, "%.2f".printf(tax_amount));
 			(this.treeviewOrderItems.model as ListStore).set_value(iter, OrderColumns.TOTAL, "%.2f".printf(total));
 		}
 		protected void _addProductToOrder(SBProduct product)
 		{
 			TreeIter iter;
 			int product_id = product.Id;
-			
-			stdout.printf("pid: %d\n", product_id);
 			
 			int qty = 1;
 						
@@ -559,16 +638,28 @@ namespace EPos
 				//this.labelVAT.label = "%.2f".printf(this.store.TaxRate);
 				try
 				{
-					
+					int tax_id = product.Meta["tax_rate_id"] != null ? int.parse(product.Meta["tax_rate_id"]) : 0;
+					HashMap<string, Value?>? tax = null;
+					if(product.Meta["tax_rate_id"] != null)
+						tax = EPosHelper.GetTaxRate(tax_id);
+						
+					double tax_rate = tax != null ? ((double)tax["rate"] / 100) : 0;
+					double sub_total = product.Price * qty;
+					double tax_amount = sub_total * tax_rate;
+					double total = sub_total + tax_amount;
+					stdout.printf("Tax id: %d, Tax rate: %.2f\n", tax_id, tax_rate);
 					(this.treeviewOrderItems.model as ListStore).append(out iter);
 					(this.treeviewOrderItems.model as ListStore).set(iter,
 							OrderColumns.QTY, qty,
 							OrderColumns.PRODUCT_NAME, product.Name,
 							OrderColumns.PRICE, "%.2lf".printf(product.Price),
-							OrderColumns.TOTAL, "%.2lf".printf(product.Price),
+							OrderColumns.SUB_TOTAL, "%.2lf".printf(sub_total),
+							OrderColumns.TAX, "%.2f".printf(tax_amount),
+							OrderColumns.TOTAL, "%.2lf".printf(total),
 							OrderColumns.ACTION, new Gdk.Pixbuf.from_file(SBFileHelper.SanitizePath("share/images/remove-icon.png")),
 							OrderColumns.PRODUCT_ID, product.Id,
-							OrderColumns.EXTERNAL_ID, product.GetInt("extern_id")
+							OrderColumns.EXTERNAL_ID, product.GetInt("extern_id"),
+							OrderColumns.TAX_RATE, "%.2f".printf(tax_rate)
 					);
 					
 				}
@@ -634,14 +725,17 @@ namespace EPos
 				
 				return true;
 			}
-			string query = "SELECT * FROM customers WHERE (first_name || last_name) LIKE '%s' AND store_id = %d".printf("%"+keyword+"%", this.storeId);
+			string query = "SELECT * FROM customers WHERE (first_name || last_name) LIKE '%s' ";
+			query += "AND store_id = %d";
+			query = query.printf("%"+keyword+"%", this.storeId);
+			
 			var rows = this.Dbh.GetResults(query);
 			TreeIter iter;
 			foreach(var row in rows)
 			{
 				(this.entrySearchCustomer.completion.model as ListStore).append(out iter);
 				(this.entrySearchCustomer.completion.model as ListStore).set(iter,
-					0, "%s %s".printf(row.Get("first_name"), row.Get("last_name")),
+					0, "%s %s, %s, %s".printf(row.Get("first_name"), row.Get("last_name"), row.Get("address_1"), row.Get("zip_code")),
 					1, row.GetInt("customer_id")
 				);
 			}
@@ -654,7 +748,47 @@ namespace EPos
 			model.get_value(iter, 1, out cid);
 			this.entrySearchCustomer.text = (string)name;
 			this.customerId = (int)cid;
+			this.customerCreated = false;
 			return true;
+		}
+		protected void OnEntrySearchCustomerIconRelease(EntryIconPosition icon, Gdk.Event event)
+		{
+			
+			if( icon == EntryIconPosition.PRIMARY )
+			{
+			}
+			else
+			{
+				if( this.customerId > 0 )
+				{
+					var dlg 	= new DialogCreateCustomer();
+					dlg.StoreId = this.storeId;
+					dlg.Dbh 	= this.Dbh;
+					dlg.ViewCustomer(new SBCustomer.from_id(this.customerId), true);
+					dlg.modal 	= true;
+					dlg.show();
+				}
+				else
+				{
+					var info = new InfoDialog("info")
+					{
+						Title = SBText.__("Customer details"),
+						Message = SBText.__("You need to select a customer.")
+					};
+					info.run();
+					info.destroy();
+				}
+			}
+		}
+		protected void OnButtonGuestCustomerClicked()
+		{
+			this.customerId = -1;
+			this.entrySearchCustomer.text = SBText.__("Guest");
+		}
+		protected void OnButtonClearCustomerClicked()
+		{
+			this.customerId = 0;
+			this.entrySearchCustomer.text = "";
 		}
 		/**
 		 * Register new into store
@@ -673,7 +807,7 @@ namespace EPos
 				this.comboboxPaymentMethod.grab_focus();
 				return;
 			}
-			if( this.customerId <= 0 )
+			if( this.customerId == 0 )
 			{
 				var err = new InfoDialog("error");
 				err.Title = SBText.__("Error");
@@ -695,14 +829,16 @@ namespace EPos
 				err.destroy();
 				return;
 			}
+			var user = (SBUser)SBGlobals.GetVar("user");
 			this.Dbh.BeginTransaction();
 			string notes 	= this.textviewNotes.buffer.text.strip();
 			var sale 		= new ESale();
 			sale.Dbh		= this.Dbh;
 			sale.Code 		= "";
 			sale.StoreId 	= this.storeId;
-			sale.CashierId 	= 0;
+			sale.CashierId 	= user.Id;
 			sale.CustomerId = this.customerId;
+			
 			sale.Notes 		= notes;
 			sale.SubTotal	= double.parse(this.labelSubTotal.label);
 			sale.TaxRate	= 0;
@@ -768,8 +904,7 @@ namespace EPos
 			};
 			msg.run();
 			msg.destroy();
-			
-				
+							
 			/*	
 			//## get print settings
 			double font_size = 12;
@@ -836,31 +971,54 @@ namespace EPos
 		/**
 		 * Calculate order total
 		 */
-		protected float CalculateOrderTotal()
+		protected double CalculateOrderTotal()
 		{
 			TreeIter iter;
-			float sub_total = 0.0f;
-			
+			double sub_total 	= 0;
+			double tax			= 0;
 			if( !this.treeviewOrderItems.model.get_iter_first(out iter) )
 			{
 				this.labelSubTotal.label 	= "0.00";
 				this.labelVAT.label			= "0.00";
 				this.labelTotal.label 		= "0.00";
-				return 0.0f;
+				return 0;
 			}
 				
 			do
 			{
-				Value v_row_total;
-				this.treeviewOrderItems.model.get_value(iter, OrderColumns.TOTAL, out v_row_total);
-				sub_total += (float)double.parse((string)v_row_total);
+				Value v_sub_total, v_tax;
+				this.treeviewOrderItems.model.get_value(iter, OrderColumns.SUB_TOTAL, out v_sub_total);
+				this.treeviewOrderItems.model.get_value(iter, OrderColumns.TAX, out v_tax);
+				sub_total += double.parse((string)v_sub_total);
+				tax			+= double.parse((string)v_tax);
 				
 			}while( this.treeviewOrderItems.model.iter_next(ref iter) );
 			
-			double tax			= 0;//sub_total * (this.store.TaxRate / 100);
 			double discount 	= double.parse(this.entryDiscount.text.strip());
 			double order_total 	= (sub_total + tax) - discount;
 			
+			this.labelTotal.set_data<string>("total_before_hook", "%.2f".printf(order_total));
+			var args = new SBModuleArgs<HashMap>();
+			var data = new HashMap<string, double?>();
+			data.set("subtotal", sub_total);
+			data.set("tax", tax);
+			data.set("total", order_total);
+			args.SetData(data);
+			SBModules.do_action("pos_calculate_totals", args);
+			
+			if( data.has_key("added_subtotal") )
+			{
+				sub_total += (double)data["added_subtotal"];
+			}
+			if( data.has_key("added_tax") )
+			{
+				tax += (double)data["added_tax"];
+			}
+			if( data.has_key("added_total") )
+			{
+				order_total += (double)data["added_total"];
+			}
+			data = null;
 			this.labelSubTotal.label 	= "%.2f".printf(sub_total);
 			this.labelVAT.label			= "%.2f".printf(tax);
 			this.labelTotal.label 		= "%.2f".printf(order_total);
@@ -890,14 +1048,14 @@ namespace EPos
 			//var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			if( category_id == -1 )
 			{
-				var prods = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
-				this._fillProducts(prods, this._currentView);
+				this.productsToFill = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
+				this._fillProducts(this._currentView);
 				
 				return;
 			}
 			
-			var prods = EPosHelper.GetCategoryProducts(category_id, this.Dbh);
-			this._fillProducts(prods, this._currentView);
+			this.productsToFill = EPosHelper.GetCategoryProducts(category_id, this.Dbh);
+			this._fillProducts(this._currentView);
 		}
 		/*
 		protected ArrayList<SBDBRow> GetProducts(int store_id, out int total)
@@ -919,23 +1077,6 @@ namespace EPos
 			return dbh.GetResults(query.printf(store_id));
 		}
 		*/
-		protected void OnToggleButtonGridViewClicked()
-		{
-			//this.togglebuttonListView.active = false;
-			//this.togglebuttonGridView.active = true;
-			
-			//this._fillProducts(this.GetProducts(), "grid");
-			//this.labelTotalProducts.label = total_products.to_string();
-		}
-		protected void OnToggleButtonListViewClicked()
-		{
-			//this.togglebuttonListView.active = true;
-			//this.togglebuttonGridView.active = true;
-			//var rows = this.GetProducts(this.storeId, out total);
-			
-			//this._fillProducts(rows, "list");
-			//
-		}
 		protected void OnToggleButtonListViewToggled()
 		{
 			if( this.lock_list_view )
@@ -949,12 +1090,9 @@ namespace EPos
 			this.togglebuttonGridView.sensitive = true;
 			this.togglebuttonListView.sensitive = false;
 						
-			stdout.printf("loading products\n");
-			int total = 0;
-			var rows = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
-			this._fillProducts(rows, "list");
-			this.labelTotalProducts.label = total.to_string();
-			
+			this.productsToFill = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
+			this._fillProducts("list");
+					
 			this.lock_grid_view = false;
 			
 		}
@@ -970,13 +1108,9 @@ namespace EPos
 			this.togglebuttonGridView.sensitive = false;
 			this.togglebuttonListView.active = false;
 			this.togglebuttonListView.sensitive = true;
-			
-						
-			stdout.printf("loading products\n");
-			int total = 0;
-			var rows = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
-			this._fillProducts(rows, "grid");
-			this.labelTotalProducts.label = total.to_string();
+					
+			this.productsToFill = EPosHelper.GetStoreProducts(this.storeId, this.Dbh);
+			this._fillProducts("grid");
 			this.lock_list_view = false;
 		}
 		protected void resetOrder()

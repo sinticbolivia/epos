@@ -55,7 +55,7 @@ namespace EPos
 				1, "-1"
 			);
 			
-			foreach(var store in Woocommerce.InventoryHelper.GetStores())
+			foreach(var store in InventoryHelper.GetStores())
 			{
 				(this.comboboxStore.model as ListStore).append(out iter);
 				(this.comboboxStore.model as ListStore).set(iter, 

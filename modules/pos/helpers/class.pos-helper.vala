@@ -22,9 +22,26 @@ namespace EPos
 			
 			return records;
 		}
-		public static HashMap<string, Value?>? GetTaxRate(int id)
+		public static ArrayList<HashMap<string, Value?>> GetTaxes(SBDatabase? _dbh = null)
 		{
-			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			var rates = new ArrayList<HashMap>();
+			
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
+			dbh.Select("*").From("tax_rates");
+			foreach(var row in dbh.GetResults(null))
+			{
+				var tax = new HashMap<string, Value?>();
+				tax.set("tax_id", row.GetInt("tax_id"));
+				tax.set("name", row.Get("name"));
+				tax.set("rate", row.GetDouble("rate"));
+				rates.add(tax);
+			}
+			
+			return rates;
+		}
+		public static HashMap<string, Value?>? GetTaxRate(int id, SBDatabase? _dbh = null)
+		{
+			var dbh = (_dbh != null) ? _dbh : (SBDatabase)SBGlobals.GetVar("dbh");
 			dbh.Select("*").From("tax_rates").Where("tax_id = %d".printf(id));
 			var row = dbh.GetRow(null);
 			if( row == null )

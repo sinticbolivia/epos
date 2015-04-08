@@ -1,97 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="3.4"/>
-  <object class="GtkDialog" id="dialogLoading">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="resizable">False</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-always</property>
-    <property name="type_hint">notification</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="decorated">False</property>
-    <property name="has_resize_grip">False</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox1">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
-            <property name="can_focus">False</property>
-            <property name="layout_style">center</property>
-            <child>
-              <object class="GtkButton" id="button2">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="box4">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label12">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">label</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinner" id="spinner1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="active">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">button2</action-widget>
-    </action-widgets>
-  </object>
+  <!-- interface-requires gtk+ 3.4 -->
   <object class="GtkListStore" id="liststore1"/>
   <object class="GtkWindow" id="windowMain">
     <property name="can_focus">True</property>
     <property name="can_default">True</property>
     <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_SMOOTH_SCROLL_MASK</property>
     <property name="no_show_all">True</property>
-    <property name="hexpand">False</property>
-    <property name="vexpand">False</property>
     <property name="window_position">center</property>
     <child>
       <object class="GtkBox" id="box1">
@@ -101,12 +16,14 @@
         <child>
           <object class="GtkEventBox" id="eventboxWinControls">
             <property name="can_focus">False</property>
+            <style>
+              <class name="window-controls"/>
+            </style>
             <child>
               <object class="GtkBox" id="boxWinControls">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
-                <property name="vexpand">False</property>
                 <property name="resize_mode">immediate</property>
                 <child>
                   <placeholder/>
@@ -117,7 +34,6 @@
                     <property name="can_focus">False</property>
                     <property name="halign">end</property>
                     <property name="hexpand">True</property>
-                    <property name="vexpand">False</property>
                     <child>
                       <object class="GtkButton" id="buttonMinimize">
                         <property name="label" translatable="yes">_</property>
@@ -125,8 +41,6 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="halign">end</property>
-                        <property name="hexpand">False</property>
-                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -155,8 +69,6 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="halign">end</property>
-                        <property name="hexpand">False</property>
-                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -173,9 +85,6 @@
                 </child>
               </object>
             </child>
-            <style>
-              <class name="window-controls"/>
-            </style>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -197,8 +106,6 @@
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
                 <property name="no_show_all">True</property>
-                <property name="hexpand">False</property>
-                <property name="vexpand">False</property>
                 <property name="take_focus">False</property>
                 <child>
                   <object class="GtkMenuItem" id="menuitem1">
@@ -352,8 +259,6 @@
                   <object class="GtkEventBox" id="eventboxQuickIcons">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="hexpand">False</property>
-                    <property name="vexpand">False</property>
                     <child>
                       <object class="GtkBox" id="boxQuickIcons">
                         <property name="visible">True</property>
@@ -362,10 +267,11 @@
                         <property name="margin_right">4</property>
                         <property name="margin_top">4</property>
                         <property name="margin_bottom">4</property>
-                        <property name="hexpand">False</property>
-                        <property name="vexpand">False</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">5</property>
+                        <style>
+                          <class name="quick-icons"/>
+                        </style>
                         <child>
                           <object class="GtkButton" id="buttonHome">
                             <property name="label" translatable="yes">Home</property>
@@ -387,9 +293,6 @@
                         <child>
                           <placeholder/>
                         </child>
-                        <style>
-                          <class name="quick-icons"/>
-                        </style>
                       </object>
                     </child>
                   </object>
@@ -414,26 +317,6 @@
                 <property name="app_paintable">True</property>
                 <property name="can_focus">False</property>
                 <property name="no_show_all">True</property>
-                <property name="hexpand">False</property>
-                <property name="vexpand">False</property>
-                <property name="show_close_button">True</property>
-                <child internal-child="action_area">
-                  <object class="GtkButtonBox" id="infobar-action_area1">
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">False</property>
-                    <property name="vexpand">False</property>
-                    <property name="spacing">6</property>
-                    <property name="layout_style">end</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
                 <child internal-child="content_area">
                   <object class="GtkBox" id="infobar-content_area1">
                     <property name="can_focus">False</property>
@@ -456,6 +339,21 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child internal-child="action_area">
+                  <object class="GtkButtonBox" id="infobar-action_area1">
+                    <property name="can_focus">False</property>
+                    <property name="spacing">6</property>
+                    <property name="layout_style">end</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>

@@ -78,7 +78,7 @@ namespace EPos
 			this.image1.pixbuf = (SBModules.GetModule("Inventory") as SBGtkModule).GetPixbuf("receive-order-icon-64x64.png");
 			this.treeviewOrderItems.model = new ListStore(Columns.N_COLS,
 				typeof(bool), //selected
-				typeof(string),
+				typeof(string), //status color
 				typeof(int), //count
 				typeof(string), //product name
 				typeof(int), //qty ordered
@@ -94,12 +94,12 @@ namespace EPos
 				typeof(int),	//item id
 				typeof(int),	//product id
 				typeof(string),	//tax rate
-				typeof(string)
+				typeof(string) //status
 			);
 			string[,] cols = 
 			{
 				{"", "toggle", "30", "center", "", ""},
-				{"", "markup", "30", "center", "", ""},
+				{SBText.__("Status"), "markup", "40", "center", "", ""},
 				{"#", "text", "40", "center", "", ""},
 				{SBText.__("Product"), "text", "200", "left", "", ""},
 				{SBText.__("Qty Ordered"), "text", "50", "center", "", ""},
@@ -115,6 +115,10 @@ namespace EPos
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewOrderItems);
 			this.treeviewOrderItems.rules_hint = true;
+			var checkbuttonSelect = new CheckButton();
+			checkbuttonSelect.show();
+			this.treeviewOrderItems.get_column(Columns.SELECTED).widget = checkbuttonSelect;
+			this.treeviewOrderItems.get_column(Columns.SELECTED).clickable = true;
 			//this.treeviewOrderItems.hover_selection = true;
 			
 		}
@@ -145,7 +149,7 @@ namespace EPos
 				{
 					status_color = status_color.printf("#CC0000", "#CC0000", status);
 				}
-				var prod = new EPos.EProduct.from_id(item.GetInt("product_id"));
+				var prod = new SBProduct.from_id(item.GetInt("product_id"));
 				int qty_total_received = item.GetInt("quantity_received");
 				int qty_ordered	= item.GetInt("quantity");
 				int qty_to_receive = 0;
@@ -312,6 +316,7 @@ namespace EPos
 		}
 		protected void OnButtonReceiveClicked()
 		{
+			var user = (SBUser)SBGlobals.GetVar("user");
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			bool all_received = true;
 			int total_items = 0;
@@ -323,6 +328,8 @@ namespace EPos
 						v_total, v_item_id, v_product_id, v_current_status;
 						
 				model.get_value(iter, Columns.SELECTED, out v_selected);
+				if( !(bool)v_selected ) return false;
+				
 				model.get_value(iter, Columns.QTY_ORDERED, out v_qty_ordered);
 				model.get_value(iter, Columns.TOTAL_RECEIVED, out v_qty_total_received);
 				model.get_value(iter, Columns.QTY_RECEIVED, out v_qty_received);
@@ -333,33 +340,36 @@ namespace EPos
 				model.get_value(iter, Columns.ITEM_ID, out v_item_id);
 				model.get_value(iter, Columns.PRODUCT_ID, out v_product_id);
 				model.get_value(iter, Columns.STATUS, out v_current_status);
+				int qty_ordered 	= (int)v_qty_ordered;
+				int received_so_far = (int)v_qty_total_received;
+				int qty2receive 	= (int)v_qty_received;
+				int qty_left		= qty_ordered - (received_so_far + qty2receive);
 				
-				if( (bool)v_selected && (string)v_current_status != "completed" )
+				if( (string)v_current_status != "completed" )
 				{
-					int received_so_far = (int)v_qty_total_received + (int)v_qty_received;
 					string status = "";
 					string note	= "";
-					if( received_so_far > 0 && received_so_far < (int)v_qty_ordered )
+					if( qty_left < qty_ordered )
 					{
 						status = "partially";
 						all_received = false;
 						note = SBText.__("Order item #%d partially received, quantity received is %d of %d").printf((int)v_item_id, (int)v_qty_received, (int)v_qty_ordered);
 					}
-					else if( received_so_far <= 0 )
+					else if( qty_left == qty_ordered )
 					{
 						status = "non_received";
 						all_received = false;
 						note = SBText.__("Order item #%d non received, quantity received is 0").printf((int)v_item_id);
 					}
-					else if( received_so_far == (int)v_qty_ordered)
+					else if( qty_left <= 0 )
 					{
 						status = "completed";
-						all_received = false;
+						all_received = true;
 						note = SBText.__("Order item #%d received complety, quantity received is %d of %d").printf((int)v_item_id, (int)v_qty_received, (int)v_qty_ordered);
 					}
 					//##update order item
 					var order_item = new HashMap<string, Value?>();
-					order_item.set("quantity_received", received_so_far);
+					order_item.set("quantity_received", received_so_far + qty2receive);
 					order_item.set("status", status);
 					
 					var w = new HashMap<string, Value?>();
@@ -369,22 +379,23 @@ namespace EPos
 					//##update products quantity
 					string query = "UPDATE products SET product_quantity = product_quantity + %d WHERE product_id = %d".
 									printf((int)v_qty_received, (int)v_product_id);
+					dbh.Execute(query);
 					total_items += (int)v_qty_received;
 					//##build delivery item
 					var delivery_item = new HashMap<string, Value?>();
-					delivery_item.set("quantity_ordered", (int)v_qty_ordered);
+					delivery_item.set("quantity_ordered", qty_ordered);
 					delivery_item.set("supply_price", 0);
-					delivery_item.set("quantity_delivered", (int)v_qty_received);
-					delivery_item.set("sub_total", (int)v_qty_ordered);
+					delivery_item.set("quantity_delivered", qty2receive);
+					delivery_item.set("sub_total", double.parse((string)v_subtotal));
 					delivery_item.set("total_tax", double.parse((string)v_tax_amount));
 					delivery_item.set("discount", double.parse((string)v_discount));
 					delivery_item.set("total", double.parse((string)v_total));
 					delivery_item.set("creation_date", new DateTime.now_local().format("%Y-%m-%d %H:%M:%S"));
 					delivery_items.add(delivery_item);
-					SBModules.do_action("purchar_order_item_received", null);
+					SBModules.do_action("purchase_order_item_received", new SBModuleArgs<string>());
 				}
 				return false;
-			});
+			});//end foreach
 			//##insert purchase order delivery
 			var delivery = new HashMap<string, Value?>();
 			delivery.set("order_id", this.order.Id);
@@ -404,7 +415,6 @@ namespace EPos
 				dbh.Insert("purchase_order_delivery_items", item);
 			}
 			
-			
 			string message = SBText.__("The order has been received and the products quantity has been updated.");
 			string order_status = "completed";
 			if( !all_received )
@@ -419,7 +429,7 @@ namespace EPos
 			w.set("order_id", this.order.Id);
 			dbh.Update("purchase_orders", order_data, w);
 			
-			SBModules.do_action("purchase_order_received", null);
+			SBModules.do_action("purchase_order_received", new SBModuleArgs<string>());
 			var msg = new InfoDialog("success")
 			{
 				Title 	= SBText.__("Purchase order received"),

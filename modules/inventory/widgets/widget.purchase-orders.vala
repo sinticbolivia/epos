@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Gtk;
 using SinticBolivia.Database;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetPurchaseOrders : Gtk.Box
 	{
@@ -220,7 +220,7 @@ namespace Woocommerce
 			}
 			Value order_id;
 			model.get_value(iter, Columns.ORDER_ID, out order_id);
-			var order = new Woocommerce.PurchaseOrder.from_id((int)order_id);
+			var order = new PurchaseOrder.from_id((int)order_id);
 			var nb = (SBNotebook)SBGlobals.GetVar("notebook");
 			var w = new EPos.WidgetReceivePurchaseOrder(order);
 			w.show();
@@ -285,36 +285,59 @@ namespace Woocommerce
 			model.get_value(iter, Columns.ORDER_ID, out order_id);
 			//##get company data
 			string company_data = SBParameter.Get("company");
-			HashMap<string, Value?> company = SinticBolivia.Utils.JsonDecode(company_data);
+			HashMap<string, string> company = SinticBolivia.Utils.JsonDecode(company_data);
 			
 			var order = new PurchaseOrder.from_id((int)order_id);
 			float font_size = 8;
+			
 			//##create new report instance
 			var catalog = new EPos.Catalog();
-			stdout.printf("page available width: %.2f\n", catalog.pageAvailableSpace);
+			//stdout.printf("page available width: %.2f\n", catalog.pageAvailableSpace);
 			catalog.WriteText(SBText.__("Purchase Order"), "center", 17);
-			var table = new EPos.PdfTable(catalog.pdf, catalog.page, catalog.font, 
+			
+			var table = new EPos.PdfTable(catalog.pdf, 
+											catalog.page, 
+											catalog.font, 
 											catalog.pageAvailableSpace, 
 											catalog.XPos, 
 											catalog.YPos);
 			table.SetColumnsWidth({25,50,25});
 			
-			string nums = "%s (P), %s (P), %s (F)".printf((string)company["phone_1"], (string)company["phone_2"], (string)company["fax"]);
-			string company_info = "%s\n%s\n\n%s\n%s".
-									printf((string)company["company"], (string)company["address"], nums, (string)company["email"]);
+			string nums = "%s (P), %s (P), %s (F)".
+							printf((company.has_key("phone_1")) ? (string)company["phone_1"] : "", 
+									(company.has_key("phone_2")) ? (string)company["phone_2"] : "", 
+									(company.has_key("fax")) ? (string)company["fax"] : "");
 									
-			string order_data = "PO#: 0000000\n"+
-								"Page: Page 0 of 0\n"+
+			string company_info = "%s\n%s\n\n%s\n%s".
+									printf((company.has_key("company")) ? (string)company["company"] : "", 
+											(company.has_key("address")) ? (string)company["address"] : "", 
+											nums, 
+											(company.has_key("email")) ? (string)company["email"] : "");
+									
+			string order_data = "PO#: %s\n".printf(order.Code);
+			order_data += "Page: Page 0 of 0\n"+
 								"Order date: date here\n"+
 								"Delivery date: date here\n"+
 								"Cancel date: date here\n"+
 								"Terms code: xxxx";
 			
-			string logo_path = "images/%s".printf((company["logo"] != null ) ? (string)company["logo"] : "company_logo.png");
+			string logo_path = "images/%s".printf((company.has_key("logo")) ? (string)company["logo"] : "share/images/company_logo.png");
+			
+			if( !FileUtils.test(logo_path, FileTest.EXISTS) )
+				logo_path = "share/images/logo.png";
+				
+			string[] logo_parts = SBFileHelper.GetParts(logo_path);
+			HPDF.Image? logo_img = null;
+			
+			if( logo_parts[1] == "jpg" || logo_parts[1] == "jpeg" )
+				logo_img = catalog.pdf.LoadJpegImageFromFile(SBFileHelper.SanitizePath(logo_path));
+			else if( logo_parts[1] == "png" )
+				logo_img = catalog.pdf.LoadPngImageFromFile(SBFileHelper.SanitizePath(logo_path));
+				
 			var cell = table.AddCell();
 			cell.Border = false;
 			//cell.FontSize = 6;
-			cell.SetImage(catalog.pdf.LoadJpegImageFromFile(SBFileHelper.SanitizePath(logo_path)));
+			cell.SetImage(logo_img);
 			
 			cell = table.AddCell();
 			cell.Border = false;
@@ -346,6 +369,7 @@ namespace Woocommerce
 			cell.FontSize = font_size;
 			cell.SetText("MAIN STORE\n233 MARCUS GARVEY DRIVE\nKINGSTON 11");
 			table1.Draw();
+			
 			
 			//##details table
 			var details_table = new EPos.PdfTable(catalog.pdf, catalog.page, catalog.font, 
@@ -390,7 +414,7 @@ namespace Woocommerce
 			
 			foreach(var item in order.Items)
 			{
-				var prod = new EPos.EProduct.from_id(item.GetInt("product_id"));
+				var prod 		= new SBProduct.from_id(item.GetInt("product_id"));
 				cell 			= details_table.AddCell();
 				cell.FontSize 	= font_size;
 				cell.Border		= false;
@@ -463,7 +487,6 @@ namespace Woocommerce
 			cell.RightBorder	= false;
 			cell.Align		= "right";
 			cell.SetText("%.2f".printf(order.Total));
-			
 			
 			details_table.Draw();
 			

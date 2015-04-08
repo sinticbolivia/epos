@@ -8,10 +8,9 @@ namespace EPos.Woocommerce
 {
 	public delegate void SyncCallback(int totals, int imported, string item_name, string message);
 	public class SBWCSync : GLib.Object
-	{
-		
-		
-		protected	WC_Api_Client _api;
+	{		
+		protected	WC_Api_Client 	_api;
+		public		WC_Api_Client	API;
 		public		SBDatabase		Dbh{get;set;}
 		
 		public SBWCSync(string wp_url, string api_key, string api_secret)
@@ -194,6 +193,21 @@ namespace EPos.Woocommerce
 							var uw = new HashMap<string, Value?>();
 							uw.set("product_id", product_id);
 							this.Dbh.Update("products", udata, uw);
+							/*
+							string update = "UPDATE product_meta "+
+											"SET meta_value = '%s' "+
+											"WHERE product_id = %d "+
+											"AND meta_key = 'wc_tax_class'";
+							this.Dbh.Execute(update.printf((string)prod["tax_class"]), product_id, );
+							*/
+							SBMeta.UpdateMeta("product_meta", 
+												"wc_tax_class", (string)prod["tax_class"], 
+												"product_id", product_id, 
+												this.Dbh);
+							SBMeta.UpdateMeta("product_meta", 
+												"wc_categories", (string)prod["categories"], 
+												"product_id", product_id, 
+												this.Dbh);
 							imported++;
 						}
 						else
@@ -222,6 +236,7 @@ namespace EPos.Woocommerce
 							SBMeta.AddMeta("product_meta", "wc_product_type", "product_id", product_id, product_type, this.Dbh);
 							SBMeta.AddMeta("product_meta", "wc_image_url", "product_id", product_id, image_url, this.Dbh);
 							SBMeta.AddMeta("product_meta", "wc_categories", "product_id", product_id, (string)prod["categories"], this.Dbh);
+							SBMeta.AddMeta("product_meta", "wc_tax_class", "product_id", product_id, (string)prod["tax_class"], this.Dbh);
 							
 							if( image_url.length > 0 )
 							{
@@ -272,7 +287,40 @@ namespace EPos.Woocommerce
 						this.Dbh.EndTransaction();	
 					}//end foreach
 				}
-				
+				//##create taxes
+				stdout.printf("Creating taxes\n");
+				string query = "SELECT DISTINCT meta_value FROM product_meta where meta_key = 'wc_tax_class'";
+				string insert = "INSERT INTO tax_rates VALUES";
+				bool do_insert = false;
+				string cdate = new DateTime.now_local().format("%Y-%m-%d %H:%M:%S");
+				foreach(var row in this.Dbh.GetResults(query))
+				{
+					string wc_tax_class = row.Get("meta_value").strip();
+					if( wc_tax_class.length <= 0 ) continue;
+					string q = "SELECT tax_id FROM tax_rates WHERE name = 'wc_%s'".printf(row.Get("meta_value"));
+					if( this.Dbh.GetRow(q) == null )
+					{
+						do_insert = true;
+						insert += "(NULL, 'wc_%s', 0.00, '%s', '%s'),".printf(row.Get("meta_value"), cdate, cdate);
+					}
+				}
+				this.Dbh.BeginTransaction();
+				if( do_insert )
+					this.Dbh.Execute(insert.substring(0, insert.length - 1));
+				string tax_q = "SELECT p.product_id, pm.meta_value, t.tax_id, t.name ";
+				tax_q += "FROM products p, product_meta pm,tax_rates t ";	
+				tax_q += "WHERE p.product_id = pm.product_id ";
+				tax_q += "AND pm.meta_key = 'wc_tax_class' ";
+				tax_q += "AND pm.meta_value <> '' ";
+				tax_q += "AND ('wc_' || pm.meta_value) =  t.name";
+				foreach(var row in this.Dbh.GetResults(tax_q))
+				{
+					SBMeta.UpdateMeta("product_meta", 
+										"tax_rate_id", row.Get("tax_id"), 
+										"product_id", row.GetInt("product_id"), 
+										this.Dbh);
+				}
+				this.Dbh.EndTransaction();
 				stdout.printf("Sync finished.\n");			
 			}
 			catch(Error e)
@@ -343,7 +391,6 @@ namespace EPos.Woocommerce
 						crow.set("zip_code", (string)cust["billing_postcode"]);
 						crow.set("city", (string)cust["billing_city"]);
 						crow.set("country_code", (string)cust["billing_country"]);
-						crow.set("address_1", (string)cust["billing_address_1"]);
 						crow.set("last_modification_date", cdate);
 						
 						this.Dbh.Select("customer_id").From("customers").Where("store_id = %d".printf(store_id)).
@@ -357,7 +404,6 @@ namespace EPos.Woocommerce
 							crow.set("creation_date", cdate);
 							customer_id = (int)this.Dbh.Insert("customers", crow);
 							//##add meta
-							//SBMeta.AddMeta("customer_meta", "", "customer_id", customer_id, "", this.Dbh);
 							string query = "INSERT INTO customer_meta(customer_id, meta_key,meta_value,creation_date) VALUES";
 							query += "(%d,'billing_city', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_city"]), cdate);
 							query += "(%d,'billing_state', '%s', '%s'),".printf(customer_id, this.Dbh.EscapeString((string)cust["billing_state"]), cdate);
@@ -382,6 +428,8 @@ namespace EPos.Woocommerce
 							var where = new HashMap<string, Value?>();
 							where.set("customer_id", customer_id);
 							this.Dbh.Update("customers", crow, where);
+							//##update meta data
+							
 						}
 					}
 				}

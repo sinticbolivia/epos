@@ -6,7 +6,7 @@ using SinticBolivia.Database;
 using SinticBolivia.Gtk;
 using Woocommerce.Invoice;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetTransactions : Box
 	{

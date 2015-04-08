@@ -53,6 +53,8 @@ namespace EPos.Woocommerce
 			SBModules.add_action("before_register_sale", ref hook1);
 			var hook2 = new SBModuleHook(){HookName = "modules_loaded", handler = hook_modules_loaded};
 			SBModules.add_action("modules_loaded", ref hook2);
+			var hook3 = new SBModuleHook(){HookName = "build_create_customer_dlg", handler = hook_build_create_customer_dlg};
+			SBModules.add_action("build_create_customer_dlg", ref hook3);
 		}
 		protected void hook_init_menu_management(SBModuleArgs<Gtk.Menu> args)
 		{
@@ -127,9 +129,9 @@ namespace EPos.Woocommerce
 			{
 				if( notebook.GetPage("wc-orders") == null )
 				{
-					var w = new Widget();
+					var w = new WidgetWoocommerceOrders();
 					w.show();
-					notebook.AddPage("wc-customers", SBText.__("Woocommerce Customers"), w);
+					notebook.AddPage("wc-orders", SBText.__("Woocommerce Orders"), w);
 				}
 				notebook.SetCurrentPageById("wc-orders");
 			});
@@ -161,11 +163,19 @@ namespace EPos.Woocommerce
 				stderr.printf("ERROR: %s\n", e.message);
 			}
 		}
+		protected void hook_build_create_customer_dlg(SBModuleArgs<Box> args)
+		{
+			var customer_box = (Box)args.GetData();
+			var widget = new WidgetCustomerData();
+			widget.show();
+			customer_box.add(widget);
+		}
 		protected bool SyncOrders()
 		{
 			var cfg = (SBConfig)SBGlobals.GetVar("config");
 			var dbh = SBFactory.GetNewDbHandlerFromConfig(cfg);
 			var stores = WCHelper.GetStores();
+			string woo_order_status = "processing";
 			foreach(var store in stores)
 			{
 				stdout.printf("Synchronizing \"%s\" store orders\n", store.Name);
@@ -196,34 +206,63 @@ namespace EPos.Woocommerce
 					woo_order.set_object_member("billing_address", billing_address);
 					woo_order.set_object_member("shipping_address", shipping_address);
 					woo_order.set_array_member("line_items", line_items);
+					//##get local customer
+					int customer_id = int.parse(order.Customer["customer_id"]);
+					SBCustomer? customer = (customer_id > 0) ? new SBCustomer.from_id(customer_id) : null;
+					int woo_customer_id = customer.GetInt("extern_id");
+					if( woo_customer_id <= 0 && customer != null )
+					{
+						//##create the customer into woocommerce
+						string customer_json = WCHelper.BuildCustomerJson(customer);
+						var args = new HashMap<string,string>();
+						args.set("raw_data", customer_json);
+						args.set("content_type", "application/json");
+						var new_customer = api.CreateCustomer(args);
+						if( new_customer["id"] != null )
+						{
+							woo_customer_id = (int)new_customer["id"];
+							//##update customer woo id
+							dbh.Execute("UPDATE customers SET extern_id = %d WHERE customer_id = %d".printf(woo_customer_id, customer_id));
+						}
+						else
+						{
+							stderr.printf("ERROR CREATING WOOCOMMERCE CUSTOMER.\n");
+						}
+					}
 					//##build payment details
 					payment_details.set_string_member("method_id", (order.Meta["payment_method"] != null) ? (string)order.Meta["payment_method"] : "undefined");
 					payment_details.set_string_member("method_title", (order.Meta["payment_method"] != null) ? (string)order.Meta["payment_method"] : "undefined");
 					payment_details.set_boolean_member("paid", true);
-					woo_order.set_int_member("customer_id", (order.Customer["extern_id"] != null) ? int.parse((string)order.Customer["extern_id"]) : 0);
-					woo_order.set_string_member("status", "processing");
-					woo_order.set_string_member("note", order.Notes);
-					//##build billing address
+					if( woo_customer_id > 0 )
+						woo_order.set_int_member("customer_id", woo_customer_id);
 					
-					billing_address.set_string_member("first_name", (string)order.Customer["first_name"]);
-					billing_address.set_string_member("last_name", (string)order.Customer["last_name"]);
-					billing_address.set_string_member("address_1", (order.Customer["address_1"] != null) ? (string)order.Customer["address_1"] : "");
-					billing_address.set_string_member("address_2", (order.Customer["address_2"] != null) ? (string)order.Customer["address_2"] : "");
-					billing_address.set_string_member("city", (order.Customer["city"] != null) ? (string)order.Customer["city"] : "");
-					billing_address.set_string_member("state", "");
-					billing_address.set_string_member("postcode", (order.Customer["zip_code"] != null ) ? (string)order.Customer["zip_code"] : "");
-					billing_address.set_string_member("country", (order.Customer["country_code"] != null) ? (string)order.Customer["country_code"] : "");
-					billing_address.set_string_member("email", (order.Customer["email"] != null) ? (string)order.Customer["email"] : "");
-					billing_address.set_string_member("phone", (order.Customer["phone"] != null) ? (string)order.Customer["phone"] : "");
-					//##build shipping address
-					shipping_address.set_string_member("first_name", (string)order.Customer["first_name"]);
-					shipping_address.set_string_member("last_name", (string)order.Customer["last_name"]);
-					shipping_address.set_string_member("address_1", (order.Customer["address_1"] != null) ? (string)order.Customer["address_1"] : "");
-					shipping_address.set_string_member("address_2", (order.Customer["address_2"] != null) ? (string)order.Customer["address_2"] : "");
-					shipping_address.set_string_member("city", (order.Customer["city"] != null) ? (string)order.Customer["city"] : "");
-					shipping_address.set_string_member("state", "");
-					shipping_address.set_string_member("postcode", (order.Customer["zip_code"] != null ) ? (string)order.Customer["zip_code"] : "");
-					shipping_address.set_string_member("country", (order.Customer["country_code"] != null) ? (string)order.Customer["country_code"] : "");
+					//woo_order.set_string_member("status", woo_order_status);
+					woo_order.set_string_member("note", order.Notes);
+					if( customer != null )
+					{
+						//##build billing address
+						billing_address.set_string_member("first_name", (customer.Meta["billing_first_name"] != null) ? customer.Meta["billing_first_name"] : "");
+						billing_address.set_string_member("last_name", (customer.Meta["billing_last_name"] != null) ? customer.Meta["billing_last_name"] : "");
+						billing_address.set_string_member("company", (customer.Meta["billing_company"] != null) ? customer.Meta["billing_company"] : customer.Get("company"));
+						billing_address.set_string_member("address_1", (customer.Meta["billing_address_1"] != null) ? customer.Meta["billing_address_1"] : "");
+						billing_address.set_string_member("address_2", (customer.Meta["billing_address_2"] != null) ? customer.Meta["billing_address_2"] : "");
+						billing_address.set_string_member("city", (customer.Meta["billing_city"] != null) ? customer.Meta["billing_city"] : "");
+						billing_address.set_string_member("state", (customer.Meta["billing_state"] != null) ? customer.Meta["billing_state"] : "");
+						billing_address.set_string_member("postcode", (customer.Meta["billing_postcode"] != null) ? customer.Meta["billing_postcode"] : "");
+						billing_address.set_string_member("country", (customer.Meta["billing_cuntry"] != null) ? customer.Meta["billing_country"] : "");
+						billing_address.set_string_member("email", (customer.Meta["billing_email"] != null) ? customer.Meta["billing_email"] : "");
+						billing_address.set_string_member("phone", (customer.Meta["billing_phone"] != null) ? customer.Meta["billing_phone"] : "");
+						//##build shipping address
+						shipping_address.set_string_member("first_name", (customer.Meta["shipping_first_name"] != null) ? customer.Meta["shipping_first_name"] : "");
+						shipping_address.set_string_member("last_name", (customer.Meta["shipping_last_name"] != null) ? customer.Meta["shipping_last_name"] : "");
+						shipping_address.set_string_member("company", (customer.Meta["shipping_company"] != null) ? customer.Meta["shipping_company"] : "");
+						shipping_address.set_string_member("address_1", (customer.Meta["shipping_address_1"] != null ) ? customer.Meta["shipping_address_1"] : "");
+						shipping_address.set_string_member("address_2", (customer.Meta["shipping_address_2"] != null ) ? customer.Meta["shipping_address_2"] : "");
+						shipping_address.set_string_member("city", (customer.Meta["shipping_city"] != null) ? customer.Meta["shipping_city"] : "");
+						shipping_address.set_string_member("state", (customer.Meta["shipping_state"] != null) ? customer.Meta["shipping_state"] : "");
+						shipping_address.set_string_member("postcode", (customer.Meta["shipping_postcode"] != null) ? customer.Meta["shipping_postcode"] : "");
+						shipping_address.set_string_member("country", (customer.Meta["shipping_country"] != null) ? customer.Meta["shipping_country"] : "");
+					}
 					
 					foreach(var item in order.Items)
 					{
@@ -233,11 +272,20 @@ namespace EPos.Woocommerce
 						order_item.set_int_member("quantity", item.Quantity);
 						line_items.add_object_element(order_item);
 					}
+					//##hook the json order object
+					var args0 = new SBModuleArgs<HashMap>();
+					var order_data_args = new HashMap<string, Value?>();
+					order_data_args.set("order", order);
+					order_data_args.set("json_order", woo_order);
+					args0.SetData(order_data_args);
+					SBModules.do_action("wc_before_send_order", args0);
+					
 					size_t length;
 					var args = new HashMap<string, string>();
 					args.set("raw_data", gen.to_data(out length));
 					args.set("content_type", "application/json");
-					stdout.printf("JSON:\n%s\n", (string)args["raw_data"]);
+					//stdout.printf("JSON:\n%s\n", (string)args["raw_data"]);
+					//##send the order to woocommerces
 					var new_woo_order = api.PlaceOrder(args);
 					if( new_woo_order["id"] != null )
 					{
@@ -245,6 +293,10 @@ namespace EPos.Woocommerce
 						SBMeta.UpdateMeta("sale_meta", "wc_sync_status", "completed", "sale_id", order.Id);
 						SBMeta.UpdateMeta("sale_meta", "wc_order_id", ((int)new_woo_order["id"]).to_string(), "sale_id", order.Id);
 						SBMeta.UpdateMeta("sale_meta", "wc_order_url", (string)new_woo_order["view_order_url"], "sale_id", order.Id);
+					}
+					else if( new_woo_order.has_key("pending_to_sync") )
+					{
+						//SBMeta.UpdateMeta("sale_meta", "wc_sync_status", "pending", "sale_id", order.Id);
 					}
 					else
 					{

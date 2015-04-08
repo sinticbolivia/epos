@@ -31,6 +31,9 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Stores</property>
+                <style>
+                  <class name="widget-title"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>

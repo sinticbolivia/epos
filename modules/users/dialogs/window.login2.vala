@@ -140,7 +140,7 @@ namespace EPos
 				SBGlobals.SetVar("user", (Object)data["user"]);
 				GLib.Source.remove(this.timeoutId);
 				this.destroy();
-				this.unref();
+				//this.unref();
 			}
 			else
 			{

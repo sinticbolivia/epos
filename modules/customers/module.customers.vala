@@ -63,6 +63,30 @@ namespace EPos
 			}
 			dbh.Execute(sql);
 			*/
+			string[,] perms = 
+			{
+				{"manage_customers", "", SBText.__("Manage Customers")},
+				{"create_customers", "", SBText.__("Create Customers")},
+				{"edit_customers", "", SBText.__("Edit Customers")},
+				{"delete_customers", "", SBText.__("Delete Products")},
+				{"manage_customer_groups", "", SBText.__("Manage Customer Groups")},
+				{"create_customer_groups", "", SBText.__("Create Customer Groups")},
+				{"edit_customer_groups", "", SBText.__("Edit Customer Groups")},
+				{"delete_customer_groups", "", SBText.__("Delete Customer Groups")}
+			};
+			dbh.BeginTransaction();
+			for(int i = 0; i < perms.length[0]; i++)
+			{
+				dbh.Select("permission_id").From("permissions").Where("permission = '%s'".printf(perms[i,0]));
+				if( dbh.GetRow(null) == null )
+				{
+					var p = new HashMap<string, Value?>();
+					p.set("permission", perms[i,0]);
+					p.set("label", perms[i,2]);
+					dbh.Insert("permissions", p);
+				}
+			}
+			dbh.EndTransaction();
 		}		
 		public void Disabled()
 		{
@@ -94,8 +118,26 @@ namespace EPos
 			var menu = (Gtk.Menu)args.GetData();
 			var menuitem_customers = new Gtk.MenuItem.with_label(SBText.__("Customers"));
 			menuitem_customers.show();
+			menuitem_customers.submenu = new Gtk.Menu();
 			menu.add(menuitem_customers);
-			menuitem_customers.activate.connect( () => 
+			
+			var mi_groups = new Gtk.MenuItem.with_label(SBText.__("Groups"));
+			mi_groups.show();
+			mi_groups.activate.connect( () => 
+			{
+				if( notebook.GetPage("customer-groups") == null )
+				{
+					var w = new WidgetCustomerGroups();
+					w.show();
+					notebook.AddPage("customer-groups", SBText.__("Groups"), w);
+				}
+				notebook.SetCurrentPageById("customer-groups");
+			});
+			menuitem_customers.submenu.add(mi_groups);
+			
+			var mi_cust = new Gtk.MenuItem.with_label(SBText.__("Customers"));
+			mi_cust.show();
+			mi_cust.activate.connect( () => 
 			{
 				if( notebook.GetPage("customers") == null )
 				{
@@ -105,6 +147,9 @@ namespace EPos
 				}
 				notebook.SetCurrentPageById("customers");
 			});
+			menuitem_customers.submenu.add(mi_cust);
+			
+			
 		}
 	}
 }

@@ -29,3 +29,14 @@ CREATE TABLE IF NOT EXISTS customer_meta(
 	meta_value		text,
 	creation_date	datetime
 );
+CREATE TABLE IF NOT EXISTS customer_groups(
+	group_id		integer not null primary key auto_increment,
+	name			varchar(128),
+	creation_date	datetime
+);
+CREATE TABLE IF NOT EXISTS customer2group(
+	id 				integer not null primary key auto_increment,
+	customer_id		integer not null,
+	group_id		integer not null,
+	creation_date	datetime
+);

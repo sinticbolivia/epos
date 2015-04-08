@@ -102,7 +102,7 @@ namespace EPos
 				0, SBText.__("-- unit of measure --"),
 				1, "-1"
 			);
-			foreach(var uom in Woocommerce.InventoryHelper.GetUnitOfMeasures())
+			foreach(var uom in InventoryHelper.GetUnitOfMeasures())
 			{
 				(this.comboboxUOM.model as ListStore).append(out iter);
 				(this.comboboxUOM.model as ListStore).set(iter,
@@ -213,7 +213,7 @@ namespace EPos
 				msg.destroy();
 				return;
 			}
-			var uom = Woocommerce.InventoryHelper.GetUnitOfMeasure(uom_id);
+			var uom = InventoryHelper.GetUnitOfMeasure(uom_id);
 			
 			TreeIter iter;
 			(this.treeview1.model as ListStore).append(out iter);

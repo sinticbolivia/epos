@@ -85,6 +85,8 @@ namespace EPos
 			SBModules.add_action("init_sidebar", ref hook1);
 			var hook2 = new SBModuleHook(){HookName = "config_build", handler = this.hook_config_build};
 			SBModules.add_action("config_build", ref hook2);
+			var hook3 = new SBModuleHook(){HookName = "build_customer_form", handler = this.hook_build_customer_form};
+			SBModules.add_action("build_customer_form", ref hook3);
 		}
 		public static void init_sidebar(SBModuleArgs<HashMap> args)
 		{
@@ -116,7 +118,9 @@ namespace EPos
 				{
 					Widget? w = null;
 					if( pos_gui == "retail" )
+					{
 						w = new WidgetRetailPos();
+					}
 					else if(pos_gui == "standard") 
 					{
 						w = new WidgetPOS();
@@ -139,7 +143,8 @@ namespace EPos
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
 			var user = (SBUser)SBGlobals.GetVar("user");
 			var menu = (Gtk.Menu)args.GetData();
-			var mi_pos = new Gtk.MenuItem.with_label(SBText.__("Point of Sale"));
+			var mi_pos = new Gtk.ImageMenuItem.with_label(SBText.__("Point of Sale"));
+			mi_pos.image = new Image.from_pixbuf((SBModules.GetModule("Pos") as SBGtkModule).GetPixbuf("pos01-25x25.png"));
 			mi_pos.show();
 			mi_pos.submenu = new Gtk.Menu();
 			menu.add(mi_pos);
@@ -157,6 +162,34 @@ namespace EPos
 				notebook.SetCurrentPageById("payment-methods");
 			});
 			mi_pos.submenu.add(mi_payment_method);
+			
+			var mi_levels = new Gtk.MenuItem.with_label(SBText.__("Price Levels"));
+			mi_levels.show();
+			mi_levels.activate.connect( () => 
+			{
+				if( notebook.GetPage("price-levels") == null )
+				{
+					var w = new WidgetPriceLevels();
+					w.show();
+					notebook.AddPage("price-levels", SBText.__("Price Levels"), w);
+				}
+				notebook.SetCurrentPageById("price-levels");
+			});
+			mi_pos.submenu.add(mi_levels);
+			//##promotional prices
+			var mi_pp = new Gtk.MenuItem.with_label(SBText.__("Promotional Prices"));
+			mi_pp.show();
+			mi_pp.activate.connect( () => 
+			{
+				if( notebook.GetPage("promo-prices") == null )
+				{
+					var w = new WidgetPromotionalPrices();
+					w.show();
+					notebook.AddPage("promo-prices", SBText.__("Promotional Prices"), w);
+				}
+				notebook.SetCurrentPageById("promo-prices");
+			});
+			mi_pos.submenu.add(mi_pp);
 			
 			var mi_rpos = new Gtk.MenuItem.with_label(SBText.__("Point of Sale"));
 			mi_rpos.show();
@@ -202,6 +235,15 @@ namespace EPos
 			var w = new WidgetPosConfig();
 			w.show();
 			notebook.append_page(w, new Label(SBText.__("Point of Sale")));
+		}
+		protected void hook_build_customer_form(SBModuleArgs<Widget> args)
+		{
+			var data = (HashMap<string, Value?>)args.GetData();
+			var grid_groups = (Grid)data["grid_groups"];
+			var w = new WidgetCustomerPriceGroups();
+			
+			grid_groups.attach(w.label1, 0, 1, 1, 1);
+			grid_groups.attach(w.comboboxPriceGroups, 1, 1, 1, 1);
 		}
 	}
 }

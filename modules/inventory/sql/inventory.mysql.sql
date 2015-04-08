@@ -200,6 +200,7 @@ CREATE TABLE IF NOT EXISTS transaction_types (
 );
 CREATE TABLE IF NOT EXISTS tax_rates(
 	tax_id 					integer not null primary key auto_increment,
+	code					varchar(256),
 	name					varchar(256),
 	rate					decimal(10, 2),
 	last_modification_date	datetime,
@@ -245,5 +246,19 @@ CREATE TABLE IF NOT EXISTS assemblie2product(
 	product_id				integer not null,
 	qty_required			integer,
 	unit_measure_id			integer not null,
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS product_adjustments(
+	adjustment_id 			integer not null primary key auto_increment,
+	code					varchar(128),
+	store_id				integer not null
+	product_id				integer not null,
+	user_id					integer not null,
+	note					text,
+	old_qty					integer,
+	new_qty					integer,
+	difference				integer,
+	status					varchar(128),
+	adjustment_date			datetime,
 	creation_date			datetime
 );

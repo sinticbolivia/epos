@@ -165,3 +165,35 @@ CREATE TABLE IF NOT EXISTS product2category (
     category_id   INTEGER  NOT NULL,
     creation_date DATETIME 
 );
+CREATE TABLE IF NOT EXISTS tax_rates(
+	tax_id 					integer not null primary key autoincrement,
+	code					varchar(256),
+	name					varchar(256),
+	rate					decimal(10, 2),
+	last_modification_date	datetime,
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS price_levels(
+	level_id				integer not null primary key autoincrement,
+	name					varchar(256),
+	percentage				decimal(10,2),
+	last_modification_date	detetime,
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS promotional_prices(
+	promo_id				integer not null primary key autoincrement,
+	store_id				integer default 0,
+	description				varchar(512),
+	start_date				date,
+	end_date				date,
+	status					varchar(128),
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS promotional_price_items(
+	id						integer not null primary key autoincrement,
+	promo_id				integer not null,
+	product_id				integer not null,
+	discount_type			varchar(64),
+	discount				decimal(10,2),
+	creation_date			datetime
+);

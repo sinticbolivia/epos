@@ -511,9 +511,7 @@ GtkComboBox.left-radius GtkButton{border-radius:8px 0px 0px 8px;}
 		to (#248cb5));
 
 	border-radius: 0;
-	border-style: solid;
-	border-width: 1;
-	border-color: #38159c;
+	border: 1px solid #38159c;
 }
 
 .progressbar.vertical,

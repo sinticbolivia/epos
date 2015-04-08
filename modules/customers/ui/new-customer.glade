@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="3.4"/>
+  <!-- interface-requires gtk+ 3.4 -->
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
@@ -66,21 +65,34 @@
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
             <property name="shadow_type">in</property>
+            <style>
+              <class name="widget-container"/>
+            </style>
             <child>
               <object class="GtkViewport" id="viewport1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <style>
+                  <class name="wrap"/>
+                </style>
                 <child>
-                  <object class="GtkBox" id="box3">
+                  <object class="GtkBox" id="boxWidgets">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
                     <property name="orientation">vertical</property>
-                    <property name="spacing">8</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkBox" id="boxWidgetDetails">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
+                        <style>
+                          <class name="box-widget"/>
+                        </style>
                         <child>
                           <object class="GtkLabel" id="label2">
                             <property name="visible">True</property>
@@ -101,12 +113,18 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="hadjustment">adjustment1</property>
+                            <style>
+                              <class name="body"/>
+                            </style>
                             <child>
                               <object class="GtkGrid" id="grid1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="row_spacing">5</property>
                                 <property name="column_spacing">5</property>
+                                <style>
+                                  <class name="no-border"/>
+                                </style>
                                 <child>
                                   <object class="GtkLabel" id="label6">
                                     <property name="visible">True</property>
@@ -225,7 +243,7 @@
                                       <object class="GtkEntry" id="entryFirstname">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="placeholder_text" translatable="yes">Firstname</property>
+                                        <property name="placeholder_text">Firstname</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -237,7 +255,7 @@
                                       <object class="GtkEntry" id="entryLastname">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="placeholder_text" translatable="yes">Lastname</property>
+                                        <property name="placeholder_text">Lastname</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -317,14 +335,8 @@
                                 <child>
                                   <placeholder/>
                                 </child>
-                                <style>
-                                  <class name="no-border"/>
-                                </style>
                               </object>
                             </child>
-                            <style>
-                              <class name="body"/>
-                            </style>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -332,12 +344,9 @@
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <style>
-                          <class name="box-widget"/>
-                        </style>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
@@ -347,6 +356,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
+                        <style>
+                          <class name="box-widget"/>
+                        </style>
                         <child>
                           <object class="GtkLabel" id="label1">
                             <property name="visible">True</property>
@@ -367,12 +379,18 @@
                           <object class="GtkViewport" id="viewport3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <style>
+                              <class name="body"/>
+                            </style>
                             <child>
                               <object class="GtkGrid" id="grid2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="row_spacing">5</property>
                                 <property name="column_spacing">5</property>
+                                <style>
+                                  <class name="no-border"/>
+                                </style>
                                 <child>
                                   <object class="GtkLabel" id="label8">
                                     <property name="visible">True</property>
@@ -508,14 +526,8 @@
                                 <child>
                                   <placeholder/>
                                 </child>
-                                <style>
-                                  <class name="no-border"/>
-                                </style>
                               </object>
                             </child>
-                            <style>
-                              <class name="body"/>
-                            </style>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -523,12 +535,9 @@
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <style>
-                          <class name="box-widget"/>
-                        </style>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
@@ -538,6 +547,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="orientation">vertical</property>
+                        <style>
+                          <class name="box-widget"/>
+                        </style>
                         <child>
                           <object class="GtkLabel" id="label13">
                             <property name="visible">True</property>
@@ -558,12 +570,18 @@
                           <object class="GtkViewport" id="viewport4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <style>
+                              <class name="body"/>
+                            </style>
                             <child>
                               <object class="GtkGrid" id="grid3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="row_spacing">5</property>
                                 <property name="column_spacing">5</property>
+                                <style>
+                                  <class name="no-border"/>
+                                </style>
                                 <child>
                                   <object class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
@@ -693,14 +711,8 @@
                                     <property name="height">1</property>
                                   </packing>
                                 </child>
-                                <style>
-                                  <class name="no-border"/>
-                                </style>
                               </object>
                             </child>
-                            <style>
-                              <class name="body"/>
-                            </style>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -708,26 +720,114 @@
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <style>
-                          <class name="box-widget"/>
-                        </style>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkBox" id="boxWidgetGroups">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="orientation">vertical</property>
+                        <style>
+                          <class name="box-widget"/>
+                        </style>
+                        <child>
+                          <object class="GtkLabel" id="label19">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Groups</property>
+                            <style>
+                              <class name="title"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkViewport" id="viewport5">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_bottom">5</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <style>
+                              <class name="body"/>
+                            </style>
+                            <child>
+                              <object class="GtkGrid" id="gridGroups">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">5</property>
+                                <property name="margin_right">5</property>
+                                <property name="margin_top">5</property>
+                                <property name="margin_bottom">5</property>
+                                <property name="hexpand">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="orientation">vertical</property>
+                                <property name="row_spacing">5</property>
+                                <property name="column_spacing">5</property>
+                                <property name="row_homogeneous">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label20">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Customer Group:</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                    <property name="width">1</property>
+                                    <property name="height">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="comboboxGroup">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">0</property>
+                                    <property name="width">1</property>
+                                    <property name="height">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
-                <style>
-                  <class name="wrap"/>
-                </style>
               </object>
             </child>
-            <style>
-              <class name="widget-container"/>
-            </style>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -740,8 +840,6 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="halign">end</property>
-            <property name="hexpand">False</property>
-            <property name="vexpand">False</property>
             <property name="spacing">5</property>
             <property name="layout_style">start</property>
             <child>

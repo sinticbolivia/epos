@@ -6,6 +6,7 @@ namespace EPos {
 	namespace Woocommerce {
 		[CCode (cheader_filename = "Woocommerce.h")]
 		public class SBWCSync : GLib.Object {
+			public EPos.Woocommerce.WC_Api_Client API;
 			protected EPos.Woocommerce.WC_Api_Client _api;
 			public SBWCSync (string wp_url, string api_key, string api_secret);
 			protected void FixCategoriesParent (int store_id);
@@ -23,12 +24,14 @@ namespace EPos {
 			protected void AddHooks ();
 			protected bool SyncOrders ();
 			protected void hook_before_register_sale (SinticBolivia.SBModuleArgs<Gee.HashMap> args);
+			protected void hook_build_create_customer_dlg (SinticBolivia.SBModuleArgs<Gtk.Box> args);
 			protected void hook_init_menu_management (SinticBolivia.SBModuleArgs<Gtk.Menu> args);
 			protected void hook_modules_loaded (SinticBolivia.SBModuleArgs<string> args);
 		}
 		[CCode (cheader_filename = "Woocommerce.h")]
 		public class WCHelper : GLib.Object {
 			public WCHelper ();
+			public static string BuildCustomerJson (SinticBolivia.SBCustomer customer);
 			public static Gee.ArrayList<EPos.ESale> GetOrders (int store_id, string status = "", SinticBolivia.Database.SBDatabase? _dbh = null);
 			public static Gee.ArrayList<EPos.ESale> GetOrdersPendingToSync (int store_id, SinticBolivia.Database.SBDatabase? _dbh = null);
 			public static Gee.ArrayList<Gee.HashMap> GetProducts (int store_id);
@@ -49,15 +52,48 @@ namespace EPos {
 			public bool debug;
 			public WC_Api_Client (string wordpress_url, string api_key, string api_secret);
 			public Json.Object Authenticate (string username, string pass);
-			public Json.Object CreateCustomer (Gee.HashMap<string,string> data);
+			public Gee.HashMap<string,GLib.Value?> CreateCustomer (Gee.HashMap<string,string> data);
 			public Gee.ArrayList<Gee.HashMap<string,GLib.Value?>> GetCategories (int limit = 100, int page = 1, out int total_cats, out int total_pages);
 			public Gee.ArrayList<Gee.HashMap<string,GLib.Value?>> GetCustomers (int limit, int page, out int total_customers, out int total_pages);
 			public Gee.ArrayList<Gee.HashMap<string,GLib.Value?>> GetProducts (int limit, int page, out int total_products, out int total_pages);
 			public Json.Object GetStoreData ();
 			public Gee.HashMap<string,GLib.Value?> PlaceOrder (Gee.HashMap<string,string>? args = null);
+			protected string RemovePhpWarnings (string raw_json, string start_char = "{");
 			public Json.Array SearchCustomerByName (string name);
 			protected string _getSignature (string endpoint, string query_string, string method);
 			protected string _makeApiCall (string endpoint, owned Gee.HashMap<string,string>? args = null, string method = "GET", bool send_raw = false);
+		}
+		[CCode (cheader_filename = "Woocommerce.h")]
+		public class WidgetCustomerData : Gtk.Box {
+			protected Gtk.Box boxCustomerData;
+			protected Gtk.CheckButton checkbutton1;
+			protected Gtk.Entry entryBillingAddress1;
+			protected Gtk.Entry entryBillingAddress2;
+			protected Gtk.Entry entryBillingCity;
+			protected Gtk.Entry entryBillingCompany;
+			protected Gtk.Entry entryBillingCountry;
+			protected Gtk.Entry entryBillingEmail;
+			protected Gtk.Entry entryBillingFirstName;
+			protected Gtk.Entry entryBillingLastName;
+			protected Gtk.Entry entryBillingPhone;
+			protected Gtk.Entry entryBillingPostcode;
+			protected Gtk.Entry entryBillingState;
+			protected Gtk.Entry entryShippingAddress1;
+			protected Gtk.Entry entryShippingAddress2;
+			protected Gtk.Entry entryShippingCity;
+			protected Gtk.Entry entryShippingCompany;
+			protected Gtk.Entry entryShippingCountry;
+			protected Gtk.Entry entryShippingFirstName;
+			protected Gtk.Entry entryShippingLastName;
+			protected Gtk.Entry entryShippingPostcode;
+			protected Gtk.Entry entryShippingState;
+			protected Gtk.Builder ui;
+			public WidgetCustomerData ();
+			protected void Build ();
+			protected void OnCheckButtonSameDataClicked ();
+			protected void Save (SinticBolivia.SBModuleArgs<Gee.HashMap> args);
+			protected void SetEvents ();
+			protected void ViewData (SinticBolivia.SBModuleArgs<SinticBolivia.SBCustomer> args);
 		}
 		[CCode (cheader_filename = "Woocommerce.h")]
 		public class WidgetWoocommerceCategories : Gtk.Box {
@@ -120,6 +156,37 @@ namespace EPos {
 			protected int SyncCustomers ();
 		}
 		[CCode (cheader_filename = "Woocommerce.h")]
+		public class WidgetWoocommerceOrders : Gtk.Box {
+			protected enum Columns {
+				SELECT,
+				COUNT,
+				ID,
+				WOO_ID,
+				CUSTOMER,
+				LOCAL_STATUS,
+				WOO_STATUS,
+				TOTAL,
+				ORDER_DATE,
+				N_COLS
+			}
+			protected Gtk.Box box1;
+			protected Gtk.Button buttonDetails;
+			protected Gtk.Button buttonRefresh;
+			protected Gtk.Button buttonSync;
+			protected Gtk.ComboBox comboboxStore;
+			protected Gtk.Image image1;
+			protected int storeId;
+			protected Gtk.TreeView treeviewOrders;
+			protected Gtk.Builder ui;
+			public WidgetWoocommerceOrders ();
+			protected void Build ();
+			protected void OnButtonRefreshClicked ();
+			protected void OnButtonSyncClicked ();
+			protected void OnComboBoxStoreChanged ();
+			protected void Refresh (int store_id);
+			protected void SetEvents ();
+		}
+		[CCode (cheader_filename = "Woocommerce.h")]
 		public class WidgetWoocommerceProducts : Gtk.Box {
 			protected enum Columns {
 				SELECT,
@@ -131,12 +198,15 @@ namespace EPos {
 				SKU,
 				QUANTITY,
 				PRICE,
+				TAX,
 				CATEGORIES,
 				N_COLS
 			}
 			protected Gtk.Box box1;
+			protected Gtk.Button buttonApplyTax;
 			protected Gtk.Button buttonDetails;
 			protected Gtk.Button buttonSync;
+			protected Gtk.CheckButton checkbuttonSelect;
 			protected Gtk.ComboBox comboboxCategories;
 			protected Gtk.ComboBox comboboxSearchBy;
 			protected Gtk.ComboBox comboboxStore;
@@ -144,14 +214,18 @@ namespace EPos {
 			protected Gtk.Image image1;
 			protected bool lockCategoriesEvent;
 			protected int storeId;
+			protected Gtk.TreeViewColumn treeviewColumnSelect;
 			protected Gtk.TreeView treeviewProducts;
 			protected Gtk.Builder ui;
 			protected EPos.Woocommerce.WindowSyncProductsProgress windowProgress;
 			public WidgetWoocommerceProducts ();
 			protected void Build ();
+			protected void OnButtonApplyTaxClicked ();
 			protected void OnButtonSyncClicked ();
+			protected void OnCheckButtonSelectClicked ();
 			protected void OnComboBoxCategoriesChanged ();
 			protected void OnComboBoxStoreChanged ();
+			protected bool OnEntrySearchKeyReleaseEvent (Gdk.EventKey e);
 			protected void RefreshProducts (int store_id, int cat_id = 0);
 			protected void SetEvents ();
 			protected void SetStoreCategories (int store_id);

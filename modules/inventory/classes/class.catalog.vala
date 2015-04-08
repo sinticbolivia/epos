@@ -40,7 +40,7 @@ namespace EPos
 			
 			this.pdf		= new HPDF.Doc((error_no, detail_no) => 
 			{
-				stderr.printf("Error %d - detail %d\n", (int)error_no, (int)detail_no);
+				stderr.printf("Error %04X - detail %d\n", (uint)error_no, (int)detail_no);
 			});
 			this.page				= this.pdf.AddPage();
 			//##create font
@@ -119,7 +119,8 @@ namespace EPos
 				DirUtils.create("temp", 0744);
 			}
 			string filename = "%s-%s.pdf".printf(name, new DateTime.now_local().format("%Y-%m-%d"));
-			string pdf_path = SBFileHelper.SanitizePath("temp/%s".printf(filename));
+			//string pdf_path = SBFileHelper.SanitizePath("temp/%s".printf(filename));
+			string pdf_path = "temp/%s".printf(filename);
 			pdf.SaveToFile(pdf_path);
 			
 			return pdf_path;
@@ -128,10 +129,9 @@ namespace EPos
 		{
 			string pdf_path = this.Save(name);
 			string command = "";
-			stdout.printf("OS: %s\n", SBOS.GetOS().OS);
+			//stdout.printf("OS: %s\n", SBOS.GetOS().OS);
 			if( SBOS.GetOS().IsLinux() )
 			{
-				//string? prg = Environment.find_program_in_path("evince");
 				if( Environment.find_program_in_path("evince") != null )
 				{
 					command = "evince --preview %s".printf(pdf_path);
@@ -147,10 +147,19 @@ namespace EPos
 			}
 			else if( SBOS.GetOS().IsWindows() )
 			{
-				command = SBFileHelper.SanitizePath("bin/SumatraPDF.exe %s".printf(pdf_path));
+				//command = SBFileHelper.SanitizePath("./bin/SumatraPDF.exe %s".printf(pdf_path));
+				command = "bin/SumatraPDF.exe %s".printf(pdf_path);
 			}	
 			
-			Posix.system(command);
+			try
+			{
+				Process.spawn_command_line_async(command);
+				//Posix.system(command);
+			}
+			catch(SpawnError e)
+			{
+				stderr.printf("ERROR: %s\nCOMMAND: %s\nCURRENT DIR:%s\n", e.message, command, Environment.get_current_dir());
+			}
 		}
 		public void Print(string name = "catalog", string printer = "")
 		{

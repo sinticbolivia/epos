@@ -55,7 +55,7 @@ namespace Woocommerce
 			this.comboboxStore  = new ComboBox(){expand = false,vexpand = false, hexpand=false, valign = Gtk.Align.START};
 			
 			this.datepicker		= new SBDatePicker();
-			this.datepicker.SetButtonImage(new Image.from_file(SBFileHelper.SanitizePath("share/images/calendar-icon-16x16.png")));
+			this.datepicker.Icon = GtkHelper.GetPixbuf("share/images/calendar-icon-16x16.png");
 			this.datepicker.show();
 			this.buttonBuildReport	= new Button.with_label(SBText.__("Build Report"))
 			{
