@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Pos/Quotes">
+		<file compressed="true">sql/quotes.sqlite3.sql</file>
+		<file compressed="true">sql/quotes.mysql.sql</file>
+		<file compressed="true">images/quote-52x64.png</file>
+		<file compressed="true">images/quote-25x25.png</file>
+		<file compressed="true">ui/quotes.glade</file>
+		<file compressed="true">ui/new-quote.glade</file>
+	</gresource>
+</gresources>

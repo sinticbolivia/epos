@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Inventory">
+		<file compressed="true">sql/inventory-count.sqlite3.sql</file>
+		<file compressed="true">sql/inventory-count.mysql.sql</file>
+		<file compressed="true">ui/inventory-count.glade</file>
+		<file compressed="true">ui/new-inventory-count.glade</file>
+		<file compressed="true">ui/worksheet.glade</file>
+		<file compressed="true">images/inventory-count-icon-64x64.png</file>
+		<file compressed="true">images/remove-20x20.png</file>
+		<file compressed="true">images/worksheet-icon-64x64.png</file>
+		<file compressed="true">images/compare-64x64.png</file>
+		<file compressed="true">images/check-25x25.png</file>
+		<file compressed="true">images/cross-25x25.png</file>
+	</gresource>
+</gresources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Pos/Woocommerce/Fees">
+		<file compressed="true">ui/fees.glade</file>
+		<file compressed="true">images/dollar-icon-64x48.png</file>
+	</gresource>
+</gresources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+	<gresource prefix="/net/sinticbolivia/Restaurant">
+		<file>images/tables-64x64.jpg</file>
+		<file>images/tables-48x48.jpg</file>
+		<file>images/dining-icon-64x64.jpg</file>
+		<file>images/table-icon-64x64.png</file>
+		<file compressed="true">ui/environments.glade</file>
+		<file compressed="true">ui/options.glade</file>
+		<file compressed="true">sql/database.sql</file>
+		<!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->
+	</gresource>
+</gresources>

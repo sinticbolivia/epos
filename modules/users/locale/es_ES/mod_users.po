@@ -1,0 +1,265 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: EPos Users Module\n"
+"POT-Creation-Date: 2015-04-17 11:52-0400\n"
+"PO-Revision-Date: 2015-04-17 11:53-0400\n"
+"Last-Translator: Juan Marcelo Aviles Paco <maviles@sinticbolivia.net>\n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: SBText.__;__\n"
+"X-Poedit-SearchPath-0: ../..\n"
+
+#: ../../ui/edit-user.glade:37
+msgid "<span size=\"15000\">Edit User</span>"
+msgstr "<span size=\"15000\">Editar Usuario</span>"
+
+#: ../../ui/edit-user.glade:84 ../../ui/new-user.glade:84
+msgid "First name:"
+msgstr "Nombres:"
+
+#: ../../ui/edit-user.glade:98 ../../ui/new-user.glade:98
+msgid "Last name:"
+msgstr "Apellidos:"
+
+#: ../../ui/edit-user.glade:159 ../../ui/login.glade:91
+#: ../../ui/new-user.glade:159
+msgid "Username:"
+msgstr "Usuario:"
+
+#: ../../ui/edit-user.glade:173 ../../ui/new-user.glade:173
+msgid "Password:"
+msgstr "Contraseña:"
+
+#: ../../ui/edit-user.glade:215 ../../ui/new-user.glade:215
+msgid "Role:"
+msgstr "Role:"
+
+#: ../../ui/edit-user.glade:241 ../../ui/new-user.glade:241
+msgctxt "sb_users"
+msgid "Email:"
+msgstr "Email:"
+
+#: ../../ui/edit-user.glade:278 ../../ui/login.glade:19
+#: ../../ui/login2.glade:106 ../../ui/new-user.glade:278
+#: ../../dialogs/dialog-login.vala:34
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../../ui/edit-user.glade:294 ../../ui/new-user.glade:294
+msgid "Save"
+msgstr "Guardar"
+
+#: ../../ui/login.glade:35 ../../ui/login2.glade:40
+#: ../../dialogs/dialog-login.vala:35
+msgid "Login"
+msgstr "Iniciar Sesión"
+
+#: ../../ui/login.glade:116
+msgid "Password"
+msgstr "Contraseña:"
+
+#: ../../ui/login2.glade:6 ../../dialogs/window.login2.vala:43
+msgid "Ecommerce Point of Sale - Access"
+msgstr "Ecommerce Point of Sale - Acceso"
+
+#: ../../ui/login2.glade:90
+msgid "Sign In"
+msgstr "Ingresar"
+
+#: ../../ui/login2.glade:143
+msgid "@Copyright - Sintic Bolivia 2007 - 2015"
+msgstr "@Todos los derechos reservados - Sintic Bolivia 2007 - 2015"
+
+#: ../../ui/new-user.glade:37
+msgid "<span size=\"15000\">New User</span>"
+msgstr "<span size=\"15000\">Nuevo Usuario</span>"
+
+#: ../../ui/roles.glade:33 ../../module.users.vala:90
+msgid "Roles Management"
+msgstr "Administración de Roles"
+
+#: ../../ui/roles.glade:135
+msgid "Role Name:"
+msgstr "Nombre de Rol:"
+
+#: ../../ui/users.glade:34
+msgid "<span size=\"15000\">Users Management</span>"
+msgstr "<span size=\"15000\">Administracion de usuarios</span>"
+
+#: ../../ui/users.glade:58
+msgid "New"
+msgstr "Nuevo"
+
+#: ../../ui/users.glade:71
+msgid "Edit"
+msgstr "Editar"
+
+#: ../../ui/users.glade:85
+msgid "Delete"
+msgstr "Borrar"
+
+#: ../../ui/users.glade:184 ../../ui/users.glade:208
+msgid "0"
+msgstr "0"
+
+#: ../../ui/users.glade:196
+msgid "of"
+msgstr "de"
+
+#: ../../dialogs/dialog-login.vala:61
+msgid "Woocommerce Point of Sale - Access"
+msgstr ""
+
+#: ../../dialogs/dialog-login.vala:117 ../../dialogs/window.login2.vala:106
+msgid "Invalid username"
+msgstr "Nombre de usuario invalido"
+
+#: ../../dialogs/dialog-login.vala:118 ../../dialogs/window.login2.vala:107
+msgid "Enter a valid username"
+msgstr "Nombre de usuario invalido"
+
+#: ../../dialogs/dialog-login.vala:130 ../../dialogs/window.login2.vala:119
+msgid "Invalid password"
+msgstr "Ingrese una contraseña"
+
+#: ../../dialogs/dialog-login.vala:131 ../../dialogs/window.login2.vala:120
+msgid "Enter a user password"
+msgstr "Ingrese una contraseña para el usuario"
+
+#: ../../dialogs/dialog-login.vala:172 ../../dialogs/window.login2.vala:150
+msgid "Local authentication error"
+msgstr "Error de autenticación"
+
+#: ../../module.users.vala:22
+msgid "Users Module"
+msgstr "Module de Usuarios"
+
+#: ../../module.users.vala:34
+msgid "Manage Users"
+msgstr "Administrar Usuarios"
+
+#: ../../module.users.vala:35
+msgid "Create Users"
+msgstr "Crear Usuarios"
+
+#: ../../module.users.vala:36
+msgid "Edit Users"
+msgstr "Editar Usuarios"
+
+#: ../../module.users.vala:37
+msgid "Delete Users"
+msgstr "Borrar Usuarios"
+
+#: ../../module.users.vala:38
+msgid "Manage Roles"
+msgstr "Administrar Roles"
+
+#: ../../module.users.vala:39
+msgid "Create Roles"
+msgstr "Crear Roles"
+
+#: ../../module.users.vala:40
+msgid "Edit Roles"
+msgstr "Editar Roles"
+
+#: ../../module.users.vala:41
+msgid "Delete Roles"
+msgstr "Borrar Roles"
+
+#: ../../module.users.vala:84
+msgid "Users"
+msgstr "Usuarios"
+
+#: ../../module.users.vala:89
+msgid "Users Management"
+msgstr "Administración de Usuarios"
+
+#: ../../module.users.vala:146
+msgid "Invalid username or password"
+msgstr "Nombre de usuario o contraseña invalido"
+
+#: ../../widgets/widget.edit-user.vala:105
+#: ../../widgets/widget.new-user.vala:90
+msgid "-- roles --"
+msgstr "-- roles --"
+
+#: ../../widgets/widget.edit-user.vala:196
+#: ../../widgets/widget.new-user.vala:158
+msgid "The user has been updated."
+msgstr "El usuario a sido actualizado."
+
+#: ../../widgets/widget.edit-user.vala:197
+msgid "User updated"
+msgstr "Usuario actualizado"
+
+#: ../../widgets/widget.new-user.vala:165
+msgid "The user has been created."
+msgstr "El usuario a sido creado."
+
+#: ../../widgets/widget.new-user.vala:176
+msgid "User"
+msgstr "Usuario"
+
+#: ../../widgets/widget.roles.vala:68
+msgid "Role name"
+msgstr "Nombre de rol"
+
+#: ../../widgets/widget.roles.vala:202
+msgid "Role Updated"
+msgstr "Rol Actualizado"
+
+#: ../../widgets/widget.roles.vala:203
+msgid "The role has been updated."
+msgstr "El rol ha sido actualizado."
+
+#: ../../widgets/widget.roles.vala:215
+msgid "The role has been created."
+msgstr "El rol a sido creado."
+
+#: ../../widgets/widget.roles.vala:229
+msgid "New Role Created"
+msgstr "Nuevo Rol Creado"
+
+#: ../../widgets/widget.users.vala:67
+msgid "Id"
+msgstr "Id"
+
+#: ../../widgets/widget.users.vala:71
+msgid "Image"
+msgstr "Imagen"
+
+#: ../../widgets/widget.users.vala:75
+msgid "Username"
+msgstr "Usuario"
+
+#: ../../widgets/widget.users.vala:79
+msgid "Email"
+msgstr "Email"
+
+#: ../../widgets/widget.users.vala:84
+msgid "Name"
+msgstr "Nombre:"
+
+#: ../../widgets/widget.users.vala:88
+msgid "Role"
+msgstr "Role"
+
+#: ../../widgets/widget.users.vala:103
+msgid "New User"
+msgstr "Nuevo usuario"
+
+#: ../../widgets/widget.users.vala:164
+#, c-format
+msgid "Edit User (%s)"
+msgstr "Editar Usuario (%s)"
+
+#~ msgctxt "mod_users"
+#~ msgid "Sign In"
+#~ msgstr "Ingresar"

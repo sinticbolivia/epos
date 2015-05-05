@@ -1,0 +1,58 @@
+CFLAGS=-X -D_MINGW32_\
+		-X -I/mingw/include\
+		-X -L/mingw/bin\
+		-X -I/mingw/include/gee-1.0\
+        -X -D__LCC__\
+        -X -I../../../libs/libmysqlclient-5.6.20/include\
+        -X -I../../../libs/libxlsxwriter/include\
+        -X -L../../../libs/libxlsxwriter/src\
+        -X -L../../../libs/libxlsxwriter/third_party/minizip\
+        -X -I../../../libs/libharu/libharu-RELEASE_2_2_0/include\
+        -X -L../../../libs/libharu/libharu-RELEASE_2_2_0/src\
+        -X -I../../../SinticBolivia\
+        -X -I../../../SinticBolivia/widgets\
+        -X -I../../../SinticBolivia/reports\
+		-X -L../../../SinticBolivia/bin\
+		-X -I../pos\
+		-X -L../pos
+		
+CLIBS=-X -lgee \
+		-X -lz\
+		-X -lm\
+		-X -lSinticBolivia \
+		-X -lGtkSinticBolivia\
+		-X -lSinticBoliviaReports\
+		-X -lPos\
+		-X -lhpdf
+		#-X -lxlsxwriter
+			
+VAPI_DIR=--vapidir=../../../SinticBolivia\
+			--vapidir=../../../SinticBolivia\widgets\
+			--vapidir=../../../SinticBolivia\reports\
+			--vapidir=../../../libs/libharu\
+			--vapidir=../pos
+			
+PKGS=--pkg gmodule-2.0\
+		--pkg gee-1.0 \
+		--pkg posix\
+		--pkg libxml-2.0\
+		--pkg gtk+-3.0 \
+		--pkg sqlite3 \
+		--pkg mysql\
+		--pkg zlib\
+		--pkg SinticBolivia\
+		--pkg GtkSinticBolivia\
+		--pkg SinticBoliviaReports\
+		--pkg libharu\
+		--pkg Pos
+		
+MOD_NAME=libQuotes
+LIB_NAME=$(MOD_NAME).dll
+SOURCES=$(wildcard *.vala) $(wildcard classes/*.vala) $(wildcard widgets/*.vala) $(wildcard dialogs/*.vala)
+all: resources
+	valac -o $(LIB_NAME) --library=$(MOD_NAME) -H $(MOD_NAME).h $(SOURCES) -X -fPIC -X -shared $(VAPI_DIR) $(PKGS) $(CFLAGS) $(CLIBS)
+	cp $(LIB_NAME) quotes.gresource ../../bin/modules
+resources:
+	glib-compile-resources quotes.gresource.xml
+clean:
+	rm $(LIB_NAME) *.vapi *.h

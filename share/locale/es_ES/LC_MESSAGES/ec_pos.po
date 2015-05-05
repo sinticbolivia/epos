@@ -1,0 +1,594 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Ecommerce Point of Sale\n"
+"POT-Creation-Date: 2015-04-17 00:13-0400\n"
+"PO-Revision-Date: 2015-04-17 00:15-0400\n"
+"Last-Translator: Juan Marcelo Aviles Paco <maviles@sinticbolivia.net>\n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: ../../../..\n"
+"X-Poedit-SearchPathExcluded-0: ../../../../modules\n"
+"X-Poedit-SearchPathExcluded-1: ../../../../installer\n"
+"X-Poedit-SearchPathExcluded-2: ../../../../mysql_server\n"
+"X-Poedit-SearchPathExcluded-3: ../../../../sql\n"
+
+#: ../../../../licence-generator/ui.glade:33
+msgid "Licence Generator"
+msgstr ""
+
+#: ../../../../licence-generator/ui.glade:59
+msgid "CPU Serial Number:"
+msgstr ""
+
+#: ../../../../licence-generator/ui.glade:99
+msgid "Days:"
+msgstr ""
+
+#: ../../../../licence-generator/ui.glade:113
+msgid "Module Id:"
+msgstr ""
+
+#: ../../../../licence-generator/ui.glade:147
+msgid "Licence: xxxxxxxxxxx"
+msgstr ""
+
+#: ../../../../licence-generator/ui.glade:163
+msgid "Close"
+msgstr "Cerrar"
+
+#: ../../../../licence-generator/ui.glade:176
+msgid "Generate"
+msgstr "Generar"
+
+#: ../../../../ui/about.glade:11
+msgid "Copyright @ Sintic Bolivia"
+msgstr "Todos los derechos reservados @ Sintic Bolivia"
+
+#: ../../../../ui/about.glade:13
+msgid "Sintic Bolivia Web site"
+msgstr "Sitio Web Sintic Bolivia"
+
+#: ../../../../ui/about.glade:14
+msgid "Shareware"
+msgstr ""
+
+#: ../../../../ui/config-ui.glade:19 ../../../../ui/setup.glade:630
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../../../../ui/config-ui.glade:35
+msgid "Save"
+msgstr "Guardar"
+
+#: ../../../../ui/config-ui.glade:86
+#: ../../../../dialogs/dialog-config.vala:99
+msgid "Settings"
+msgstr "Configuración"
+
+#: ../../../../ui/config-ui.glade:131
+msgid "Language:"
+msgstr "Lenguage:"
+
+#: ../../../../ui/config-ui.glade:165
+msgid "General"
+msgstr "General"
+
+#: ../../../../ui/config-ui.glade:192
+msgid "Company Name:"
+msgstr "Nombre Compañia:"
+
+#: ../../../../ui/config-ui.glade:206
+msgid "Street:"
+msgstr "Calle"
+
+#: ../../../../ui/config-ui.glade:220
+msgid "City:"
+msgstr "Ciudad:"
+
+#: ../../../../ui/config-ui.glade:234
+msgid "Phone No. (1):"
+msgstr "Teléfono No. (1):"
+
+#: ../../../../ui/config-ui.glade:248
+msgid "Phone No. (2):"
+msgstr "Teléfono No. (2):"
+
+#: ../../../../ui/config-ui.glade:262
+msgid "Fax No.:"
+msgstr "Fax No.:"
+
+#: ../../../../ui/config-ui.glade:276
+msgid "Email Address:"
+msgstr "Dirección Email:"
+
+#: ../../../../ui/config-ui.glade:290
+msgid "Reg No.:"
+msgstr "Reg No.:"
+
+#: ../../../../ui/config-ui.glade:304
+msgid "NIT/RUC/NIF:"
+msgstr "NIT/RUC/NIF:"
+
+#: ../../../../ui/config-ui.glade:450
+msgid "Company logo:"
+msgstr "Logo Compañia:"
+
+#: ../../../../ui/config-ui.glade:481
+msgid "Company"
+msgstr "Compañia:"
+
+#: ../../../../ui/config-ui.glade:508
+msgid "Printer:"
+msgstr "Impresora:"
+
+#: ../../../../ui/config-ui.glade:522
+msgid "Page Size:"
+msgstr "Tamaño Página:"
+
+#: ../../../../ui/config-ui.glade:548
+msgid ""
+"Show confirmation \n"
+"before print invoice:"
+msgstr ""
+"Mostrar confirmación \n"
+"antes de imprimir la factura"
+
+#: ../../../../ui/config-ui.glade:578
+msgid "Preview:"
+msgstr "Previsualizar"
+
+#: ../../../../ui/config-ui.glade:626
+msgid "Show print dialog:"
+msgstr "Mostrar dialogo de impresión:"
+
+#: ../../../../ui/config-ui.glade:659
+msgid "Print a test page"
+msgstr "Imprimir página de prueba"
+
+#: ../../../../ui/config-ui.glade:679
+msgid "Printing"
+msgstr "Impresión"
+
+#: ../../../../ui/sales-tax.glade:34 ../../../../main.vala:393
+msgid "Sales Tax"
+msgstr "Impuesto de venta"
+
+#: ../../../../ui/sales-tax.glade:68
+msgid "New"
+msgstr "Nuevo"
+
+#: ../../../../ui/sales-tax.glade:81
+msgid "Edit"
+msgstr "Editar"
+
+#: ../../../../ui/sales-tax.glade:94
+msgid "Delete"
+msgstr "Borrar"
+
+#: ../../../../ui/setup.glade:34
+msgid ""
+"Welcome to Ecommerce Point of Sale Setup.\n"
+"\n"
+"This process will guide you to setup correctly your installation."
+msgstr ""
+"Bienvenido a Ecommerce Point of Sale\n"
+"\n"
+"Este proceso le guiara para configurar correctamente su instalación."
+
+#: ../../../../ui/setup.glade:50
+msgid "Welcome"
+msgstr "Bienvenido"
+
+#: ../../../../ui/setup.glade:72
+msgid "Select the system mode."
+msgstr "Seleccione el modo del sistema:"
+
+#: ../../../../ui/setup.glade:82
+msgid "Server"
+msgstr "Server"
+
+#: ../../../../ui/setup.glade:98
+msgid "Terminal"
+msgstr "Terminal"
+
+#: ../../../../ui/setup.glade:129
+msgid "System mode"
+msgstr "Modo del sistema"
+
+#: ../../../../ui/setup.glade:153
+msgid "Select the databas engine you want to use."
+msgstr "Seleccione el motor de base de datos"
+
+#: ../../../../ui/setup.glade:163
+msgid "MySQL"
+msgstr "MySQL"
+
+#: ../../../../ui/setup.glade:179
+msgid "SQLite 3"
+msgstr "SQLite 3"
+
+#: ../../../../ui/setup.glade:210
+msgid "Database Engine"
+msgstr "Motor de Base de Datos"
+
+#: ../../../../ui/setup.glade:234
+msgid "Server:"
+msgstr "Servidor:"
+
+#: ../../../../ui/setup.glade:247
+msgid "Database"
+msgstr "Base de Datos"
+
+#: ../../../../ui/setup.glade:260 ../../../../ui/setup.glade:474
+msgid "Username:"
+msgstr "Usuario:"
+
+#: ../../../../ui/setup.glade:273 ../../../../ui/setup.glade:487
+msgid "Password:"
+msgstr "Contraseña:"
+
+#: ../../../../ui/setup.glade:334
+msgid "Test Connection"
+msgstr "Probar conexión"
+
+#: ../../../../ui/setup.glade:351
+msgid "3306"
+msgstr "3306"
+
+#: ../../../../ui/setup.glade:389
+msgid "Database Info"
+msgstr "Información de Base de Datos"
+
+#: ../../../../ui/setup.glade:413
+msgid "Please wait while we are setting up the database."
+msgstr "Porfavor espere mientras configuramos la base de datos"
+
+#: ../../../../ui/setup.glade:450
+msgid "Setting up database"
+msgstr "Configurando base de datos"
+
+#: ../../../../ui/setup.glade:538
+msgid "Admin Credentials"
+msgstr "Credenciales de Administrador"
+
+#: ../../../../ui/setup.glade:563
+msgid ""
+"Congratualations!!!\n"
+"\n"
+"Your Ecommerce Point of Sale Installation is now ready to use."
+msgstr ""
+"Felicitaciones!!!\n"
+"\n"
+"Su instalación de Ecommerce Point of Sale ahora esta lista para poder "
+"operar. "
+
+#: ../../../../ui/setup.glade:575
+msgid "Execute Ecommerce Point of Sale now"
+msgstr "Ejecutar Punto de Venta ahora"
+
+#: ../../../../ui/setup.glade:607
+msgid "Setup completed"
+msgstr "Instalación completada"
+
+#: ../../../../ui/setup.glade:644
+msgid "Previous"
+msgstr "Anterior"
+
+#: ../../../../ui/setup.glade:657
+msgid "Next"
+msgstr "Siguiente"
+
+#: ../../../../ui/setup.glade:670
+msgid "Finish"
+msgstr "Terminar"
+
+#: ../../../../ui/ui-v1.0.glade:39
+msgid "_"
+msgstr ""
+
+#: ../../../../ui/ui-v1.0.glade:53
+msgid "-"
+msgstr ""
+
+#: ../../../../ui/ui-v1.0.glade:67
+msgid "X"
+msgstr ""
+
+#: ../../../../ui/ui-v1.0.glade:114
+msgctxt "ec_pos"
+msgid "_File"
+msgstr "_Archivo"
+
+#: ../../../../ui/ui-v1.0.glade:180
+msgctxt "ec_pos"
+msgid "_Management"
+msgstr "Ad_ministración"
+
+#: ../../../../ui/ui-v1.0.glade:203
+msgctxt "ec_pos"
+msgid "_View"
+msgstr "_Ver"
+
+#: ../../../../ui/ui-v1.0.glade:213
+msgctxt "ec_pos"
+msgid "Quick icons"
+msgstr "_Iconos Rapidos"
+
+#: ../../../../ui/ui-v1.0.glade:226
+msgctxt "ec_pos"
+msgid "_Help"
+msgstr "A_yuda"
+
+#: ../../../../ui/ui-v1.0.glade:277 ../../../../main.vala:126
+msgid "Home"
+msgstr "Inicio"
+
+#: ../../../../ui/ui-v1.0.glade:330
+msgid "Here goes some application message"
+msgstr ""
+
+#: ../../../../ui/ui-v1.0.glade:377
+msgid "Offline"
+msgstr "Desconectado"
+
+#: ../../../../ui/ui-v1.0.glade:414
+msgid "Username"
+msgstr "Usuario"
+
+#: ../../../../widgets/widget-dashboard.glade:16
+msgid "label"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:88
+msgid "Receipt Print Preview"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:138
+msgid "Invoice"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:148
+msgid "Date"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:156
+msgid "Customer"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:171
+msgid "Description"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:172
+msgid "Qty"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:173
+msgid "Price"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:174
+#: ../../../../widgets/widget.daily-report.vala:162
+msgid "Total"
+msgstr ""
+
+#: ../../../../classes/class.invoice.vala:199
+msgid "Total:"
+msgstr ""
+
+#: ../../../../dialogs/dialog-config.vala:135
+msgid "English"
+msgstr "Ingles"
+
+#: ../../../../dialogs/dialog-config.vala:136
+msgid "Spanish"
+msgstr "Español"
+
+#: ../../../../dialogs/dialog-config.vala:209
+msgid "Select your company logo"
+msgstr ""
+
+#: ../../../../dialogs/dialog-config.vala:211
+msgid "_Cancel"
+msgstr "_Cancelar"
+
+#: ../../../../dialogs/dialog-config.vala:213
+msgid "_Open"
+msgstr "_Abrir"
+
+#: ../../../../dialogs/dialog-config.vala:500
+msgid "Settings saved"
+msgstr "Configuración guardada"
+
+#: ../../../../dialogs/dialog-config.vala:501
+msgid "The settings has been saved."
+msgstr "La configuración a sido guardada."
+
+#: ../../../../main.vala:277
+msgid ""
+"Woocommerce\n"
+"Pending to Sync Orders"
+msgstr ""
+
+#: ../../../../main.vala:281
+msgid "Dashboard"
+msgstr "Tablero"
+
+#: ../../../../main.vala:386
+msgid "Taxes"
+msgstr ""
+
+#: ../../../../main.vala:399
+msgid "Reports"
+msgstr "Reportes"
+
+#: ../../../../main.vala:403 ../../../../widgets/widget.daily-report.vala:47
+msgid "Daily Report"
+msgstr "Reporte Diario"
+
+#: ../../../../main.vala:412
+msgid "Daily Reports"
+msgstr "Reportes Diarios"
+
+#: ../../../../main.vala:503
+msgid "Logout"
+msgstr "Terminar sesión"
+
+#: ../../../../main.vala:504
+msgid "Are you sure want to quit?"
+msgstr "¿Esta seguro que desea salir de la aplicación?"
+
+#: ../../../../main.vala:506
+msgid "Quit"
+msgstr "Salir"
+
+#: ../../../../setup.vala:61
+msgid "Ecommerce Point of Sale - Setup"
+msgstr ""
+
+#: ../../../../setup.vala:114
+msgid "Connection succesfull."
+msgstr ""
+
+#: ../../../../setup.vala:123 ../../../../setup.vala:212
+msgid "Error trying to connect with database."
+msgstr ""
+
+#: ../../../../setup.vala:289
+msgid "Administrator"
+msgstr "Administrador"
+
+#: ../../../../setup.vala:290
+msgid "Cashier"
+msgstr "Cajero"
+
+#: ../../../../widgets/widget.daily-report.vala:60
+msgid "Build Report"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:78
+msgid "Total Products:"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:79
+msgid "Total Sales:"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:132
+#: ../../../../widgets/widget.taxes.vala:50
+msgid "#"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:138
+msgid "ID"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:144
+msgid "Product"
+msgstr "Producto"
+
+#: ../../../../widgets/widget.daily-report.vala:150
+msgid "Quantity"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:156
+msgid "Sale Price (AVG)"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:171
+msgid "-- store --"
+msgstr ""
+
+#: ../../../../widgets/widget.daily-report.vala:211
+msgid "There are no sales register on that date."
+msgstr ""
+
+#: ../../../../widgets/widget.pending-to-sync-orders.vala:41
+msgid "Total Pending Orders:"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:51
+msgid "Name"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:52
+msgid "Rate %"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:56
+msgid "Tax rate"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:61
+msgid "Add new tax rate"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:73
+msgid "Tax Name:"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:75
+msgid "Tax rate:"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:159
+msgid "Are you sure to delete the tax rate?"
+msgstr ""
+
+#: ../../../../widgets/widget.taxes.vala:161
+msgid "Tax rate deletion"
+msgstr ""
+
+#~ msgid "First Name:"
+#~ msgstr "Nombres:"
+
+#~ msgid "Last Name:"
+#~ msgstr "Apellidos"
+
+#~ msgid "Address:"
+#~ msgstr "Dirección:"
+
+#~ msgid "State:"
+#~ msgstr "Estado:"
+
+#~ msgid "Email:"
+#~ msgstr "Email:"
+
+#~ msgid "Phone:"
+#~ msgstr "Teléfono:"
+
+#~ msgid "<b>User Info</b>"
+#~ msgstr "<b>Información de Usuario</b>"
+
+#~ msgid "_File"
+#~ msgstr "_Archivo"
+
+#~ msgid "_Edit"
+#~ msgstr "_Editar"
+
+#~ msgid "_View"
+#~ msgstr "_Ver"
+
+#~ msgid "_Help"
+#~ msgstr "Ay_uda"
+
+#~ msgid "Point of Sale"
+#~ msgstr "Punto de Venta"
+
+#~ msgid "Category:"
+#~ msgstr "Categoria:"
+
+#~ msgid "_Management"
+#~ msgstr "Ad_ministracion"
+
+#~ msgid "Quick icons"
+#~ msgstr "Iconos Rápidos"
