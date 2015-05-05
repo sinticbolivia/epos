@@ -28,7 +28,7 @@ SOURCES=main.vala $(wildcard classes/*.vala) $(wildcard dialogs/*.vala) $(wildca
 		$(wildcard helpers/*.vala)
 		
 OBJECTS=$(SOURCES:.vala=.o)
-DEST_EXEC=woocommerce_pos
+DEST_EXEC=ec-pos
 LIBRARY_NAME=SinticBolivia
 #include Database/Makefile
 
@@ -36,12 +36,12 @@ all: $(DEST_EXEC) resource setup
 
 #$(DEST_EXEC): $(OBJECTS)
 $(DEST_EXEC): $(SOURCES)
-	$(VC) -D __linux__ -D GLIB_2_32 --thread -X -s -o bin/$@ $(VFLAGS) $(VLIBS) $(SOURCES)
+	$(VC) -o bin/$@ -D __linux__ -D GLIB_2_32 --thread -X -s $(VFLAGS) $(VLIBS) $(SOURCES)
 	@#$(VC) classes/interface.module.vala -C -H includes/pos_module.h --vapi=includes/pos_module.vapi --library=PosModule
 	@#$(VC) classes/class.modules.vala -C -H includes/modules.h --vapi=includes/modules.vapi --library=PosModules --pkg gee-1.0 --pkg gmodule-2.0 includes/pos_module.vapi
 	@#strip bin/$@
 setup:
-	valac -D __linux__ -D GLIB_2_32 -o bin/$@ $(VFLAGS) $(VLIBS) setup.vala
+	valac -o bin/$@ -D __linux__ -D GLIB_2_32 $(VFLAGS) $(VLIBS) setup.vala
 resource:
 	glib-compile-resources ec-pos.gresource.xml
 	mv ec-pos.gresource share/resources
