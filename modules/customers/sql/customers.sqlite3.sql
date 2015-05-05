@@ -31,7 +31,9 @@ CREATE TABLE IF NOT EXISTS customer_meta(
 );
 CREATE TABLE IF NOT EXISTS customer_groups(
 	group_id		integer not null primary key autoincrement,
+	store_id		integer not null,
 	name			varchar(128),
+	description		text,
 	creation_date	datetime
 );
 CREATE TABLE IF NOT EXISTS customer2group(

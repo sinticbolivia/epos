@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Database;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetDailyReport : Box
 	{

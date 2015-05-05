@@ -28,7 +28,7 @@ namespace EPos
 		public WidgetUsers()
 		{
 			//Object();
-			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("users.glade");
+			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("users.glade", "mod_users");
 			this.windowUsers		= (Window)this.ui.get_object("windowUsers");
 			this.boxUsers			= (Box)this.ui.get_object("boxUsers");
 			this.imageUsers			= (Image)this.ui.get_object("imageUsers");
@@ -64,28 +64,28 @@ namespace EPos
 										typeof(string)
 			);
 			this.treeviewUsers.insert_column_with_attributes(0, 
-									SBText.__("Id"), 
+									SBText.__("Id", "mod_users"), 
 									new CellRendererText(){width = 70}, 
 									"text", 0);
 			this.treeviewUsers.insert_column_with_attributes(1, 
-									SBText.__("Image"), 
+									SBText.__("Image", "mod_users"), 
 									new CellRendererPixbuf(){width = 80}, 
 									"pixbuf", 1);
 			this.treeviewUsers.insert_column_with_attributes(2, 
-									SBText.__("Username"), 
+									SBText.__("Username", "mod_users"), 
 									new CellRendererText(){width = 100}, 
 									"text", 2);
 			this.treeviewUsers.insert_column_with_attributes(3, 
-									SBText.__("Email"), 
+									SBText.__("Email", "mod_users"), 
 									new CellRendererText(){width = 150}, 
 									"text", 3);
 			this.treeviewUsers.get_column(3).resizable = true;
 			this.treeviewUsers.insert_column_with_attributes(4, 
-									SBText.__("Name"), 
+									SBText.__("Name", "mod_users"), 
 									new CellRendererText(){width = 150}, 
 									"text", 4);
 			this.treeviewUsers.insert_column_with_attributes(5, 
-								SBText.__("Role"), 
+								SBText.__("Role", "mod_users"), 
 								new CellRendererText(){width = 120}, 
 								"text", 5);
 									
@@ -100,7 +100,7 @@ namespace EPos
 				var widget = new WidgetNewUser();
 				if( notebook.GetPage("new-user") == null )
 				{
-					notebook.AddPage("new-user", SBText.__("New User"), widget);
+					notebook.AddPage("new-user", SBText.__("New User", "mod_users"), widget);
 				}
 				notebook.SetCurrentPageById("new-user");
 			});
@@ -161,7 +161,7 @@ namespace EPos
 					user.GetDbData((int)v_user_id);
 					var w = new WidgetEditUser();
 					w.SetUser(user);
-					notebook.AddPage("edit-user", "Edit User (%s)".printf(user.Username), w);
+					notebook.AddPage("edit-user", SBText.__("Edit User (%s)", "mod_users").printf(user.Username), w);
 				}
 				notebook.SetCurrentPageById("edit-user");
 			}

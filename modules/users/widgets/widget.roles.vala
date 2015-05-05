@@ -33,7 +33,7 @@ namespace EPos
 		public WidgetRoles()
 		{
 			Object();
-			this.ui				= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("roles.glade");
+			this.ui				= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("roles.glade", "mod_users");
 			this.windowRoles	= (Window)this.ui.get_object("windowRoles");
 			this.boxRoles		= (Box)this.ui.get_object("boxRoles");
 			this.imageRoles		= (Image)this.ui.get_object("imageRoles");
@@ -64,7 +64,8 @@ namespace EPos
 			
 			this.treeviewRoles.model = new ListStore(2, typeof(int), typeof(string));
 			this.treeviewRoles.insert_column_with_attributes(0, "Id", new CellRendererText(){width = 70}, "text", 0);
-			this.treeviewRoles.insert_column_with_attributes(1, "Role name", new CellRendererText(){width = 200}, "text", 1);
+			this.treeviewRoles.insert_column_with_attributes(1, 
+				SBText.__("Role name", "mod_users"), new CellRendererText(){width = 200}, "text", 1);
 			
 		}
 		protected void SetEvents()
@@ -198,8 +199,8 @@ namespace EPos
 				
 				var msg = new InfoDialog()
 				{
-					Title = SBText.__("Role Updated"),
-					Message = SBText.__("The role has been updated.")
+					Title = SBText.__("Role Updated", "mod_users"),
+					Message = SBText.__("The role has been updated.", "mod_users")
 				};
 				
 				msg.run();
@@ -211,7 +212,7 @@ namespace EPos
 				data.set("creation_date", date.format("%Y-%m-%d %H-%M-%S"));
 				int role_id = (int)dbh.Insert("user_roles", data);
 				var msg = new MessageDialog(null, DialogFlags.MODAL, MessageType.INFO, ButtonsType.OK, 
-											"The role has been created."
+											SBText.__("The role has been created.", "mod_users")
 				);
 				this.gridPermissions.foreach( (check) => 
 				{
@@ -225,7 +226,7 @@ namespace EPos
 						dbh.Insert("role2permission", row);
 					}
 				});
-				msg.title = "New Role Created";
+				msg.title = SBText.__("New Role Created", "mod_users");
 				msg.run();
 				msg.dispose();
 			}

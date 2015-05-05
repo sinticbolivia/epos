@@ -5,7 +5,7 @@ using SinticBolivia;
 using SinticBolivia.Database;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class WidgetTaxes : Box
 	{
@@ -23,7 +23,9 @@ namespace Woocommerce
 		
 		public WidgetTaxes()
 		{
-			this.ui = GtkHelper.GetGladeUI("share/ui/sales-tax.glade");
+			//this.ui = GtkHelper.GetGladeUI("share/ui/sales-tax.glade");
+			this.ui = GtkHelper.GetGladeUIFromResource((GLib.Resource)SBGlobals.GetValue("g_resource"), 
+												"/net/sinticbolivia/ec-pos/ui/sales-tax.glade");
 			this.boxTaxes		= (Box)this.ui.get_object("boxTaxes");
 			this.buttonNew		= (Button)this.ui.get_object("buttonNew");
 			this.buttonEdit		= (Button)this.ui.get_object("buttonEdit");

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
 	<gresource prefix="/net/sinticbolivia/Inventory">
+		<file compressed="true">sql/inventory.sqlite3.sql</file>
+		<file compressed="true">sql/inventory.mysql.sql</file>
 		<file>images/products-icon-48x48.png</file>
 		<file>images/store-64x48.png</file>
 		<file>images/inventory-icon-64x64.png</file>
+		<file compressed="true">images/inventory-25x25.png</file>
 		<file>images/categories-icon-64x64.png</file>
 		<file>images/placeholder-64x64.png</file>
 		<file>images/placeholder-80x80.png</file>
@@ -24,6 +27,7 @@
 		<file>images/receive-order-icon-64x64.png</file>
 		<file>images/stock-transfer-icon-64x64.png</file>
 		<file>images/adjustment-icon-64x55.png</file>
+		<file compressed="true">images/search-icon-64x64.png</file>
 		<file compressed="true">ui/products.glade</file>
 		<file compressed="true">ui/new-product.glade</file>
 		<file compressed="true">ui/transactions.glade</file>
@@ -31,6 +35,7 @@
 		<file compressed="true">ui/purchase-orders.glade</file>
 		<file compressed="true">ui/purchase-order.glade</file>
 		<file compressed="true">ui/receive-purchase-order.glade</file>
+		<file compressed="true">ui/supplier-categories.glade</file>
 		<file compressed="true">ui/suppliers.glade</file>
 		<file compressed="true">ui/new-supplier.glade</file>
 		<file compressed="true">ui/transaction-types.glade</file>
@@ -44,8 +49,7 @@
 		<file compressed="true">ui/new-assembly.glade</file>
 		<file compressed="true">ui/stock-transfer.glade</file>
 		<file compressed="true">ui/widget.adjustments.glade</file>
-		<file compressed="true">sql/inventory.sqlite3.sql</file>
-		<file compressed="true">sql/inventory.mysql.sql</file>
+		<file compressed="true">ui/widget.product-search.glade</file>
 		<!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->
 	</gresource>
 </gresources>

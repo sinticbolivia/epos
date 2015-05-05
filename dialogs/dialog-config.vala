@@ -4,11 +4,11 @@ using SinticBolivia.Database;
 using Gee;
 using SinticBolivia.Gtk;
 
-namespace Woocommerce
+namespace EPos
 {
 	public class DialogConfig : Gtk.Dialog
 	{
-		protected 	string 		_UI_FILE;
+		//protected 	string 		_UI_FILE;
 		protected	Builder 	_builder;
 		protected	SBConfig	_config;
 		protected	HashMap<string, Widget> _ecommerceWidgets;
@@ -44,15 +44,18 @@ namespace Woocommerce
 		public DialogConfig()
 		{
 			this._ecommerceWidgets = new HashMap<string, Widget>();
-			this._UI_FILE = GLib.Environment.get_current_dir() + "/share/ui/" + "config-ui.glade";
-			this._builder = new Builder();
+			//this._UI_FILE = GLib.Environment.get_current_dir() + "/share/ui/" + "config-ui.glade";
+			//this._builder = new Builder();
 			try
 			{
-				this._builder.add_from_file(this._UI_FILE);
+				//this._builder.add_from_file(this._UI_FILE);
+				this._builder = GtkHelper.GetGladeUIFromResource((GLib.Resource)SBGlobals.GetValue("g_resource"), 
+												"/net/sinticbolivia/ec-pos/ui/config-ui.glade");
 				//get widgets
 				this.dialogConfig 			= (Gtk.Dialog)this._builder.get_object("dialogConfig");
 				this.notebookConfig			= (Notebook)this._builder.get_object("notebookConfig");
 				this.imageSettings 			= (Image)this._builder.get_object("imageSettings");
+				this.comboboxLanguage		= (ComboBox)this._builder.get_object("comboboxLanguage");
 				this.boxEcommerceSettings 	= (Box)this._builder.get_object("boxEcommerceSettings");
 				//##get company widgets
 				this.entryCompany			= (Entry)this._builder.get_object("entryCompany");
@@ -121,6 +124,27 @@ namespace Woocommerce
 		protected void Build()
 		{
 			this.imageLogo.pixbuf = GtkHelper.GetPixbuf("share/images/logo.png", 120, 120);
+			//##build combobox languages
+			this.comboboxLanguage.model = new ListStore(2, typeof(string), typeof(string));
+			var cell = new CellRendererText();
+			this.comboboxLanguage.pack_start(cell, true);
+			this.comboboxLanguage.set_attributes(cell, "text", 0);
+			this.comboboxLanguage.id_column = 1;
+			string[,] langs = 
+			{
+				{SBText.__("English"), "en_US"},
+				{SBText.__("Spanish"), "es_ES"}
+			};
+			TreeIter iter;
+			for(int i = 0; i < langs.length[0]; i++)
+			{
+				(this.comboboxLanguage.model as ListStore).append(out iter);
+				(this.comboboxLanguage.model as ListStore).set(iter,
+					0, langs[i,0],
+					1, langs[i,1]
+				);
+			}
+			this.comboboxLanguage.active_id = "en_US";
 			var args = new SBModuleArgs<Widget>();
 			args.SetData(this.notebookConfig);
 			SBModules.do_action("config_build", args);
@@ -157,6 +181,7 @@ namespace Woocommerce
 			TreeIter iter;
 			//set default data from config file
 			this._config = new SBConfig(this.cfgFile, "point_of_sale");
+			this.comboboxLanguage.active_id = (string)this._config.GetValue("language", "en_US");
 			(this.comboboxPrinter.get_child() as Entry).text = (string)this._config.GetValue("printer");
 			string page_size = (string)this._config.GetValue("page_size");
 			/*
@@ -418,6 +443,7 @@ namespace Woocommerce
 			{
 				this._config = new SBConfig(this.cfgFile, "point_of_sale");
 			}
+			this._config.SetValue("language", this.comboboxLanguage.active_id);
 			var company = new HashMap<string, Value?>();
 			company.set("company", this.entryCompany.text.strip());
 			company.set("address", this.entryAddress.text.strip());
@@ -469,7 +495,7 @@ namespace Woocommerce
 			SBModules.do_action("after_save_config", new SBModuleArgs<Widget>());
 			//##update global config
 			SBGlobals.SetVar("config", (Object)new SBConfig("config.xml", "point_of_sale"));
-			var msg = new InfoDialog()
+			var msg = new InfoDialog("success")
 			{
 				Title = SBText.__("Settings saved"),
 				Message = SBText.__("The settings has been saved.")

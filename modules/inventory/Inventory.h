@@ -582,6 +582,7 @@ struct _EPosPdfTable {
 	HPDF_Page* PdfPage;
 	HPDF_Doc* Doc;
 	HPDF_Font* Font;
+	EPosCatalog* PdfCatalog;
 	gint totalCols;
 	gfloat Width;
 	gfloat Height;
@@ -903,6 +904,11 @@ struct _EPosWidgetNewProduct {
 	GtkComboBox* comboboxItemType;
 	GtkComboBox* comboboxUnitofMeasure;
 	GtkComboBox* comboboxStatus;
+	GtkFrame* frameTags;
+	GtkBox* boxTags;
+	GtkEntry* entryTag;
+	GtkButton* buttonAddTag;
+	GtkTreeView* treeviewTags;
 	GtkComboBox* comboboxTaxRates;
 	GtkEntry* entryCost;
 	GtkEntry* entryPrice;
@@ -924,7 +930,7 @@ struct _EPosWidgetNewProduct {
 	GtkButton* buttonAddImage;
 	GtkButton* buttonCancel;
 	GtkButton* buttonSave;
-	EPosEProduct* product;
+	SinticBoliviaSBProduct* product;
 	gint fixedWidth;
 	gint fixedX;
 	gint fixedY;
@@ -993,9 +999,14 @@ struct _EPosWidgetProductsSearch {
 	EPosWidgetProductsSearchPrivate * priv;
 	GtkBuilder* ui;
 	GtkBox* box1;
+	GtkImage* image1;
 	GtkEntry* entrySearch;
 	GtkComboBox* comboboxSearchBy;
-	GtkTreeView* treeviewProducts;
+	GtkTreeView* treeviewProducts0;
+	GtkTreeViewColumn* columnSelect;
+	GtkCheckButton* checkbuttonSelect;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSelect;
 	gint storeId;
 };
 
@@ -1004,6 +1015,7 @@ struct _EPosWidgetProductsSearchClass {
 };
 
 typedef enum  {
+	EPOS_WIDGET_PRODUCTS_SEARCH_COLUMNS_SELECT,
 	EPOS_WIDGET_PRODUCTS_SEARCH_COLUMNS_COUNT,
 	EPOS_WIDGET_PRODUCTS_SEARCH_COLUMNS_ID,
 	EPOS_WIDGET_PRODUCTS_SEARCH_COLUMNS_NAME,
@@ -1425,6 +1437,7 @@ EPosPdfRow* epos_pdf_row_construct (GType object_type);
 EPosPdfRow* epos_pdf_row_new_with_table (EPosPdfTable* table);
 EPosPdfRow* epos_pdf_row_construct_with_table (GType object_type, EPosPdfTable* table);
 EPosPdfCell* epos_pdf_row_AddCell (EPosPdfRow* self);
+void epos_pdf_row_SetXY (EPosPdfRow* self, gfloat x, gfloat y);
 void epos_pdf_row_calculateRowSize (EPosPdfRow* self);
 void epos_pdf_row_Draw (EPosPdfRow* self);
 gint epos_pdf_row_get_Size (EPosPdfRow* self);
@@ -1644,11 +1657,15 @@ void epos_window_new_assembly_set_StoreId (EPosWindowNewAssembly* self, gint val
 GType epos_widget_new_product_get_type (void) G_GNUC_CONST;
 EPosWidgetNewProduct* epos_widget_new_product_new (void);
 EPosWidgetNewProduct* epos_widget_new_product_construct (GType object_type);
-EPosWidgetNewProduct* epos_widget_new_product_new_with_product (EPosEProduct* prod);
-EPosWidgetNewProduct* epos_widget_new_product_construct_with_product (GType object_type, EPosEProduct* prod);
+EPosWidgetNewProduct* epos_widget_new_product_new_with_product (SinticBoliviaSBProduct* prod);
+EPosWidgetNewProduct* epos_widget_new_product_construct_with_product (GType object_type, SinticBoliviaSBProduct* prod);
 void epos_widget_new_product_Build (EPosWidgetNewProduct* self);
 void epos_widget_new_product_SetEvents (EPosWidgetNewProduct* self);
 void epos_widget_new_product_FillCategories (EPosWidgetNewProduct* self, gint store_id);
+gboolean epos_widget_new_product_OnEntryTagKeyReleaseEvent (EPosWidgetNewProduct* self, GdkEventKey* e);
+gboolean epos_widget_new_product_OnEntryTagMatchSelected (EPosWidgetNewProduct* self, GtkTreeModel* model, GtkTreeIter* iter);
+void epos_widget_new_product_OnButtonAddTagClicked (EPosWidgetNewProduct* self);
+gboolean epos_widget_new_product_OnTreeViewTagsButtonReleaseEvent (EPosWidgetNewProduct* self, GdkEventButton* args);
 void epos_widget_new_product_OnButtonAddImageClicked (EPosWidgetNewProduct* self);
 void epos_widget_new_product_addImage (EPosWidgetNewProduct* self, const gchar* filename, gint id);
 void epos_widget_new_product_OnButtonCancelClicked (EPosWidgetNewProduct* self);
@@ -1685,10 +1702,15 @@ EPosWidgetProductsSearch* epos_widget_products_search_new (void);
 EPosWidgetProductsSearch* epos_widget_products_search_construct (GType object_type);
 void epos_widget_products_search_Build (EPosWidgetProductsSearch* self);
 void epos_widget_products_search_SetEvents (EPosWidgetProductsSearch* self);
+void epos_widget_products_search_OnCheckButtonSelectClicked (EPosWidgetProductsSearch* self);
+void epos_widget_products_search_OnButtonCancelClicked (EPosWidgetProductsSearch* self);
+void epos_widget_products_search_OnButtonSelectClicked (EPosWidgetProductsSearch* self);
 void epos_widget_products_search_Refresh (EPosWidgetProductsSearch* self, gint store_id, GeeArrayList* items);
 GtkTreeIter* epos_widget_products_search_GetSelected (EPosWidgetProductsSearch* self);
-gboolean epos_widget_products_search_OnEntrySearchKeReleaseEvent (EPosWidgetProductsSearch* self, GdkEventKey* e);
+gboolean epos_widget_products_search_OnEntrySearchKeyReleaseEvent (EPosWidgetProductsSearch* self, GdkEventKey* e);
 GtkListStore* epos_widget_products_search_get_Model (EPosWidgetProductsSearch* self);
+GtkButton* epos_widget_products_search_get_ButtonCancel (EPosWidgetProductsSearch* self);
+void epos_widget_products_search_set_ButtonCancel (EPosWidgetProductsSearch* self, GtkButton* value);
 GType epos_widget_purchase_order_get_type (void) G_GNUC_CONST;
 GType epos_widget_purchase_order_columns_get_type (void) G_GNUC_CONST;
 EPosWidgetPurchaseOrder* epos_widget_purchase_order_new (void);

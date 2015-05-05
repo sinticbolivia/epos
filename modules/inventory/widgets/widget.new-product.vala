@@ -25,6 +25,11 @@ namespace EPos
 		protected	ComboBox	comboboxItemType;
 		protected	ComboBox	comboboxUnitofMeasure;
 		protected	ComboBox	comboboxStatus;
+		protected	Frame		frameTags;
+		protected	Box			boxTags;
+		protected	Entry		entryTag;
+		protected	Button		buttonAddTag;
+		protected	TreeView	treeviewTags;
 		protected	ComboBox	comboboxTaxRates;
 		protected	Entry		entryCost;
 		protected	Entry		entryPrice;
@@ -47,7 +52,7 @@ namespace EPos
 		protected	Button				buttonCancel;
 		protected	Button				buttonSave;
 		
-		protected	EProduct	product = null;
+		protected	SBProduct	product = null;
 		protected	int			fixedWidth = 0;
 		protected	int			fixedX = 0;
 		protected	int 		fixedY = 0;
@@ -73,6 +78,11 @@ namespace EPos
 			this.comboboxItemType		= (ComboBox)this.ui.get_object("comboboxItemType");
 			this.comboboxUnitofMeasure	= (ComboBox)this.ui.get_object("comboboxUnitofMeasure");
 			this.comboboxStatus			= (ComboBox)this.ui.get_object("comboboxStatus");
+			this.frameTags				= (Frame)this.ui.get_object("frameTags");
+			this.boxTags				= (Box)this.ui.get_object("boxTags");
+			this.entryTag				= (Entry)this.ui.get_object("entryTag");
+			this.buttonAddTag			= (Button)this.ui.get_object("buttonAddTag");
+			this.treeviewTags			= (TreeView)this.ui.get_object("treeviewTags");
 			this.comboboxTaxRates		= (ComboBox)this.ui.get_object("comboboxTaxRates");
 			this.entryCost				= (Entry)this.ui.get_object("entryCost");
 			this.entryPrice				= (Entry)this.ui.get_object("entryPrice");
@@ -100,7 +110,7 @@ namespace EPos
 			this.SetEvents();
 			this.fixedWidth = this.viewport1.get_allocated_width();
 		}
-		public WidgetNewProduct.with_product(owned EProduct prod)
+		public WidgetNewProduct.with_product(owned SBProduct prod)
 		{
 			this();
 			this.product = prod;
@@ -128,8 +138,8 @@ namespace EPos
 				stdout.printf("cat_id: %s\n", this.product.CategoriesIds.get(0).to_string());
 				this.comboboxCategories.active_id = this.product.CategoriesIds.get(0).to_string();
 			}
-			this.comboboxDepartment.active_id = this.product.DepartmentId.to_string();
-			this.comboboxUnitofMeasure.active_id = this.product.UnitMeasureId.to_string();
+			this.comboboxDepartment.active_id = this.product.Get("department_id");
+			this.comboboxUnitofMeasure.active_id = this.product.Get("product_unit_measure");
 			this.comboboxStatus.active_id		= this.product.Status;
 			//##set serial numbers
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
@@ -148,8 +158,8 @@ namespace EPos
 			//##set images
 			foreach(var attach in this.product.Attachments)
 			{
-				this.addImage(SBFileHelper.SanitizePath("images/%s".printf(attach.Get("file"))), 
-								attach.GetInt("attachment_id"));
+				string image_path = "images/store_%d/%s".printf(this.product.StoreId, attach.Get("file"));
+				this.addImage(image_path, attach.GetInt("attachment_id"));
 			}
 			//##Set suppliers
 			dbh.Select("s.*").
@@ -170,6 +180,20 @@ namespace EPos
 				);
 				i++;
 			}
+			//##set product tags
+			string q = "SELECT t.*, p2t.id AS p2t_id FROM tags t, product2tag p2t "+
+						"WHERE t.tag_id = p2t.tag_id "+
+						"AND p2t.product_id = %d";
+			foreach(var tag in dbh.GetResults(q.printf(this.product.Id)))
+			{
+				(this.treeviewTags.model as ListStore).append(out iter);
+				(this.treeviewTags.model as ListStore).set(iter, 
+					0, tag.Get("tag"),
+					1, (SBModules.GetModule("Inventory") as SBGtkModule).GetPixbuf("remove-20x20.png"),
+					2, tag.GetInt("p2t_id")
+				);
+			}
+			this.frameTags.visible = true;
 		}
 		~WidgetNewProduct()
 		{
@@ -352,9 +376,24 @@ namespace EPos
 			cell = new CellRendererText();
 			this.entrySearchSupplier.completion.pack_start(cell, true);
 			this.entrySearchSupplier.completion.add_attribute(cell, "text", 1);
+			
+			//##build tags
+			this.entryTag.completion = new EntryCompletion();
+			this.entryTag.completion.model = new ListStore(2, typeof(string), typeof(int));
+			this.entryTag.completion.text_column = 0;
+			this.entryTag.completion.set_match_func( (completion,key, iter) => {return true;});
+			this.treeviewTags.model = new ListStore(3, typeof(string), typeof(Gdk.Pixbuf), typeof(int));
+			GtkHelper.BuildTreeViewColumns({
+					{SBText.__("Tag"), "text", "150", "left", "", ""}, 
+					{SBText.__("x"), "pixbuf", "20", "center", "", ""}
+				}, ref this.treeviewTags);
+			this.treeviewTags.get_column(1).set_data<string>("action", "remove");
+			this.frameTags.visible = false;
 		}
 		protected void SetEvents()
 		{
+			this.entryTag.key_release_event.connect(this.OnEntryTagKeyReleaseEvent);
+			this.buttonAddTag.clicked.connect(this.OnButtonAddTagClicked);
 			this.comboboxStoreBranch.changed.connect( () => 
 			{
 				if( this.comboboxStoreBranch.active_id != null && this.comboboxStoreBranch.active_id != "-1" )
@@ -372,6 +411,8 @@ namespace EPos
 			this.entrySearchSupplier.key_release_event.connect(this.OnEntrySearchSupplierKeyReleaseEvent);
 			this.entrySearchSupplier.completion.match_selected.connect(this.OnSearchSupplierCompletionMatchSelected);
 			this.buttonAddSupplier.clicked.connect(this.OnButtonAddSupplierClicked);
+			this.entryTag.completion.match_selected.connect(this.OnEntryTagMatchSelected);
+			this.treeviewTags.button_release_event.connect(this.OnTreeViewTagsButtonReleaseEvent);
 		}
 		protected void FillCategories(int store_id)
 		{
@@ -389,6 +430,163 @@ namespace EPos
 				(this.comboboxCategories.model as ListStore).set(iter, 0, cat.Name, 1, cat.Id.to_string());
 			}
 			this.comboboxCategories.sensitive = true;
+		}
+		protected bool OnEntryTagKeyReleaseEvent(Gdk.EventKey e)
+		{
+			//##skip cursor arrows
+			if( (e.keyval >= 65361 && e.keyval >= 65364) /*|| e.keyval == 65288*/)
+			{
+				return true;
+			}
+			string keyword = this.entryTag.text.strip();
+			if( keyword.length <= 0 )
+			{
+				return true;
+			}
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			string query = "SELECT * FROM tags WHERE tag LIKE '%s'".printf("%"+keyword+"%");
+			(this.entryTag.completion.model as ListStore).clear();
+			TreeIter iter;
+			foreach(var tag in dbh.GetResults(query))
+			{
+				(this.entryTag.completion.model as ListStore).append(out iter);
+				(this.entryTag.completion.model as ListStore).set(iter,
+					0, tag.Get("tag"),
+					1, tag.GetInt("tag_id")
+				);
+			}
+			return true;
+		}
+		protected bool OnEntryTagMatchSelected(TreeModel model, TreeIter iter)
+		{
+			Value tag,tag_id;
+			model.get_value(iter, 0, out tag);
+			model.get_value(iter, 1, out tag_id);
+			this.entryTag.text = (string)tag;
+			this.buttonAddTag.set_data<int>("tag_id", (int)tag_id);
+			stdout.printf("tag: %s, %d\n", (string)tag, (int)tag_id);
+			return true;
+		}
+		/**
+		 * Add tag to product
+		 * 
+		 */
+		protected void OnButtonAddTagClicked()
+		{
+			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+			int tag_id = 0;
+			int p2t_id = 0;
+			string tag = this.entryTag.text.strip();
+			if( tag.length <= 0 )
+				return;
+			bool tag_in_product = false;
+				
+			tag_id 	= (this.buttonAddTag.get_data<int?>("tag_id") == null) ? 0 : (int)this.buttonAddTag.get_data<int>("tag_id");
+			stdout.printf("tag_id: %d\n", tag_id);
+			//##add selected tag
+			if( tag_id > 0 )
+			{
+				//tag_id = (int)tag_id;
+				//##check if product already has the tag
+				string q = "SELECT * FROM product2tag WHERE tag_id = %d AND product_id = %d".
+										printf(tag_id, this.product.Id);
+				var trow = dbh.GetRow(q);
+				stdout.printf("%s\n", q);
+				if( trow == null )
+				{
+					stdout.printf("Adding tag \"%d\"  to product\n",tag_id);
+					//##add tag to product
+					var t2p = new HashMap<string, Value?>();
+					t2p.set("product_id", this.product.Id);
+					t2p.set("tag_id", (int)tag_id);
+					p2t_id = (int)dbh.Insert("product2tag", t2p);
+				}
+				else
+				{
+					tag_in_product = true;
+					p2t_id = trow.GetInt("id");
+				}
+				
+			}
+			else
+			{
+				//##the user has not selected an existent tag, so we need to create it
+				var row = dbh.GetRow("SELECT * FROM tags WHERE tag = '%s'".printf(tag));
+				if( row == null )
+				{
+					var ntag = new HashMap<string, Value?>();
+					ntag.set("tag", tag);
+					ntag.set("creation_date", new DateTime.now_local().format("%Y-%m-%d %H:%M:%S"));
+					tag_id = (int)dbh.Insert("tags", ntag);
+					/*
+					//##add tag to product
+					var t2p = new HashMap<string, Value?>();
+					t2p.set("product_id", this.product.Id);
+					t2p.set("tag_id", tag_id);
+					p2t_id = (int)dbh.Insert("product2tag", t2p);
+					*/
+				}
+				else
+				{
+					tag_id = row.GetInt("tag_id");
+				}
+				
+				//##check if product already has the tag
+				var trow = dbh.GetRow("SELECT * FROM product2tag WHERE tag_id = %d AND product_id = %d".
+										printf(tag_id, this.product.Id));
+				if( trow == null )
+				{
+					//##add tag to product
+					var t2p = new HashMap<string, Value?>();
+					t2p.set("product_id", this.product.Id);
+					t2p.set("tag_id", tag_id);
+					p2t_id = (int)dbh.Insert("product2tag", t2p);
+				}
+				else
+				{
+					tag_in_product = true;
+				}
+			}
+			stdout.printf("tag_in_product: %s\n", tag_in_product.to_string());
+			this.entryTag.text = "";
+			this.buttonAddTag.set_data<int>("tag_id", 0);
+			if( tag_in_product )
+				return;
+			TreeIter iter;
+			(this.treeviewTags.model as ListStore).append(out iter);
+			(this.treeviewTags.model as ListStore).set(iter,
+				0, tag,
+				1, (SBModules.GetModule("Inventory") as SBGtkModule).GetPixbuf("remove-20x20.png"),
+				2, p2t_id
+			);
+			
+		}
+		protected bool OnTreeViewTagsButtonReleaseEvent(Gdk.EventButton args)
+		{
+			TreePath path;
+			TreeViewColumn c;
+			TreeIter iter;
+			TreeModel model;
+			int cell_x, cell_y;
+			
+			if( !this.treeviewTags.get_path_at_pos((int)args.x, (int)args.y, out path, out c, out cell_x, out cell_y) )
+				return false;
+		
+			if( !this.treeviewTags.get_selection().get_selected(out model, out iter) )
+				return false;
+			
+			string action = c.get_data<string>("action");
+			if( action == "remove" )
+			{
+				//##remove tag id from product tags
+				var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+				Value p2t_id;
+				model.get_value(iter, 2, out p2t_id);
+				dbh.Execute("DELETE FROM product2tag WHERE id = %d".printf((int)p2t_id));
+				(this.treeviewTags.model as ListStore).remove(iter);
+				
+			}
+			return false;
 		}
 		protected void OnButtonAddImageClicked()
 		{
@@ -464,7 +662,7 @@ namespace EPos
 		}
 		protected void addImage(string filename, int id = 0)
 		{
-			stdout.printf("fixed width:%d\n", this.fixedWidth);
+			//stdout.printf("fixed width:%d\n", this.fixedWidth);
 			int margin = 10;
 			int button_width = 150;
 			int button_height = 150;
@@ -580,12 +778,16 @@ namespace EPos
 			{
 				price2 = 0.0;
 			}
-			//stdout.printf("store_id: %d, %s\n", store_id, this.comboboxStoreBranch.active_id);
 			if( store_id == -1 )
 			{
 				this.comboboxStoreBranch.grab_focus();
 				this.notebook1.set_current_page(2);
 				return;
+			}
+			int cat_id = 0;
+			if( this.comboboxCategories.active_id != null && this.comboboxCategories.active_id != "-1" )
+			{
+				cat_id = int.parse(this.comboboxCategories.active_id);
 			}
 			if( !int64.try_parse(this.entryQuantity.text.strip(), out quantity) )
 			{
@@ -595,6 +797,7 @@ namespace EPos
 			{
 				min_quantity = 0;
 			}
+			
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			var date = new DateTime.now_local();
 			string cdate = date.format("%Y-%m-%d %H:%M:%S");
@@ -634,6 +837,17 @@ namespace EPos
 				w.set("product_id", pid);
 				dbh.Update("products", data, w);
 				message = SBText.__("The product has been updated.");
+			}
+			//##check if product code is empty
+			if( product_code.length <= 0 )
+			{
+				product_code = Utils.FillCeros((int)pid);
+				//##generate product code
+				if( cat_id > 0 )
+				{
+					product_code = "%d-%s".printf(cat_id, product_code);
+				}
+				dbh.Execute("UPDATE products SET product_code = '%s' WHERE product_id = %ld".printf(product_code, pid));
 			}
 			//set product meta
 			foreach(string key in meta.keys)
@@ -681,9 +895,8 @@ namespace EPos
 			//##delete categories
 			string query = @"DELETE FROM product2category WHERE product_id = $pid";
 			dbh.Execute(query);
-			if( this.comboboxCategories.active_id != null && this.comboboxCategories.active_id != "-1" )
+			if( cat_id > 0 )
 			{
-				int cat_id = int.parse(this.comboboxCategories.active_id);
 				var cats = new HashMap<string, Value?>();
 				cats.set("product_id", pid);
 				cats.set("category_id", cat_id);

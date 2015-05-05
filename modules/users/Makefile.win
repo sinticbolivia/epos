@@ -35,6 +35,7 @@ all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources users.gresource.xml
 	cp users.gresource $(LIB_NAME) ../../bin/modules
+	cp locale/es_ES/mod_users.mo ../../bin/share/locale/es_ES/LC_MESSAGES
 install:
 	install $(LIB_NAME) /c/EPOS/modules/
 	install users.gresource /c/EPOS/modules/

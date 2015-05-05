@@ -68,6 +68,19 @@ namespace EPos
 						
 			return cell;
 		}
+		public void SetXY(float x, float y)
+		{
+			this.SourceX = x;
+			this.SourceY = y;
+			foreach(var cell in this.cells)
+			{
+				/*
+				if( cell.Index > 0 )
+					cell.SourceX 	+= _cell.Width;
+				*/
+				cell.SourceY = this.SourceY;
+			}
+		}
 		public void calculateRowSize()
 		{
 			foreach(var cell in this.cells)
@@ -97,10 +110,10 @@ namespace EPos
 			
 			foreach(var cell in this.cells)
 			{
-				//stdout.printf("Cell Index: %d, Width: %.2f, X: %.2f,Y:%.2f\n", cell.Index, cell.Width, cell.SourceX, cell.SourceY);
 				cell.Height = this.Height;
 				cell.Draw();
 			}
+			this.Table.PdfCatalog.YPos -= this.Height;
 		}
 	}
 }

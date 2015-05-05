@@ -161,7 +161,7 @@ namespace EPos
 				foreach(string _line in the_str.split("\n"))
 				{
 					float text_width 	= this.Row.Table.PdfPage.TextWidth(_line);
-					if( text_width <= this.Width )
+					if( text_width < this.Width )
 					{
 						lines.add(_line);
 					}
@@ -193,7 +193,7 @@ namespace EPos
 			else
 			{
 				float text_width 	= this.Row.Table.PdfPage.TextWidth(text);
-				if( text_width <= this.Width )
+				if( text_width < this.Width )
 				{
 					lines.add(text);
 				}
@@ -206,19 +206,22 @@ namespace EPos
 					
 					for(int i = 0; i < words.length; i++)
 					{
-						line += words[i] + " ";
-						float w = this.Row.Table.PdfPage.TextWidth(line);
+						//line += words[i] + " ";
+						float w = this.Row.Table.PdfPage.TextWidth(line + words[i]);
 						if( w >= this.Width )
 						{
-							//stdout.printf("line: %s\n",line);
 							lines.add(line.strip());
-							line = "";
+							line = words[i] + " ";
 						}
 						else if( i == words.length - 1)
 						{
 							//stdout.printf("line: %s\n",line);
 							lines.add(line.strip());
 							line = "";
+						}
+						else
+						{
+							line += words[i] + " ";
 						}
 					}
 					

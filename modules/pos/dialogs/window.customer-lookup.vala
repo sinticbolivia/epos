@@ -20,6 +20,18 @@ namespace EPos
 		protected	Button		buttonSelect;
 		
 		public		int			CustomerId = 0;
+		public		signal		void OnCustomerSelected(HashMap<string, string> customer, WindowCustomerLookup window);
+		protected	SBDatabase	dbh;
+		public		SBDatabase	Dbh
+		{
+			get
+			{
+				if(this.dbh == null)
+					this.dbh = (SBDatabase)SBGlobals.GetVar("dbh");
+				return  this.dbh;
+			}
+			set{ this.dbh = value;}
+		}
 		
 		public WindowCustomerLookup()
 		{
@@ -181,6 +193,9 @@ namespace EPos
 			Value v_id;
 			model.get_value(iter, 1, out v_id);
 			this.CustomerId = (int)v_id;
+			this.Dbh.Select("*").From("customers").Where("customer_id = %d".printf(this.CustomerId));
+			var row = this.Dbh.GetRow(null);
+			this.OnCustomerSelected(row.ToHashMap(), this);
 			this.destroy();
 		}
 	}

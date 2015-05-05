@@ -32,6 +32,7 @@ namespace EPos
 		}
 		public WidgetSupplierCategories()
 		{
+			this.expand = true;
 			this.ui			= (SBModules.GetModule("Inventory") as SBGtkModule).GetGladeUi("supplier-categories.glade");
 			this.box1		= (Box)this.ui.get_object("box1");
 			this.image1		= (Image)this.ui.get_object("image1");
@@ -47,6 +48,7 @@ namespace EPos
 		}
 		protected void Build()
 		{
+			this.box1.expand = true;
 			this.treeviewCategories.model = new ListStore(Columns.N_COLS,
 				typeof(int),
 				typeof(int),
@@ -81,8 +83,8 @@ namespace EPos
 			vbox.add(this.entryCategoryName);
 			
 			var button_box 		= new Box(Orientation.HORIZONTAL, 5);
-			this.buttonCancel 	= new Button();
-			this.buttonSave		= new Button();
+			this.buttonCancel 	= new Button.with_label(SBText.__("Cancel"));
+			this.buttonSave		= new Button.with_label(SBText.__("Save"));
 			button_box.add(this.buttonCancel);
 			button_box.add(this.buttonSave);
 			box.add(new Label(SBText.__("Supplier Category")));

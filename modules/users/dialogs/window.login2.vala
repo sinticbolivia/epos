@@ -22,8 +22,8 @@ namespace EPos
 		public WindowLogin()
 		{
 			this.name = "window-login";
-			this.ui				= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("login2.glade");
-			
+			this.ui				= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("login2.glade", "mod_users");
+			this.ui.translation_domain = "mod_users";
 			this.fixed1			= (Fixed)this.ui.get_object("fixed1");
 			this.eventbox1		= (EventBox)this.ui.get_object("eventbox1");
 			this.box1			= (Box)this.ui.get_object("box1");
@@ -40,7 +40,7 @@ namespace EPos
 		}
 		public void Build()
 		{
-			this.title = SBText.__("Ecommerce Point of Sale - Access");
+			this.title = SBText.__("Ecommerce Point of Sale - Access", "mod_users");
 			this.decorated = false;
 			this.boxFooter.visible = false;
 		}
@@ -103,8 +103,8 @@ namespace EPos
 			{
 				var erro = new InfoDialog()
 				{
-					Title = SBText.__("Invalid username"),
-					Message = SBText.__("Enter a valid username")
+					Title = SBText.__("Invalid username", "mod_users"),
+					Message = SBText.__("Enter a valid username", "mod_users")
 				};
 				
 				erro.run();
@@ -116,8 +116,8 @@ namespace EPos
 			{
 				var erro = new InfoDialog()
 				{
-					Title = SBText.__("Invalid password"),
-					Message = SBText.__("Enter a user password")
+					Title = SBText.__("Invalid password", "mod_users"),
+					Message = SBText.__("Enter a user password", "mod_users")
 				};
 				erro.run();
 				erro.destroy();
@@ -147,7 +147,7 @@ namespace EPos
 				string msg = (string)data["error"];
 				var dlg = new InfoDialog("error")
 				{
-					Title = SBText.__("Local authentication error"),
+					Title = SBText.__("Local authentication error", "mod_users"),
 					Message = msg
 				};
 				dlg.run();

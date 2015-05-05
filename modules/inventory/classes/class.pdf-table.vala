@@ -10,6 +10,7 @@ namespace EPos
 		public		unowned HPDF.Page		PdfPage;
 		public		unowned HPDF.Doc		Doc;
 		public		unowned	HPDF.Font		Font;
+		public		Catalog					PdfCatalog;
 		protected	int						totalCols = 0;
 		public		float					Width;
 		public		float					Height;
@@ -166,18 +167,14 @@ namespace EPos
 			*/
 			foreach(var row in this.rows)
 			{
-				//this.CheckNewPage(row.Height);
-				//row.SetPage(this.PdfPage);
-				//stdout.printf("row height => %f\n", row.Height);
-				/*
-				if( row.Size < row.NumCells )
+				row.calculateRowSize();
+				
+				if( this.PdfCatalog.CheckNewPage(row.Height) )
 				{
-					for(int i = 0; i <= (row.NumCells - row.Size); i++)
-					{
-						row.AddCell();
-					}
+					//row.SetPage(this.PdfPage);
+					this.PdfPage = this.PdfCatalog.page;
 				}
-				*/
+				row.SetXY(this.PdfCatalog.XPos, this.PdfCatalog.YPos);
 				row.Draw();
 				this.Height += row.Height;
 			}

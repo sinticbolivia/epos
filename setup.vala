@@ -29,21 +29,21 @@ namespace Woocommerce
 		protected	Button		buttonPrev;
 		protected	Button		buttonNext;
 		protected	Button		buttonFinish;
-		
+		protected	GLib.Resource	resource;
 		public Setup()
 		{
-			//this.ui 					= GtkHelper.GetGladeUI("setup.glade", "ec-pos", "/net/sinticbolivia/ec-pos");
-			this.ui 					= GtkHelper.GetGladeUI("share/ui/setup.glade");
+			this.resource = GtkHelper.LoadResource("share/resources/ec-pos.gresource");
+			this.ui = GtkHelper.GetGladeUIFromResource(this.resource, "/net/sinticbolivia/ec-pos/ui/setup.glade");
 			this.window					= (Window)this.ui.get_object("window1");
 			this.window.show();
 			this.notebook				= (Notebook)this.ui.get_object("notebook1");
 			this.notebook.show();
-			
+
 			this.radiobuttonServer		= (RadioButton)this.ui.get_object("radiobuttonServer");
 			this.radiobuttonTerminal	= (RadioButton)this.ui.get_object("radiobuttonTerminal");
 			this.radiobuttonMysql		= (RadioButton)this.ui.get_object("radiobuttonMysql");
 			this.radiobuttonSqlite3		= (RadioButton)this.ui.get_object("radiobuttonSqlite3");
-			
+
 			this.entryServer			= (Entry)this.ui.get_object("entryServer");
 			this.entryPort				= (Entry)this.ui.get_object("entryPort");
 			this.entryDatabase			= (Entry)this.ui.get_object("entryDatabase");
@@ -57,19 +57,19 @@ namespace Woocommerce
 			this.buttonPrev				= (Button)this.ui.get_object("buttonPrev");
 			this.buttonNext				= (Button)this.ui.get_object("buttonNext");
 			this.buttonFinish			= (Button)this.ui.get_object("buttonFinish");
-			
+
 			this.window.title 			= SBText.__("Ecommerce Point of Sale - Setup");
 			//this.notebook.show_tabs = false;
 			this.notebook.page = 0;
 			this.buttonPrev.visible 	= false;
 			this.buttonFinish.visible 	= false;
-			
-			
+
+
 			this.entryServer.text 				= "localhost";
 			this.entryAdminUsername.text 		= "admin";
 			this.entryAdminUsername.editable 	= false;
 			this.SetEvents();
-			
+
 		}
 		protected void SetEvents()
 		{
@@ -79,7 +79,7 @@ namespace Woocommerce
 			this.buttonPrev.clicked.connect(this.OnButtonPrevClicked);
 			this.buttonNext.clicked.connect(this.OnButtonNextClicked);
 			this.buttonFinish.clicked.connect(this.OnButtonFinishClicked);
-			
+
 		}
 		public void show()
 		{
@@ -97,12 +97,12 @@ namespace Woocommerce
 			string db	  = this.entryDatabase.text.strip();
 			string user		= this.entryUsername.text.strip();
 			string pass		= this.entryPassword.text.strip();
-			
+
 			SBDatabase dbh = null;
-			
+
 			if( this.radiobuttonMysql.active )
 			{
-				dbh = new SBMySQL(server, db, user, pass, port);
+				dbh = new SBMySQL(server, null, user, pass, port);
 			}
 			else if( this.radiobuttonSqlite3.active )
 			{
@@ -130,7 +130,7 @@ namespace Woocommerce
 		{
 			int total_pages = this.notebook.get_n_pages() - 1;
 			//int current_page = this.notebook.page;
-			
+
 			this.notebook.page = this.notebook.page - 1;
 			if( this.notebook.page == 0 )
 			{
@@ -163,7 +163,7 @@ namespace Woocommerce
 			{
 				this.buttonPrev.visible = false;
 			}
-			
+
 			if( this.notebook.page == total_pages )
 			{
 				this.buttonFinish.visible = true;
@@ -192,7 +192,7 @@ namespace Woocommerce
 				db_engine = "mysql";
 				dbh = new SBMySQL(server, null, user, pass, port);
 				res_path = "/net/sinticbolivia/ec-pos/sql/database.mysql.sql";
-				dbh.SelectDb(db);
+				//dbh.SelectDb(db);
 			}
 			else if( this.radiobuttonSqlite3.active )
 			{
@@ -220,12 +220,12 @@ namespace Woocommerce
 				dbh.Execute("CREATE DATABASE %s;".printf(db));
 				dbh.SelectDb(db);
 			}
+
 			
-			var res = GtkHelper.LoadResource("share/resources/ec-pos.gresource");
 			try
 			{
 				stdout.printf("Opening resource path: %s\n", res_path);
-				var istream 	= res.open_stream(res_path, ResourceLookupFlags.NONE);
+				var istream 	= this.resource.open_stream(res_path, ResourceLookupFlags.NONE);
 				var ds 			= new DataInputStream(istream);
 				string sql 		= "";
 				string? line 	= "";
@@ -235,13 +235,13 @@ namespace Woocommerce
 				}
 				//stdout.printf(sql);
 				string[] queries = sql.split(";");
-				
+
 				foreach(string q in queries)
 				{
 					if( q.strip().length <= 0 ) continue;
 					dbh.Execute(q);
 				}
-				
+
 			}
 			catch(GLib.Error e)
 			{
@@ -265,7 +265,7 @@ namespace Woocommerce
 				data.set("creation_date", cdate);
 				dbh.Insert("users", data);
 			}
-			
+
 			dbh.Close();
 			//##write config file
 			var cfg = new SBConfig("config.xml", "point_of_sale");
@@ -309,8 +309,8 @@ namespace Woocommerce
 		var setup = new Setup();
 		setup.window.modal = true;
 		setup.show();
-					
-		setup.window.destroy.connect( () => 
+
+		setup.window.destroy.connect( () =>
 		{
 			Gtk.main_quit();
 		});

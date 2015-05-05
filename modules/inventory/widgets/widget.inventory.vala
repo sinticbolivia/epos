@@ -90,7 +90,6 @@ namespace EPos
 		public WidgetInventory()
 		{
 			GLib.Object();
-			//this.ui					= SB_ModuleInventory.GetGladeUi("products.glade");
 			this.ui = (SBModules.GetModule("Inventory") as SBGtkModule).GetGladeUi("products.glade");
 			this.windowProducts		= (Window)this.ui.get_object("windowProducts");
 			this.boxProducts 		= (Box)this.ui.get_object("boxProducts");
@@ -162,7 +161,7 @@ namespace EPos
 			this.BuildProducts();
 			
 			this.RefreshStores();
-			//this.RefreshCategories();
+			this.RefreshCategories();
 			//this.RefreshProducts();
 			
 			this.SetEvents();
@@ -376,65 +375,41 @@ namespace EPos
 				stderr.printf("ERROR: %s\n", e.message);
 			}
 			
-			this.treeviewCategories.model = new TreeStore(3,
-										typeof(int),
-										typeof(string), //category name 
-										typeof(string) //category store
+			this.treeviewCategories.model = new TreeStore(4,
+				typeof(int),
+				typeof(int),
+				typeof(string), //category name 
+				typeof(string) //category store
 			);
-			this.treeviewCategories.rules_hint = true;
-			if( this.treeviewCategories.get_columns().length() <= 0 )
+			string[,] cols = 
 			{
-				this.treeviewCategories.insert_column_with_attributes(0, "Id",
-										new CellRendererText(){width = 70},
-										"text", 0
-				);
-				this.treeviewCategories.insert_column_with_attributes(1, "Name",
-											new CellRendererText(){width = 250},
-											"text", 1
-				);
-				this.treeviewCategories.insert_column_with_attributes(2, "Store",
-											new CellRendererText(){width = 200},
-											"text", 2
-				);
-			}
-			
+				{SBText.__("#"), "text", "50", "center", "", ""},
+				{SBText.__("Id"), "text", "50", "center", "", ""},
+				{SBText.__("Name"), "text", "250", "left", "", ""},
+				{SBText.__("Store"), "text", "250", "left", "", ""}
+			};
+			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewCategories);
+			this.treeviewCategories.rules_hint = true;
+						
 			this.comboboxCategoriesStore.model = new ListStore(2, typeof(string), typeof(string));
+			var cell = new CellRendererText();
+			this.comboboxCategoriesStore.pack_start(cell, true);
+			this.comboboxCategoriesStore.set_attributes(cell, "text", 0);
 			this.comboboxCategoriesStore.id_column = 1;
 			
-			if( (this.comboboxCategoriesStore.get_child() as CellView).get_cells().length() <= 0 )
-			{
-				var cell = new CellRendererText();
-				this.comboboxCategoriesStore.pack_start(cell, false);
-				this.comboboxCategoriesStore.set_attributes(cell, "text", 0);
-			}
-			
-			this.comboboxCategoriesStore.show_all();
-			
 			this.comboboxParentCategory.model = new TreeStore(2, typeof(string), typeof(string));
+			cell = new CellRendererText();
+			this.comboboxParentCategory.pack_start(cell, false);
+			this.comboboxParentCategory.set_attributes(cell, "text", 0);
 			this.comboboxParentCategory.id_column = 1;
 			
-			if( (this.comboboxParentCategory.get_child() as CellView).get_cells().length() <= 0 )
-			{
-				var cell = new CellRendererText();
-				this.comboboxParentCategory.pack_start(cell, false);
-				this.comboboxParentCategory.set_attributes(cell, "text", 0);
-			}
-			
-			this.comboboxParentCategory.show_all();
 			
 			this.comboboxCategoryStore.model = new ListStore(2, typeof(string), typeof(string));
+			cell = new CellRendererText();
+			this.comboboxCategoryStore.pack_start(cell, false);
+			this.comboboxCategoryStore.set_attributes(cell, "text", 0);
 			this.comboboxCategoryStore.id_column = 1;
-			
-			if( (this.comboboxCategoryStore.get_child() as CellView).get_cells().length() <= 0 )
-			{
-				var cell = new CellRendererText();
-				this.comboboxCategoryStore.pack_start(cell, false);
-				this.comboboxCategoryStore.set_attributes(cell, "text", 0);
-			}
-			
-			this.comboboxCategoryStore.show_all();
-			
-			//stdout.printf("child => %s\n", this.comboboxCategoriesStore.get_child().name);
+			stdout.printf("child => %s\n", this.comboboxCategoriesStore.get_child().name);
 		}
 		protected void BuildProducts()
 		{
@@ -512,18 +487,7 @@ namespace EPos
 				{SBText.__("Price"), "text", "100", "right", ""},
 			};
 			GtkHelper.BuildTreeViewColumns(cols, ref this.treeviewProducts);
-			/*							
-			this.treeviewProducts.insert_column_with_attributes(ProductColumns.NAME, SBText.__("Product"), 
-										new CellRendererText()
-										{
-											width = 250,
-											wrap_mode = Pango.WrapMode.WORD_CHAR,
-											wrap_width = 250
-										},
-										"text", 
-										ProductColumns.NAME);
-			*/
-			
+						
 			var ops = new MenuToolButton.from_stock("gtk-select-color");
 			ops.menu = new Gtk.Menu();
 			ops.show_all();
@@ -604,7 +568,10 @@ namespace EPos
 				foreach(var row in dbh.GetResults(null))
 				{
 					(this.comboboxCategoriesStore.model as ListStore).append(out s_iter);
-					(this.comboboxCategoriesStore.model as ListStore).set(s_iter, 0, row.Get("store_name"), 1, row.Get("store_id"));
+					(this.comboboxCategoriesStore.model as ListStore).set(s_iter, 
+						0, row.Get("store_name"), 
+						1, row.Get("store_id")
+					);
 					/*
 					(this.treeviewCategories.model as TreeStore).append(out s_iter);
 					(this.treeviewCategories.model as TreeStore).set(s_iter, 0, row.Get(""));
@@ -626,14 +593,17 @@ namespace EPos
 				this.comboboxParentCategory.active_id = "-1";
 				if( cats.size > 0)
 				{
+					int i = 1;
 					foreach(var cat in cats)
 					{
 						(this.treeviewCategories.model as TreeStore).append(out c_iter, null);
 						(this.treeviewCategories.model as TreeStore).set(c_iter, 
-												0, cat.Id,
-												1, cat.Name,
-												2, store.Name
+												0, i,
+												1, cat.Id,
+												2, cat.Name,
+												3, store.Name
 						);
+						i++;
 						(this.comboboxParentCategory.model as TreeStore).append(out p_iter, null);
 						(this.comboboxParentCategory.model as TreeStore).set(p_iter,
 														0, cat.Name,
@@ -646,11 +616,12 @@ namespace EPos
 							{
 								(this.treeviewCategories.model as TreeStore).append(out subiter, c_iter);
 								(this.treeviewCategories.model as TreeStore).set(subiter, 
-														0, subcat.Id,
-														1, subcat.Name,
-														2, store.Name
+									0, i,
+									1, subcat.Id,
+									2, subcat.Name,
+									3, store.Name
 								);
-								
+								i++;
 								(this.comboboxParentCategory.model as TreeStore).append(out p_subiter, p_iter);
 								(this.comboboxParentCategory.model as TreeStore).set(p_subiter,
 																0, subcat.Name,
@@ -666,36 +637,19 @@ namespace EPos
 			TreeIter iter;
 			//(this.comboboxParentCategory.model as ListStore).clear();
 			(this.comboboxCategoryStore.model as ListStore).clear();
-			/*
-			string query = "SELECT * FROM categories WHERE parent = 0 ORDER BY name ASC";
-			if( dbh.Query(query) > 0 )
-			{
-				(this.comboboxParentCategory.model as ListStore).append(out iter);
-				(this.comboboxParentCategory.model as ListStore).set(iter, 0, "-- parent --", 1, "-1");
-				foreach(var row in dbh.Rows)
-				{
-					(this.comboboxParentCategory.model as ListStore).append(out iter);
-					(this.comboboxParentCategory.model as ListStore).set(iter, 0, row.Get("name"), 1, row.Get("category_id"));
-				}
-				this.comboboxParentCategory.active_id = "-1";
-			}
-			*/
 			string query = "SELECT * FROM stores ORDER BY store_name ASC";
 			var rows = dbh.GetResults(query);
-			if( rows.size > 0 )
+			(this.comboboxCategoryStore.model as ListStore).append(out iter);
+			(this.comboboxCategoryStore.model as ListStore).set(iter, 0, "-- store --", 1, "-1");
+					
+			foreach(var row in rows)
 			{
 				(this.comboboxCategoryStore.model as ListStore).append(out iter);
-				(this.comboboxCategoryStore.model as ListStore).set(iter, 0, "-- store --", 1, "-1");
-					
-				foreach(var row in rows)
-				{
-					(this.comboboxCategoryStore.model as ListStore).append(out iter);
-					(this.comboboxCategoryStore.model as ListStore).set(iter, 0, row.Get("store_name"), 1, row.Get("store_id"));
-				}
-				this.comboboxCategoryStore.active_id = "-1";
+				(this.comboboxCategoryStore.model as ListStore).set(iter, 
+					0, row.Get("store_name"), 
+					1, row.Get("store_id"));
 			}
-			//query = "SELECT * FROM categories ORDER BY name ASC";
-			
+			this.comboboxCategoryStore.active_id = "-1";			
 		}
 		protected void RefreshProducts(int store_id = -1, int category_id = -1)
 		{
@@ -1128,7 +1082,7 @@ namespace EPos
 			}
 			Value v_pid;
 			this.treeviewProducts.model.get_value(iter, ProductColumns.ID, out v_pid);
-			var prod = new EProduct.from_id((int)v_pid);
+			var prod = new SBProduct.from_id((int)v_pid);
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
 			if( notebook.GetPage("edit-product") == null )
 			{

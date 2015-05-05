@@ -22,7 +22,7 @@ namespace EPos {
 		protected float rowHeight;
 		protected int totalCols;
 		public Catalog ();
-		protected bool CheckNewPage (float obj_height);
+		public bool CheckNewPage (float obj_height);
 		public void Draw ();
 		public void Preview (string name = "catalog");
 		public void Print (string name = "catalog", string printer = "");
@@ -258,6 +258,7 @@ namespace EPos {
 		public PdfRow ();
 		public EPos.PdfCell? AddCell ();
 		public void Draw ();
+		public void SetXY (float x, float y);
 		public void calculateRowSize ();
 		public PdfRow.with_table (EPos.PdfTable table);
 		public int Size { get; }
@@ -269,6 +270,7 @@ namespace EPos {
 		public weak HPDF.Font Font;
 		public string[] Headers;
 		public float Height;
+		public EPos.Catalog PdfCatalog;
 		public weak HPDF.Page PdfPage;
 		public float SourceX;
 		public float SourceY;
@@ -492,9 +494,11 @@ namespace EPos {
 	[CCode (cheader_filename = "Inventory.h")]
 	public class WidgetNewProduct : Gtk.Box {
 		protected Gtk.Box boxNewProduct;
+		protected Gtk.Box boxTags;
 		protected Gtk.Button buttonAddImage;
 		protected Gtk.Button buttonAddSn;
 		protected Gtk.Button buttonAddSupplier;
+		protected Gtk.Button buttonAddTag;
 		protected Gtk.Button buttonCancel;
 		protected Gtk.Button buttonGenerateCode;
 		protected Gtk.Button buttonRemoveSn;
@@ -517,18 +521,21 @@ namespace EPos {
 		protected Gtk.Entry entryQuantity;
 		protected Gtk.Entry entrySearchSupplier;
 		protected Gtk.Entry entrySn;
+		protected Gtk.Entry entryTag;
 		protected int fixedCol;
 		protected Gtk.Fixed fixedImages;
 		protected int fixedRow;
 		protected int fixedWidth;
 		protected int fixedX;
 		protected int fixedY;
+		protected Gtk.Frame frameTags;
 		protected Gtk.Notebook notebook1;
-		protected EPos.EProduct product;
+		protected SinticBolivia.SBProduct product;
 		protected Gtk.ScrolledWindow scrolledwindowSn;
 		protected Gtk.TextView textviewDescription;
 		protected Gtk.TreeView treeviewSn;
 		protected Gtk.TreeView treeviewSuppliers;
+		protected Gtk.TreeView treeviewTags;
 		protected Gtk.Builder ui;
 		protected Gtk.Viewport viewport1;
 		protected Gtk.Window windowNewProduct;
@@ -539,14 +546,18 @@ namespace EPos {
 		protected void OnButtonAddImageClicked ();
 		protected void OnButtonAddSnClicked ();
 		protected void OnButtonAddSupplierClicked ();
+		protected void OnButtonAddTagClicked ();
 		protected void OnButtonCancelClicked ();
 		protected void OnButtonRemoveSnClicked ();
 		protected void OnButtonSaveClicked ();
 		protected bool OnEntrySearchSupplierKeyReleaseEvent (Gdk.EventKey event);
+		protected bool OnEntryTagKeyReleaseEvent (Gdk.EventKey e);
+		protected bool OnEntryTagMatchSelected (Gtk.TreeModel model, Gtk.TreeIter iter);
 		protected bool OnSearchSupplierCompletionMatchSelected (Gtk.TreeModel model, Gtk.TreeIter iter);
+		protected bool OnTreeViewTagsButtonReleaseEvent (Gdk.EventButton args);
 		protected void SetEvents ();
 		protected void addImage (string filename, int id = 0);
-		public WidgetNewProduct.with_product (owned EPos.EProduct prod);
+		public WidgetNewProduct.with_product (owned SinticBolivia.SBProduct prod);
 	}
 	[CCode (cheader_filename = "Inventory.h")]
 	public class WidgetNewSupplier : Gtk.Box {
@@ -632,7 +643,8 @@ namespace EPos {
 	}
 	[CCode (cheader_filename = "Inventory.h")]
 	public class WidgetProductsSearch : Gtk.Box {
-		public enum Columns {
+		protected enum Columns {
+			SELECT,
 			COUNT,
 			ID,
 			NAME,
@@ -641,18 +653,28 @@ namespace EPos {
 			N_COLS
 		}
 		protected Gtk.Box box1;
+		protected Gtk.Button buttonCancel;
+		protected Gtk.Button buttonSelect;
+		protected Gtk.CheckButton checkbuttonSelect;
+		protected Gtk.TreeViewColumn columnSelect;
 		protected Gtk.ComboBox comboboxSearchBy;
 		protected Gtk.Entry entrySearch;
+		protected Gtk.Image image1;
 		protected int storeId;
-		protected Gtk.TreeView treeviewProducts;
+		protected Gtk.TreeView treeviewProducts0;
 		protected Gtk.Builder ui;
 		public WidgetProductsSearch ();
 		protected void Build ();
 		protected Gtk.TreeIter? GetSelected ();
-		protected bool OnEntrySearchKeReleaseEvent (Gdk.EventKey e);
+		protected void OnButtonCancelClicked ();
+		protected void OnButtonSelectClicked ();
+		protected void OnCheckButtonSelectClicked ();
+		protected bool OnEntrySearchKeyReleaseEvent (Gdk.EventKey e);
 		public void Refresh (int store_id, Gee.ArrayList<SinticBolivia.SBProduct>? items = null);
 		protected void SetEvents ();
+		public Gtk.Button ButtonCancel { get; protected set; }
 		public Gtk.ListStore Model { get; }
+		public signal void OnSelected (Gee.ArrayList<SinticBolivia.SBProduct> products);
 	}
 	[CCode (cheader_filename = "Inventory.h")]
 	public class WidgetPurchaseOrder : Gtk.Box {

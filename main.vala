@@ -77,13 +77,15 @@ namespace EPos
 			}
 			stdout.printf("OS => %s\n", SBOS.GetOS().OS);
 			
-			this._UI_FILE = GLib.Environment.get_current_dir() + "/share/ui/" + "ui-v1.0.glade";
+			//this._UI_FILE = GLib.Environment.get_current_dir() + "/share/ui/" + "ui-v1.0.glade";
 			try 
 			{
-				this._builder = new Builder ();
-				this._builder.add_from_file (this._UI_FILE);
+				//this._builder = new Builder ();
+				//this._builder.add_from_file (this._UI_FILE);
 				//this._builder.connect_signals (null);
 				//SBGlobals.SetVar("main_gui_builder", (Object)this._builder);
+				this._builder				= GtkHelper.GetGladeUIFromResource((GLib.Resource)SBGlobals.GetValue("g_resource"), 
+												"/net/sinticbolivia/ec-pos/ui/ui-v1.0.glade");
 				this._mainWindow 			= (Window)this._builder.get_object ("windowMain");
 				this._menubarMain			= (MenuBar)this._builder.get_object("menubarMain");
 				this._mainWindow.name 		= "windowMain";
@@ -121,7 +123,7 @@ namespace EPos
 				this.buttonHome = (Button)this._builder.get_object("buttonHome");
 				this.buttonHome.name = "button_home";
 				this.buttonHome.label = null;
-				this.buttonHome.tooltip_text = SBText.__("Home");
+				this.buttonHome.tooltip_text = SBText.__("Home", "ec_pos");
 				this.buttonHome.image = new Image.from_file(GLib.Environment.get_current_dir() + "/share/images/120.png");
 				this.buttonHome.image_position = PositionType.TOP;
 				this.buttonHome.set_size_request(48, 48);
@@ -480,7 +482,7 @@ namespace EPos
 			
 			return 0;
 		}
-		*/
+		
 		public int CheckLoadedData()
 		{
 			while(!this._dataLoaded){}
@@ -493,6 +495,7 @@ namespace EPos
 			app.MainWindow.title = "%s - Point of Sale".printf(store.Name);
 			return 0;
 		}
+		*/
 		protected void Quit()
 		{
 			var msg = new InfoDialog("error")
@@ -507,10 +510,11 @@ namespace EPos
 			if( msg.run() == ResponseType.YES )
 			{
 				msg.destroy();
+				SBModules.do_action("on_quit", new SBModuleArgs<string>());
 				Gtk.main_quit();
 			}
 			msg.destroy();
-			this._mainWindow.show();
+			//this._mainWindow.show();
 		}
 		/******************************/
 		/***** static method sections */
@@ -532,9 +536,12 @@ namespace EPos
 		}
 		public static void Start()
 		{
+			GLib.Environment.set_variable("LC_NUMERIC", "en_GB.UTF-8", true);
 			//##initialize config file
 			var cfg = new SBConfig("config.xml", "point_of_sale");
 			SBGlobals.SetVar("config", cfg);
+			//##set language
+			SBText.LoadLanguage((string)cfg.GetValue("language", "en_US"), "ec_pos", "./share/locale/");
 			string db_engine = (string)cfg.GetValue("database_engine", "sqlite3");
 			string db_server = (string)cfg.GetValue("db_server", "");
 			if( db_engine.length <= 0 )
@@ -635,6 +642,7 @@ namespace EPos
 					}
 					else
 					{
+						SBModules.do_action("on_quit", new SBModuleArgs<string>());
 						Gtk.main_quit();
 					}
 				});
@@ -647,8 +655,7 @@ namespace EPos
 		public static int main(string[] args)
 		{
 			//stdout.printf("Working directory: %s\n", Environment.get_current_dir());
-			GLib.Environment.set_variable("LC_NUMERIC", "en_GB.UTF-8", true);
-			
+						
 			string cfg_file = "config.xml";
 			/*
 			if( args.length > 1 )
@@ -670,8 +677,8 @@ namespace EPos
 				stderr.printf ("Threads are not supported!\n");
 			}
 			//##load global resources
-			//GtkHelper.LoadGlobalResource("share/resources/ec-pos.gresource", "ec-pos");
-			
+			var gres = GtkHelper.LoadResource("share/resources/ec-pos.gresource");
+			SBGlobals.SetValue("g_resource", gres);
 			//check if config file exists
 			if( !FileUtils.test(cfg_file, FileTest.EXISTS) )
 			{

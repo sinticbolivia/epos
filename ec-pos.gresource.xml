@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <gresources>
 	<gresource prefix="/net/sinticbolivia/ec-pos">
-		<!-- <file>ui/about.glade</file> -->
 		<file>sql/database.mysql.sql</file>
 		<file>sql/database.sqlite3.sql</file>
+		<file compressed="true">ui/about.glade</file>
+		<file compressed="true">ui/config-ui.glade</file>
+		<file compressed="true">ui/sales-tax.glade</file>
+		<file compressed="true">ui/setup.glade</file>
+		<file compressed="true">ui/ui-v1.0.glade</file>
 	</gresource>
 </gresources>

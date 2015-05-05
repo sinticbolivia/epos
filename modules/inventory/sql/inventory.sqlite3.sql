@@ -76,6 +76,16 @@ CREATE TABLE IF NOT EXISTS product_sn(
 	last_modification_date	datetime,
 	creation_date			datetime
 );
+CREATE TABLE IF NOT EXISTS tags(
+	tag_id					integer not null primary key autoincrement,
+	tag						varchar(256),
+	creation_date			datetime
+);
+CREATE TABLE IF NOT EXISTS product2tag(
+	id						integer not null primary key autoincrement,
+	product_id				integer not null,
+	tag_id					integer not null
+);
 CREATE TABLE IF NOT EXISTS unit_measures(
 	measure_id				INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	name					varchar(128),
@@ -187,6 +197,13 @@ CREATE TABLE IF NOT EXISTS suppliers (
     supplier_key            VARCHAR( 10 ),
     last_modification_date  DATETIME,
     creation_date           DATETIME
+);
+CREATE TABLE IF NOT EXISTS supplier_categories(
+	category_id				integer not null primary key autoincrement,
+	name					varchar(256),
+	parent					integer default 0,
+	last_modification_date	datetime,
+	creation_date			datetime
 );
 CREATE TABLE IF NOT EXISTS transaction_types ( 
     transaction_type_id     INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,

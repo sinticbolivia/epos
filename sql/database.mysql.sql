@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS attachments ( 
-    attachment_id          INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    attachment_id          INTEGER  NOT NULL PRIMARY KEY AUTO_INCREMENT,
     object_type            varchar(128),
     object_id              integer,
     title                  varchar(128),
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS attachments (
     creation_date          datetime
 );
 CREATE TABLE IF NOT EXISTS languages ( 
-    language_id           INTEGER         PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    language_id           INTEGER   NOT NULL       PRIMARY KEY AUTO_INCREMENT,
     language_code         VARCHAR( 10 ),
     language_name         VARCHAR( 150 ),
     last_modificaion_date DATETIME,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS modules (
     creation_date DATETIME 
 );
 CREATE TABLE IF NOT EXISTS `parameters` ( 
-    id            INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id            INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `key`         varchar(128),
     `value`         TEXT,
     creation_date TEXT 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS users (
     creation_date 			DATETIME
 );
 CREATE TABLE IF NOT EXISTS user_meta ( 
-    meta_id       INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    meta_id       INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id       INTEGER,
     meta_key      varchar(128),
     meta_value    TEXT,
@@ -57,21 +57,20 @@ CREATE TABLE IF NOT EXISTS user_meta (
 );
 
 CREATE TABLE IF NOT EXISTS user_roles ( 
-    role_id                INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    role_id                INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     role_name              varchar(128),
     role_description       TEXT,
     last_modification_date datetime,
     creation_date          datetime 
 );
 CREATE TABLE IF NOT EXISTS role2permission ( 
-    id            INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    id            INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     role_id       INTEGER NOT NULL,
     permission_id INTEGER NOT NULL,
     creation_date datetime 
 );
 CREATE TABLE IF NOT EXISTS permissions ( 
-    permission_id          INTEGER         PRIMARY KEY AUTO_INCREMENT
-                                           NOT NULL,
+    permission_id          INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     permission             varchar(256),
     attributes             TEXT,
     label                  VARCHAR( 100 ),

@@ -19,8 +19,8 @@ namespace EPos
 		construct
 		{
 			this._moduleId 		= "mod_users";
-			this._name			= "Users Module";
-			this._description 	= "";
+			this._name			= SBText.__("Users Module", "mod_users");
+			this._description 	= SBText.__("", "mod_users");
 			this._author 		= "Sintic Bolivia";
 			this._version 		= 1.0;
 			this.resourceFile 	= "./modules/users.gresource";
@@ -31,14 +31,14 @@ namespace EPos
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			string[,] permissons = 
 			{
-				{"manage_users", "", SBText.__("Manage Users")},
-				{"create_users", "", SBText.__("Create Users")},
-				{"edit_users", "", SBText.__("Edit Users")},
-				{"delete_users", "", SBText.__("Delete Users")},
-				{"manage_roles", "", SBText.__("Manage Roles")},
-				{"create_roles", "", SBText.__("Create Roles")},
-				{"edit_roles", "", SBText.__("Edit Roles")},
-				{"delete_roles", "", SBText.__("Delete Roles")}
+				{"manage_users", "", SBText.__("Manage Users", "mod_users")},
+				{"create_users", "", SBText.__("Create Users", "mod_users")},
+				{"edit_users", "", SBText.__("Edit Users", "mod_users")},
+				{"delete_users", "", SBText.__("Delete Users", "mod_users")},
+				{"manage_roles", "", SBText.__("Manage Roles", "mod_users")},
+				{"create_roles", "", SBText.__("Create Roles", "mod_users")},
+				{"edit_roles", "", SBText.__("Edit Roles", "mod_users")},
+				{"delete_roles", "", SBText.__("Delete Roles", "mod_users")}
 			};
 			for(int i = 0; i < permissons.length[0]; i++)
 			{
@@ -69,7 +69,7 @@ namespace EPos
 		public void Init()
 		{
 			this.LoadResources();
-			
+			SBText.LoadDomain(this.Id, "share/locale/");
 			var hook = new SBModuleHook(){HookName = "init_menu_management", handler = init_menu_management};
 			var hook1 = new SBModuleHook(){HookName = "authenticate", handler = local_authentication};
 			var hook2 = new SBModuleHook(){HookName = "login_dialog", handler = login_dialog};
@@ -81,13 +81,13 @@ namespace EPos
 		{
 			var menu = (Gtk.Menu)args.GetData();
 			
-			var menuItemUsers = new Gtk.MenuItem.with_label("Users");
+			var menuItemUsers = new Gtk.MenuItem.with_label(SBText.__("Users", "mod_users"));
 			var menuUsers = new Gtk.Menu();
 			
 			menuItemUsers.set_submenu(menuUsers);
 						
-			var menuItemMUsers	= new Gtk.MenuItem.with_label("Users Management");
-			var menuItemMRoles	= new Gtk.MenuItem.with_label("Roles Management");
+			var menuItemMUsers	= new Gtk.MenuItem.with_label(SBText.__("Users Management", "mod_users"));
+			var menuItemMRoles	= new Gtk.MenuItem.with_label(SBText.__("Roles Management", "mod_users"));
 			menuItemMUsers.show();
 			menuItemMRoles.show();
 			menuUsers.add(menuItemMUsers);
@@ -143,7 +143,7 @@ namespace EPos
 				if( row == null )
 				{
 					data.set("result", "error");
-					data.set("error", SBText.__("Invalid username or password"));
+					data.set("error", SBText.__("Invalid username or password", "mod_users"));
 					return;
 				}
 				data.set("result", "ok");

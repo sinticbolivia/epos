@@ -24,7 +24,7 @@ namespace EPos
 			this.modal = true;
 			try
 			{
-				this._builder	= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("login.glade");
+				this._builder	= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("login.glade", "mod_users");
 				//this._dialog	= (Dialog)this._builder.get_object("dialogLogin");
 				this.box1		= (Box)this._builder.get_object("box1");
 				this._image1	= (Image)this._builder.get_object("image1");
@@ -58,7 +58,7 @@ namespace EPos
 			}
 			this.box1.reparent(this.get_content_area());
 			
-			this.title = SBText.__("Woocommerce Point of Sale - Access");
+			this.title = SBText.__("Woocommerce Point of Sale - Access", "mod_users");
 			//this._dialog.decorated = false;
 			
 			
@@ -114,8 +114,8 @@ namespace EPos
 			{
 				var erro = new InfoDialog()
 				{
-					Title = SBText.__("Invalid username"),
-					Message = SBText.__("Enter a valid username")
+					Title = SBText.__("Invalid username", "mod_users"),
+					Message = SBText.__("Enter a valid username", "mod_users")
 				};
 				
 				erro.run();
@@ -127,8 +127,8 @@ namespace EPos
 			{
 				var erro = new InfoDialog()
 				{
-					Title = SBText.__("Invalid password"),
-					Message = SBText.__("Enter a user password")
+					Title = SBText.__("Invalid password", "mod_users"),
+					Message = SBText.__("Enter a user password", "mod_users")
 				};
 				erro.run();
 				erro.destroy();
@@ -169,7 +169,7 @@ namespace EPos
 				string msg = (string)data["error"];
 				var dlg = new InfoDialog("error")
 				{
-					Title = SBText.__("Local authentication error"),
+					Title = SBText.__("Local authentication error", "mod_users"),
 					Message = msg
 				};
 				dlg.run();

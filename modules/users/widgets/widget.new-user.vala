@@ -35,7 +35,7 @@ namespace EPos
 		}
 		public WidgetNewUser()
 		{
-			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("new-user.glade");
+			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("new-user.glade", "mod_users");
 			this.windowNewUser		= (Window)this.ui.get_object("windowNewUser");
 			this.boxNewUser			= (Box)this.ui.get_object("boxNewUser");
 			this.imageNewUser		= (Image)this.ui.get_object("imageNewUser");
@@ -87,7 +87,7 @@ namespace EPos
 		{
 			TreeIter iter;
 			(this.comboboxRoles.model as ListStore).append(out iter);
-			(this.comboboxRoles.model as ListStore).set(iter, 0, SBText.__("-- roles --"), 1, "-1");
+			(this.comboboxRoles.model as ListStore).set(iter, 0, SBText.__("-- roles --", "mod_users"), 1, "-1");
 			var dbh = (SBDatabase)SBGlobals.GetVar("dbh");
 			dbh.Select("*").From("user_roles");
 			var rows = dbh.GetResults(null);
@@ -155,14 +155,14 @@ namespace EPos
 				var _w = new HashMap<string, Value?>();
 				_w.set("user_id", this._user_id);
 				dbh.Update("users", data, _w);
-				msg = SBText.__("The user has been updated.");
+				msg = SBText.__("The user has been updated.", "mod_users");
 			}
 			else
 			{
 				//##create new user
 				data.set("creation_date", cdate);
 				this._user_id = (int)dbh.Insert("users", data);
-				msg = SBText.__("The user has been created.");
+				msg = SBText.__("The user has been created.", "mod_users");
 			}
 			var h_data = new HashMap<string, Value?>();
 			h_data.set("user_id", this._user_id);
@@ -173,7 +173,7 @@ namespace EPos
 			this._user_id = 0;
 			var dlg = new InfoDialog()
 			{
-				Title = SBText.__("User"),
+				Title = SBText.__("User", "mod_users"),
 				Message = msg
 			};
 			dlg.run();

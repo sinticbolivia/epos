@@ -79,7 +79,7 @@ namespace EPos
 		}
 		protected void AddHooks()
 		{
-			var hook0 = new SBModuleHook(){HookName = "init_menu_management", handler = init_menu_management};
+			var hook0 = new SBModuleHook(){HookName = "init_menu_management", handler = this.init_menu_management};
 			SBModules.add_action("init_menu_management", ref hook0);
 			var hook1 = new SBModuleHook(){HookName = "init_sidebar", handler = init_sidebar};
 			SBModules.add_action("init_sidebar", ref hook1);
@@ -138,13 +138,13 @@ namespace EPos
 			box.add(btn_pos);
 			
 		}
-		public static void init_menu_management(SBModuleArgs<Gtk.Menu> args)
+		public void init_menu_management(SBModuleArgs<Gtk.Menu> args)
 		{
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
 			var user = (SBUser)SBGlobals.GetVar("user");
 			var menu = (Gtk.Menu)args.GetData();
 			var mi_pos = new Gtk.ImageMenuItem.with_label(SBText.__("Point of Sale"));
-			mi_pos.image = new Image.from_pixbuf((SBModules.GetModule("Pos") as SBGtkModule).GetPixbuf("pos01-25x25.png"));
+			mi_pos.image = new Image.from_pixbuf(this.GetPixbuf("pos01-25x25.png"));
 			mi_pos.show();
 			mi_pos.submenu = new Gtk.Menu();
 			menu.add(mi_pos);
@@ -228,6 +228,10 @@ namespace EPos
 				notebook.SetCurrentPageById(tab_id);
 			});
 			mi_pos.submenu.add(mi_rpos);
+			//##call hooks
+			var args1 = new SBModuleArgs<Gtk.MenuItem>();
+			args1.SetData(mi_pos);
+			SBModules.do_action("menu_item_point_of_sale", args1);
 		}
 		protected void hook_config_build(SBModuleArgs<Widget> args)
 		{

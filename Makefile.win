@@ -5,6 +5,7 @@ CFLAGS=-X -I/mingw/include \
 		-X -I/mingw/include/libsoup-2.4 \
 		-X -L/mingw/lib \
 		-X -I../libs/libmysqlclient-5.6.20/include\
+		-X -DGETTEXT_PACKAGE\
 		-X -D__LCC__\
 		-X -I./$(SB_LIBS)/widgets\
 		-X -L./$(SB_LIBS)/widgets
@@ -42,7 +43,7 @@ DEST_EXEC=ec-pos.exe
 LIBRARY_NAME=SinticBolivia
 #include Database/Makefile
 
-.PHONY: modules setup
+.PHONY: modules config
 
 all: $(SOURCES) $(DEST_EXEC) config
 
@@ -52,6 +53,7 @@ $(DEST_EXEC): $(SOURCES)
 	$(VC) -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) $(SOURCES) -X -L./../SinticBolivia/bin -o bin/$@
 	@#strip bin/$@
 	glib-compile-resources ec-pos.gresource.xml
+	cp ec-pos.gresource bin/share/resources
 	mv ec-pos.gresource share/resources
 config:
 	valac -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin -o bin/config.exe 

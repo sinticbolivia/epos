@@ -15,6 +15,7 @@ namespace EPos
 		protected	Button			buttonNew;
 		protected	Button			buttonEdit;
 		protected	Button			buttonDelete;
+		protected	ComboBox		comboboxStore;
 		protected	TreeView		treeviewGroups;
 		
 		public WidgetCustomerGroups()
@@ -26,6 +27,7 @@ namespace EPos
 			this.buttonNew		= (Button)this.ui.get_object("buttonNew");
 			this.buttonEdit		= (Button)this.ui.get_object("buttonEdit");
 			this.buttonDelete	= (Button)this.ui.get_object("buttonDelete");
+			this.comboboxStore	= (ComboBox)this.ui.get_object("comboboxStore");
 			this.treeviewGroups	= (TreeView)this.ui.get_object("treeviewGroups");
 			this.box1.expand = true;
 			this.box1.reparent(this);
@@ -36,6 +38,12 @@ namespace EPos
 		protected void Build()
 		{
 			this.image1.pixbuf	= (SBModules.GetModule("Customers") as SBGtkModule).GetPixbuf("group_people-64x64.png");
+			this.comboboxStore.model = new ListStore(2, typeof(string, string));
+			var cell = new CellRendererText();
+			this.comboboxStore.pack_start(cell, true);
+			this.comboboxStore.set_attributes(cell, "text", 0);
+			this.comboboxStore.id_column = 1;
+			
 			this.treeviewGroups.model = new ListStore(3,
 				typeof(int), //count
 				typeof(int), //id

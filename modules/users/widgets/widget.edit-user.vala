@@ -36,7 +36,8 @@ namespace EPos
 		public WidgetEditUser()
 		{
 			Object();
-			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("edit-user.glade");
+			this.ui					= (SBModules.GetModule("Users") as SBGtkModule).GetGladeUi("edit-user.glade", "mod_users");
+			this.ui.translation_domain = "mod_users";
 			this.windowNewUser		= (Window)this.ui.get_object("windowNewUser");
 			this.boxNewUser			= (Box)this.ui.get_object("boxNewUser");
 			this.imageNewUser		= (Image)this.ui.get_object("imageNewUser");
@@ -192,8 +193,8 @@ namespace EPos
 			
 			var msg = new InfoDialog()
 			{
-				Message = SBText.__("The user has been updated."),
-				Title = SBText.__("User updated")
+				Message = SBText.__("The user has been updated.", "mod_users"),
+				Title = SBText.__("User updated", "mod_users")
 			};
 			msg.run();
 			msg.dispose();

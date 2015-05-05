@@ -86,7 +86,7 @@ namespace EPos
 			catch(GLib.IOError e)
 			{
 			}
-			stdout.printf("SQL: %s\n", sql);
+			//stdout.printf("SQL: %s\n", sql);
 			foreach(string q in sql.split(";"))
 			{
 				if(q.strip().length <= 0) continue;
@@ -144,7 +144,28 @@ namespace EPos
 		}
 		public void Load()
 		{
-			
+			/*
+			string modules_path = "modules";
+			string component_prefix = "lib%s".printf(this.LibraryName);
+			try
+			{
+				var dir = File.new_for_path(modules_path);
+				var enumerator = dir.enumerate_children(FileAttribute.STANDARD_NAME, 0);
+				FileInfo file_info;
+				while( (file_info = enumerator.next_file ()) != null ) 
+				{
+					if( file_info.get_name().index_of(component_prefix) != 1 )
+					{
+						stdout.printf ("Loading component: %s\n", file_info.get_name ());
+						
+					}
+				}
+			}
+			catch(GLib.Error e)
+			{
+				stderr.printf ("Error: %s\n", e.message);
+			}
+			*/
 		}
 		public void Init()
 		{
@@ -180,6 +201,7 @@ namespace EPos
 			SBModules.add_action("user_fields", ref hook3);
 			SBModules.add_action("user_saved", ref hook4);
 			SBModules.add_action("set_user_data", ref hook5);
+			
 		}
 		public void Unload()
 		{
@@ -223,7 +245,8 @@ namespace EPos
 			var notebook = (SBNotebook)SBGlobals.GetVar("notebook");
 			var menu = (Gtk.Menu)args.GetData();
 			
-			var menuitem_inventory = new Gtk.MenuItem.with_label(SBText.__("Inventory"));
+			var menuitem_inventory = new Gtk.ImageMenuItem.with_label(SBText.__("Inventory"));
+			menuitem_inventory.image = new Image.from_pixbuf((SBModules.GetModule("Inventory") as SBGtkModule).GetPixbuf("inventory-25x25.png"));
 			menuitem_inventory.submenu = new Gtk.Menu();
 			menuitem_inventory.show();
 			menu.add(menuitem_inventory);
@@ -282,6 +305,20 @@ namespace EPos
 				notebook.SetCurrentPageById("stock_transfers");
 			});
 			menuitem_inventory.submenu.add(mi_transfer);
+			
+			var menuitem_supcats = new Gtk.MenuItem.with_label(SBText.__("Supplier Categories"));
+			menuitem_supcats.show();
+			menuitem_supcats.activate.connect( () => 
+			{
+				if( notebook.GetPage("supplier-categories") == null )
+				{
+					var w = new WidgetSupplierCategories();
+					w.show();
+					notebook.AddPage("supplier-categories", SBText.__("Supplier Categories"), w);
+				}
+				notebook.SetCurrentPageById("supplier-categories");
+			});
+			menuitem_inventory.submenu.add(menuitem_supcats);
 			
 			var menuitem_suppliers = new Gtk.MenuItem.with_label(SBText.__("Suppliers"));
 			menuitem_suppliers.show();
@@ -408,6 +445,10 @@ namespace EPos
 				notebook.SetCurrentPageById("adjustments");
 			});
 			menuitem_inventory.submenu.add(mi_adjust);
+			//##call hooks
+			var args1 = new SBModuleArgs<Gtk.MenuItem>();
+			args1.SetData(menuitem_inventory);
+			SBModules.do_action("menu_item_inventory", args1);
 		}
 		public static void hook_reports_menu(SBModuleArgs<Gtk.Menu> args)
 		{

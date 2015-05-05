@@ -93,15 +93,20 @@ namespace EPos
 			//stdout.printf("starting table at (%fx%f)\n\n", this.XPos, this.YPos);
 			
 		}
-		protected bool CheckNewPage(float obj_height)
+		public bool CheckNewPage(float obj_height)
 		{
-			//float page_height = this.pageHeight - this.TopMargin - this.BottomMargin;
-			//stdout.printf("total_page_height => %f, page_height => %f, y => %f, obj => %f\n", 
-				//			this.pageHeight, page_height, this.YPos, obj_height);
+			float page_height = this.pageHeight - this.TopMargin - this.BottomMargin;
+			stdout.printf("total_page_height => %f, page_height => %f, y => %f, obj_height => %f\n", 
+							this.pageHeight, page_height, this.YPos, obj_height);
 			if( this.YPos < obj_height )
 			{
 				stdout.printf("adding new page\n");
 				this.page 	= this.pdf.AddPage();
+				//##set page default font and size
+				this.page.SetFontAndSize(this.font, this.FontSize);
+				//this.pageWidth			= this.page.GetWidth();
+				//this.pageHeight			= this.page.GetHeight();
+				//this.pageAvailableSpace	= this.pageWidth - this.LeftMargin - this.RightMargin;
 				var dst 	= this.page.CreateDestination();
 				dst.SetXYZ(0, this.pageHeight, 1);
 				this.YPos = this.pageHeight - this.TopMargin;
@@ -121,7 +126,7 @@ namespace EPos
 			string filename = "%s-%s.pdf".printf(name, new DateTime.now_local().format("%Y-%m-%d"));
 			//string pdf_path = SBFileHelper.SanitizePath("temp/%s".printf(filename));
 			string pdf_path = "temp/%s".printf(filename);
-			pdf.SaveToFile(pdf_path);
+			this.pdf.SaveToFile(pdf_path);
 			
 			return pdf_path;
 		}
@@ -173,7 +178,8 @@ namespace EPos
 			{
 				cmd = "evince --preview %s".printf(pdf_path);
 			}
-			Posix.system(cmd);
+			//Posix.system(cmd);
+			Process.spawn_command_line_async(cmd);
 		}
 	}
 }
