@@ -217,6 +217,7 @@ namespace EPos
 			var args = new SBModuleArgs<SBCustomer>();
 			args.SetData(customer);
 			SBModules.do_action("view_customer_details_dlg", args);
+			this.buttonSave.visible = false;
 			if( allow_update )
 			{
 				this.customerId = customer.Id;

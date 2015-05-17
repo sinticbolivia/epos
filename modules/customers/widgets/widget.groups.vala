@@ -38,7 +38,7 @@ namespace EPos
 		protected void Build()
 		{
 			this.image1.pixbuf	= (SBModules.GetModule("Customers") as SBGtkModule).GetPixbuf("group_people-64x64.png");
-			this.comboboxStore.model = new ListStore(2, typeof(string, string));
+			this.comboboxStore.model = new ListStore(2, typeof(string), typeof(string));
 			var cell = new CellRendererText();
 			this.comboboxStore.pack_start(cell, true);
 			this.comboboxStore.set_attributes(cell, "text", 0);

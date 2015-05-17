@@ -82,12 +82,13 @@
 	font: Arial Normal 10;
 }
 *:insensitive{color:#ececec;text-shadow: 1px 1px 0 #fcfcfc;}
-GtkWindow, GtkContainer, GtkBox, GtkHBox, GtkVBox
+GtkWindow{border:1.5px solid @border_color;}
+GtkWindow, GtkContainer,GtkBox/*,GtkHBox, GtkVBox*/
 {
 	/*background-color: Gainsboro;*/
 	/*background-color: #898989;*/
 	background-color: #fff;
-	border:1px solid @border_color;
+	/*border:1px solid @border_color;*/
 }
 GtkPaned{border:none;}
 /*
@@ -153,18 +154,23 @@ GtkSwitch.trough:active{background:#3e9b33;color:#fff;font-weight:bold;text-shad
 GtkNotebook 
 {                      
 	-GtkWidget-focus-line-width: 0;    /* Remove focus line (dotted line) around text on all tabs */
-	-GtkNotebook-tab-overlap: 0; 
+	-GtkNotebook-tab-overlap: -5; 
 	-GtkNotebook-initial-gap: 0;
     -GtkNotebook-arrow-spacing: 5;
+    border-top:none;
+    border-right:1px solid @border_color;
+    border-bottom:1px solid @border_color;
+    border-left:1px solid @border_color;
 	padding: 3px 10px;
-	border-radius: 8px; 
+	border-radius: 8px 8px 0 0; 
 	border-width: 1px;               
 }   
-GtkNotebook tab
+GtkNotebook tab{border:1px solid @border_color;}
+GtkNotebook tab, GtkNotebook tab GtkBox
 {
 	background-color: #e6e6e6;
 }
-GtkNotebook tab:active
+GtkNotebook tab:active, GtkNotebook tab .active-page
 {
 	background-color: #ffffff;
 }
@@ -373,6 +379,7 @@ GtkEventBox#eventboxQuickIcons{background-color: #4A4545;background-image:-gtk-g
 	transition-property: background-color, background-image;
 	transition-duration: 0.8s;
 }
+.quick-icons GtkButton GtkBox{background:none;}
 .quick-icons GtkButton:hover{background-color: #ececec;background-image: linear-gradient(#ececec,#ececec);}
 /*********************/
 /** treeview styles **/
@@ -417,11 +424,11 @@ GtkMenu.white-menu GtkMenuItem, GtkMenu.white-menu GtkImageMenuItem{background:#
 /******************************/
 .sb-dashboard{background:#fff;/*background-image:-gtk-gradient (linear, left top, left bottom, from (#ececec), to (#ececec));*/}
 .sb-dashboard *{}
-.sb-dashboard GtkEventBox{border-radius:15px;border: 1px solid red;/*background-color:#F3F3FB;*//*background-image:-gtk-gradient (linear, left top, left bottom, from (#ececec), to (#ececec));*/}
-.sb-dashboard GtkEventBox GtkBox{border: 1px solid red;}
+.sb-dashboard GtkEventBox{border-radius:15px;border: 1px solid #ccc;/*background-color:#F3F3FB;*//*background-image:-gtk-gradient (linear, left top, left bottom, from (#ececec), to (#ececec));*/}
+.sb-dashboard GtkEventBox GtkBox{border: /*1px solid #ccc;*/0;}
 .dashboard-widget-title{padding:5px;border:1px solid #CCCCCC;border-radius:8px 8px 0 0;font: Arial Normal 11;color:/*#0088CC*/#535353;font-weight:bold;text-shadow:0 1px 0 #FFFFFF;/*background-image:-gtk-gradient(linear, left top, left bottom, from(#F7F7F7), to (#EDEDED));*/background-image:linear-gradient(#F7F7F7, #EDEDED);}
 .dashboard-widget-body{padding:5px;border:1px solid green;}
-.dashboard-widget-body .box-inner{margin:5px;}
+.dashboard-widget-body .box-inner{margin:0px;border:1px solid #CCCCCC;}
 .sb-dashboard GtkEventBox GtkBox GtkGrid GtkLabel{font: Arial Normal 11;color:#555555;}
 .sb-dashboard GtkEventBox GtkBox GtkGrid .label-number{color:#04BC04;/*#FFBF47*/}
 GtkEventBox GtkViewport{padding:5px}

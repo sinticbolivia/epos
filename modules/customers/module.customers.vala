@@ -15,6 +15,7 @@ namespace EPos
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Customers";}}
+		public string	Dependencies{get{return "";}}
 		/*
 		public static 	Resource res_data;
 		public static	Builder	ui_products;

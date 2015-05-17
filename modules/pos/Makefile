@@ -34,8 +34,9 @@ LIB_NAME=libPos.so
 all:
 	@echo "\n$(BLUE_COLOR)Building Point of Sale Module"
 	@echo "==========================================$(NO_COLOR)\n\n"
-	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h -X -fPIC -X -shared $(SRC) $(PKG) $(VAPI) $(INCLUDE_DIR) $(LIB_DIR)
+	valac -o $(LIB_NAME) -D GLIB_2_32 --library=$(MODULE_NAME) -H $(MODULE_NAME).h -X -fPIC -X -shared $(SRC) $(PKG) $(VAPI) $(INCLUDE_DIR) $(LIB_DIR)
 	glib-compile-resources pos.gresource.xml
+	cp $(LIB_NAME) pos.gresource ../../bin/modules
 	@echo "\n$(OK_COLOR)Compilation completed!!!\n"
 install:
 	cp $(LIB_NAME) pos.gresource ../../bin/modules

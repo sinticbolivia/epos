@@ -1,0 +1,14 @@
+$(info Trying to detect the operating system, $(PATH))
+ifneq (, $(findstring /usr/bin, $(PATH)))
+OS=LINUX
+INSTALL_DIR=~/EPos
+$(info Linux detected)
+else ifneq (, $(findstring Windows, $(PATH)))
+OS=WINDOWS_NT
+INSTALL_DIR=/c/EPos
+$(info Windows detected)
+endif
+
+ifndef INSTALL_DIR
+ $(info "INSTALL_DIR is not defined, using default installation directory")
+endif

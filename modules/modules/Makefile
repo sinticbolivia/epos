@@ -25,6 +25,7 @@ LIB_NAME=libModules.so
 all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources modules.gresource.xml
+	cp $(LIB_NAME) modules.gresource ../../bin/modules
 install:
 	install $(LIB_NAME) ../../bin/modules/
 	install modules.gresource ../../bin/modules/

@@ -70,6 +70,7 @@ namespace EPos.Woocommerce
 		{
 			this.buttonNew.clicked.connect(this.OnButtonNewClicked);
 			this.buttonEdit.clicked.connect(this.OnButtonEditClicked);
+			this.buttonDelete.clicked.connect(this.OnButtonDeleteClicked);
 			this.buttonSave.clicked.connect(this.OnButtonSaveClicked);
 		}
 		protected void RefreshStores()
@@ -120,6 +121,28 @@ namespace EPos.Woocommerce
 			this.entrySecret.text = store.GetMeta("woocommerce_secret");
 			this.storeId = store.Id;
 			
+		}
+		protected void OnButtonDeleteClicked()
+		{
+			TreeModel model;
+			TreeIter iter;
+			if( !this.treeviewStores.get_selection().get_selected(out model, out iter) )
+			{
+				return;
+			}
+			Value store_id;
+			model.get_value(iter, 1, out store_id);
+			var confirm = new InfoDialog()
+			{
+				Title = SBText.__("Delete Store"),
+				Message = SBText.__("Are you sure to delete the store?")
+			};
+			var btn = (Button)confirm.add_button(SBText.__("Yes"), ResponseType.YES);
+			if( confirm.run() == ResponseType.YES )
+			{
+				
+			}
+			confirm.destroy();
 		}
 		protected void OnButtonSaveClicked()
 		{

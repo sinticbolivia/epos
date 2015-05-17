@@ -20,6 +20,7 @@ namespace EPos
 		protected	Button		buttonSelect;
 		
 		public		int			CustomerId = 0;
+		public		int			StoreId = 0;
 		public		signal		void OnCustomerSelected(HashMap<string, string> customer, WindowCustomerLookup window);
 		protected	SBDatabase	dbh;
 		public		SBDatabase	Dbh
@@ -65,7 +66,8 @@ namespace EPos
 			{
 				{SBText.__("ID"), "id"}, 
 				{SBText.__("Code"), "code"}, 
-				{SBText.__("Name"), "name"}
+				{SBText.__("Name"), "name"},
+				{SBText.__("Zipcode"), "zip"}
 			};
 			TreeIter iter;
 			for(int i = 0; i < searchs.length[0]; i++)
@@ -148,7 +150,10 @@ namespace EPos
 			{
 				query += "WHERE CONCAT(first_name, last_name) LIKE '%s'";
 			}
-									
+			else if( search_by == "zip" )
+			{
+				query += "WHERE zip_code LIKE '%s'";//.printf("%"+keyword+"%");
+			}			
 			var rows = dbh.GetResults(query.printf("%"+keyword+"%"));
 			TreeIter iter;
 			int i = 1;

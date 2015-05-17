@@ -9,6 +9,9 @@ namespace EPos
 	{
 		public static ArrayList<SBStore> GetStores()
 		{
+			var stores = new ArrayList<SBStore>();
+			
+			return stores;
 		}
 	}
 }

@@ -15,6 +15,7 @@ namespace EPos
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Quotes";}}
+		public string	Dependencies{get{return "Pos";}}
 		construct
 		{
 			this._moduleId 		= "mod_quotes";

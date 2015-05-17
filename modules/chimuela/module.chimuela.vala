@@ -13,7 +13,7 @@ namespace EPos
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Chimuela";}}
-		
+		public string	Dependencies{get{return "";}}
 		protected	Pid			chimuelaPid;
 		construct
 		{
@@ -45,7 +45,12 @@ namespace EPos
 			//MainLoop loop = new MainLoop ();
 			try
 			{
-				Process.spawn_async(".", {"chimuela"}, Environ.get(),
+				string[] args;
+				if( SBOS.GetOS().IsLinux() )
+					args = {"./chimuela"};
+				else
+					args = {"chimuela"};
+				Process.spawn_async(".", args, Environ.get(),
 					SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
 					null,
 					out this.chimuelaPid

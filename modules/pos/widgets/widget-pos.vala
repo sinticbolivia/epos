@@ -364,6 +364,7 @@ namespace EPos
 			foreach(var prod in this.productsToFill)
 			{
 				string product_image = images_path + prod.GetThumbnail();
+				//stdout.printf("Produc image: %s\n", product_image);
 				Gdk.Pixbuf? prod_pixbuf = null;
 				if( FileUtils.test(product_image, FileTest.IS_REGULAR) )
 				{
@@ -397,7 +398,7 @@ namespace EPos
 				}
 				else if( view == "grid" ) 
 				{
-					string label = "Price: %.2lf".printf(prod.Price);
+					string label = SBText.__("Price: %.2lf", "mod_pos").printf(prod.Price);
 					Button btn = new Button.with_label(label);
 					btn.show();
 					//btn.tooltip_text = product.get_string_member("title");
@@ -405,10 +406,10 @@ namespace EPos
 					var tooltip_window = new Window(){skip_taskbar_hint = true};
 					tooltip_window.decorated = false;
 					var box = new Box(Gtk.Orientation.VERTICAL, 5){margin = 10};
-					box.pack_start(new Label("Name: %s".printf(prod.Name) ){xalign = 0});
-					box.pack_start(new Label("Price: %.2lf".printf(prod.Price)){xalign = 0});
-					box.pack_start(new Label("Stock: %d".printf(prod.Quantity)){xalign = 0});
-					box.pack_start(new Label("Woo ID: %d".printf(prod.GetInt("extern_id"))){xalign = 0});
+					box.pack_start(new Label(SBText.__("Name: %s", "mod_pos").printf(prod.Name) ){xalign = 0});
+					box.pack_start(new Label(SBText.__("Price: %.2lf", "mod_pos").printf(prod.Price)){xalign = 0});
+					box.pack_start(new Label(SBText.__("Stock: %d", "mod_pos").printf(prod.Quantity)){xalign = 0});
+					box.pack_start(new Label(SBText.__("Woo ID: %d", "mod_pos").printf(prod.GetInt("extern_id"))){xalign = 0});
 					box.show_all();
 					tooltip_window.add(box);
 					tooltip_window.name = "gtk-tooltip";
@@ -423,14 +424,17 @@ namespace EPos
 					btn.hexpand = false;
 					btn.set_size_request(80,80);
 					btn.image = new Image.from_pixbuf(prod_pixbuf != null ? prod_pixbuf : placeholder);
+					btn.image.visible = true;
 					btn.image_position = PositionType.TOP;
 					btn.clicked.connect( () => 
 					{
 						this._addProductToOrder(prod);
 					});
+					btn.show_all();
 					GLib.Idle.add( () => 
 					{
 						this.fixedProducts.AddWidget(btn);
+						btn.image.visible = true;
 						return false;
 					});
 				}
@@ -446,23 +450,46 @@ namespace EPos
 			if( keyword.length <= 0 )
 			{
 				this.OnComboBoxCategoriesChanged();
-				return false;
+				return true;
+			}
+			string search_by = "name";
+			if( keyword.index_of(":") != -1 )
+			{
+				string[] parts = keyword.split(":");
+				search_by = parts[0].strip();
+				keyword = (parts.length > 1) ? parts[1].strip() : "";
 			}
 			GLib.Source.remove(this.timeout);
-			
-			this.timeout = GLib.Timeout.add(400, () => 
+			if( keyword.length <= 0 )
+				return true;
+				
+			this.timeout = GLib.Timeout.add(500, () => 
 			{
-				stdout.printf("searching products\n");
+				//stdout.printf("searching products by => %s\n", search_by);
 				string query = "SELECT p.*, a.file AS thumbnail "+
 								"FROM products p "+
 									"LEFT JOIN attachments a ON a.object_id = p.product_id " +
-								"WHERE product_name LIKE '%s' "+
-								"AND p.product_id = a.object_id "+
-								"AND store_id = %d "+
-								"AND LOWER(a.object_type) = 'product' " +
-								"AND (a.type = 'image_thumbnail' OR a.type = 'image') "+
-								"GROUP BY p.product_id ";
-				query = query.printf("%"+keyword+"%", this.storeId);
+								"WHERE 1 = 1 ";
+								
+				if( search_by == "sku" || search_by == "code" )	
+				{
+					query += "AND product_code LIKE '%s' ".printf("%"+keyword+"%");
+				}
+				else if( search_by == "id" )
+				{
+					query += "AND product_id = %d ".printf(int.parse(keyword));
+				}
+				else
+				{
+					query += "AND product_name LIKE '%s' ".printf("%"+keyword+"%");
+				}
+				
+				query += "AND p.product_id = a.object_id ";
+				query += "AND store_id = %d ".printf(this.storeId);
+				query += "AND LOWER(a.object_type) = 'product' ";
+				query += "AND (a.type = 'image_thumbnail' OR a.type = 'image') ";
+				query += "GROUP BY p.product_id ";
+				
 				
 				var rows = this.Dbh.GetResults(query);
 				this.productsToFill = new ArrayList<SBProduct>();
@@ -756,6 +783,15 @@ namespace EPos
 			
 			if( icon == EntryIconPosition.PRIMARY )
 			{
+				var win = new WindowCustomerLookup();
+				win.OnCustomerSelected.connect( (customer_data, _win) => 
+				{
+					this.entrySearchCustomer.text = "%s %s".printf((string)customer_data["first_name"], (string)customer_data["last_name"]);
+					this.customerId = int.parse((string)customer_data["customer_id"]);
+					this.customerCreated = false;
+					win.destroy();
+				});
+				win.show();
 			}
 			else
 			{
@@ -800,8 +836,8 @@ namespace EPos
 			if( this.comboboxPaymentMethod.active_id == null || this.comboboxPaymentMethod.active_id == "-1" )
 			{
 				var err = new InfoDialog("error");
-				err.Title 	= SBText.__("Sale error");
-				err.Message = SBText.__("You need to select a payment method.");
+				err.Title 	= SBText.__("Sale error", "mod_pos");
+				err.Message = SBText.__("You need to select a payment method.", "mod_pos");
 				err.run();
 				err.destroy();
 				this.comboboxPaymentMethod.grab_focus();
@@ -810,8 +846,8 @@ namespace EPos
 			if( this.customerId == 0 )
 			{
 				var err = new InfoDialog("error");
-				err.Title = SBText.__("Error");
-				err.Message = SBText.__("You need to select a customer.");
+				err.Title = SBText.__("Error", "mod_pos");
+				err.Message = SBText.__("You need to select a customer.", "mod_pos");
 				err.run();
 				err.destroy();
 				this.entrySearchCustomer.grab_focus();
@@ -821,8 +857,8 @@ namespace EPos
 			{
 				var err = new InfoDialog("error")
 				{
-					Title 	= SBText.__("Error"),
-					Message = SBText.__("You need to add products to order.")
+					Title 	= SBText.__("Error", "mod_pos"),
+					Message = SBText.__("You need to add products to order.", "mod_pos")
 				};
 				
 				err.run();
@@ -899,8 +935,8 @@ namespace EPos
 			this.Dbh.EndTransaction();
 			var msg = new InfoDialog("success")
 			{
-				Title = SBText.__("Point of Sale"),
-				Message = SBText.__("The order has been registered.")
+				Title = SBText.__("Point of Sale", "mod_pos"),
+				Message = SBText.__("The order has been registered.", "mod_pos")
 			};
 			msg.run();
 			msg.destroy();

@@ -54,6 +54,8 @@ namespace EPos.Woocommerce
 			this.comboboxSearchBy	= (ComboBox)this.ui.get_object("comboboxSearchBy");
 			this.treeviewProducts	= (TreeView)this.ui.get_object("treeviewProducts");
 			this.box1.reparent(this);
+			this.expand = true;
+			this.box1.expand = true;
 			this.Build();
 			this.SetEvents();
 		}
@@ -241,7 +243,8 @@ namespace EPos.Woocommerce
 				{
 					thumb = store_folder + thumb;
 				}
-				var tax = EPosHelper.GetTaxRate(int.parse(prod.Meta["tax_rate_id"]));
+				int tax_rate_id = prod.Meta.has_key("tax_rate_id") ? int.parse(prod.Meta["tax_rate_id"]) : 0;
+				var tax = EPosHelper.GetTaxRate(tax_rate_id);
 				(this.treeviewProducts.model as ListStore).append(out iter);
 				(this.treeviewProducts.model as ListStore).set(iter,
 					Columns.SELECT, false,

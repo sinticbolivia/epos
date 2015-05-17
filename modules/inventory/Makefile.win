@@ -26,6 +26,7 @@ CFLAGS=-X -D_MINGW32_\
         -X -D__LCC__\
         -X -I../../../libs/libmysqlclient-5.6.20/include\
         -X -I../../../libs/libxlsxwriter/include\
+        -X -I../../../libs/libxlsxwriter/include/sys_win32\
         -X -L../../../libs/libxlsxwriter/src\
         -X -L../../../libs/libxlsxwriter/third_party/minizip\
         -X -I../../../libs/libharu/libharu-RELEASE_2_2_0/include\
@@ -45,7 +46,7 @@ SOURCES=$(wildcard *.vala) $(wildcard classes/*.vala) $(wildcard widgets/*.vala)
 MODULE_NAME=Inventory
 LIB_NAME=libInventory.dll
 all:
-	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
+	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(VLIBS) $(CFLAGS) $(CLIBS)
 	glib-compile-resources inventory.gresource.xml
 	@cp inventory.gresource $(LIB_NAME) ../../bin/modules
 resources:

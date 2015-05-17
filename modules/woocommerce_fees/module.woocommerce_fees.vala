@@ -15,7 +15,7 @@ namespace EPos.Woocommerce
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "WoocommerceFees";}}
-		
+		public string	Dependencies{get{return "Pos";}}
 		protected	Window				windowFees;
 		protected	WidgetOrderFees		widgetFees;
 		protected	Label				labelTotalFee;

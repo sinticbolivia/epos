@@ -188,6 +188,7 @@ namespace EPos.Woocommerce
 							product_id = row.GetInt("product_id");
 							//TODO:update product stock
 							var udata = new HashMap<string, Value?>();
+							udata.set("product_code", (string)prod["sku"]);
 							udata.set("product_description", this.StripHtmlTags((string)prod["description"]));
 							udata.set("product_quantity", qty);
 							var uw = new HashMap<string, Value?>();

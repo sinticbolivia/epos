@@ -187,17 +187,6 @@ typedef struct _WoocommerceInvoiceTicketInvoice WoocommerceInvoiceTicketInvoice;
 typedef struct _WoocommerceInvoiceTicketInvoiceClass WoocommerceInvoiceTicketInvoiceClass;
 typedef struct _WoocommerceInvoiceTicketInvoicePrivate WoocommerceInvoiceTicketInvoicePrivate;
 
-#define EPOS_TYPE_WIDGET_ITEM_TYPES (epos_widget_item_types_get_type ())
-#define EPOS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypes))
-#define EPOS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
-#define EPOS_IS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES))
-#define EPOS_IS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES))
-#define EPOS_WIDGET_ITEM_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
-
-typedef struct _EPosWidgetItemTypes EPosWidgetItemTypes;
-typedef struct _EPosWidgetItemTypesClass EPosWidgetItemTypesClass;
-typedef struct _EPosWidgetItemTypesPrivate EPosWidgetItemTypesPrivate;
-
 #define EPOS_TYPE_WIDGET_ADJUSTMENTS (epos_widget_adjustments_get_type ())
 #define EPOS_WIDGET_ADJUSTMENTS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ADJUSTMENTS, EPosWidgetAdjustments))
 #define EPOS_WIDGET_ADJUSTMENTS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_ADJUSTMENTS, EPosWidgetAdjustmentsClass))
@@ -254,6 +243,17 @@ typedef struct _EPosWidgetProductDepartmentsPrivate EPosWidgetProductDepartments
 typedef struct _EPosWidgetInventory EPosWidgetInventory;
 typedef struct _EPosWidgetInventoryClass EPosWidgetInventoryClass;
 typedef struct _EPosWidgetInventoryPrivate EPosWidgetInventoryPrivate;
+
+#define EPOS_TYPE_WIDGET_ITEM_TYPES (epos_widget_item_types_get_type ())
+#define EPOS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypes))
+#define EPOS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
+#define EPOS_IS_WIDGET_ITEM_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES))
+#define EPOS_IS_WIDGET_ITEM_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_ITEM_TYPES))
+#define EPOS_WIDGET_ITEM_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_ITEM_TYPES, EPosWidgetItemTypesClass))
+
+typedef struct _EPosWidgetItemTypes EPosWidgetItemTypes;
+typedef struct _EPosWidgetItemTypesClass EPosWidgetItemTypesClass;
+typedef struct _EPosWidgetItemTypesPrivate EPosWidgetItemTypesPrivate;
 
 #define EPOS_TYPE_WINDOW_NEW_ASSEMBLY (epos_window_new_assembly_get_type ())
 #define EPOS_WINDOW_NEW_ASSEMBLY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WINDOW_NEW_ASSEMBLY, EPosWindowNewAssembly))
@@ -312,19 +312,6 @@ typedef struct _EPosWidgetProductsSearchPrivate EPosWidgetProductsSearchPrivate;
 
 #define EPOS_WIDGET_PRODUCTS_SEARCH_TYPE_COLUMNS (epos_widget_products_search_columns_get_type ())
 
-#define EPOS_TYPE_WIDGET_PURCHASE_ORDER (epos_widget_purchase_order_get_type ())
-#define EPOS_WIDGET_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrder))
-#define EPOS_WIDGET_PURCHASE_ORDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrderClass))
-#define EPOS_IS_WIDGET_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER))
-#define EPOS_IS_WIDGET_PURCHASE_ORDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_PURCHASE_ORDER))
-#define EPOS_WIDGET_PURCHASE_ORDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrderClass))
-
-typedef struct _EPosWidgetPurchaseOrder EPosWidgetPurchaseOrder;
-typedef struct _EPosWidgetPurchaseOrderClass EPosWidgetPurchaseOrderClass;
-typedef struct _EPosWidgetPurchaseOrderPrivate EPosWidgetPurchaseOrderPrivate;
-
-#define EPOS_WIDGET_PURCHASE_ORDER_TYPE_COLUMNS (epos_widget_purchase_order_columns_get_type ())
-
 #define EPOS_TYPE_WIDGET_PURCHASE_ORDERS (epos_widget_purchase_orders_get_type ())
 #define EPOS_WIDGET_PURCHASE_ORDERS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDERS, EPosWidgetPurchaseOrders))
 #define EPOS_WIDGET_PURCHASE_ORDERS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_PURCHASE_ORDERS, EPosWidgetPurchaseOrdersClass))
@@ -337,6 +324,19 @@ typedef struct _EPosWidgetPurchaseOrdersClass EPosWidgetPurchaseOrdersClass;
 typedef struct _EPosWidgetPurchaseOrdersPrivate EPosWidgetPurchaseOrdersPrivate;
 
 #define EPOS_WIDGET_PURCHASE_ORDERS_TYPE_COLUMNS (epos_widget_purchase_orders_columns_get_type ())
+
+#define EPOS_TYPE_WIDGET_PURCHASE_ORDER (epos_widget_purchase_order_get_type ())
+#define EPOS_WIDGET_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrder))
+#define EPOS_WIDGET_PURCHASE_ORDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrderClass))
+#define EPOS_IS_WIDGET_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER))
+#define EPOS_IS_WIDGET_PURCHASE_ORDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_PURCHASE_ORDER))
+#define EPOS_WIDGET_PURCHASE_ORDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_PURCHASE_ORDER, EPosWidgetPurchaseOrderClass))
+
+typedef struct _EPosWidgetPurchaseOrder EPosWidgetPurchaseOrder;
+typedef struct _EPosWidgetPurchaseOrderClass EPosWidgetPurchaseOrderClass;
+typedef struct _EPosWidgetPurchaseOrderPrivate EPosWidgetPurchaseOrderPrivate;
+
+#define EPOS_WIDGET_PURCHASE_ORDER_TYPE_COLUMNS (epos_widget_purchase_order_columns_get_type ())
 
 #define EPOS_TYPE_WIDGET_RECEIVE_PURCHASE_ORDER (epos_widget_receive_purchase_order_get_type ())
 #define EPOS_WIDGET_RECEIVE_PURCHASE_ORDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_RECEIVE_PURCHASE_ORDER, EPosWidgetReceivePurchaseOrder))
@@ -386,17 +386,6 @@ typedef struct _EPosWidgetSuppliersPrivate EPosWidgetSuppliersPrivate;
 
 #define EPOS_WIDGET_SUPPLIERS_TYPE_COLUMNS (epos_widget_suppliers_columns_get_type ())
 
-#define EPOS_TYPE_WIDGET_TRANSACTION_TYPES (epos_widget_transaction_types_get_type ())
-#define EPOS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypes))
-#define EPOS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypesClass))
-#define EPOS_IS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES))
-#define EPOS_IS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_TRANSACTION_TYPES))
-#define EPOS_WIDGET_TRANSACTION_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypesClass))
-
-typedef struct _EPosWidgetTransactionTypes EPosWidgetTransactionTypes;
-typedef struct _EPosWidgetTransactionTypesClass EPosWidgetTransactionTypesClass;
-typedef struct _EPosWidgetTransactionTypesPrivate EPosWidgetTransactionTypesPrivate;
-
 #define EPOS_TYPE_WIDGET_TRANSACTIONS (epos_widget_transactions_get_type ())
 #define EPOS_WIDGET_TRANSACTIONS(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_TRANSACTIONS, EPosWidgetTransactions))
 #define EPOS_WIDGET_TRANSACTIONS_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_TRANSACTIONS, EPosWidgetTransactionsClass))
@@ -409,6 +398,17 @@ typedef struct _EPosWidgetTransactionsClass EPosWidgetTransactionsClass;
 typedef struct _EPosWidgetTransactionsPrivate EPosWidgetTransactionsPrivate;
 
 #define EPOS_WIDGET_TRANSACTIONS_TYPE_COLUMNS (epos_widget_transactions_columns_get_type ())
+
+#define EPOS_TYPE_WIDGET_TRANSACTION_TYPES (epos_widget_transaction_types_get_type ())
+#define EPOS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypes))
+#define EPOS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypesClass))
+#define EPOS_IS_WIDGET_TRANSACTION_TYPES(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES))
+#define EPOS_IS_WIDGET_TRANSACTION_TYPES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EPOS_TYPE_WIDGET_TRANSACTION_TYPES))
+#define EPOS_WIDGET_TRANSACTION_TYPES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), EPOS_TYPE_WIDGET_TRANSACTION_TYPES, EPosWidgetTransactionTypesClass))
+
+typedef struct _EPosWidgetTransactionTypes EPosWidgetTransactionTypes;
+typedef struct _EPosWidgetTransactionTypesClass EPosWidgetTransactionTypesClass;
+typedef struct _EPosWidgetTransactionTypesPrivate EPosWidgetTransactionTypesPrivate;
 
 #define EPOS_TYPE_WIDGET_UNIT_OF_MEASUREMENT (epos_widget_unit_of_measurement_get_type ())
 #define EPOS_WIDGET_UNIT_OF_MEASUREMENT(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), EPOS_TYPE_WIDGET_UNIT_OF_MEASUREMENT, EPosWidgetUnitOfMeasurement))
@@ -682,29 +682,6 @@ struct _WoocommerceInvoiceTicketInvoiceClass {
 	GObjectClass parent_class;
 };
 
-struct _EPosWidgetItemTypes {
-	GtkBox parent_instance;
-	EPosWidgetItemTypesPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxItemTypes;
-	GtkImage* image1;
-	GtkButton* buttonAdd;
-	GtkButton* buttonEdit;
-	GtkButton* buttonDelete;
-	GtkScrolledWindow* scrolledwindow1;
-	SinticBoliviaGtkDbTableTreeView* treeview;
-	GtkDialog* dlg;
-	GtkEntry* entryCode;
-	GtkEntry* entryName;
-	GtkButton* buttonCancel;
-	GtkButton* buttonSave;
-	gint itemTypeId;
-};
-
-struct _EPosWidgetItemTypesClass {
-	GtkBoxClass parent_class;
-};
-
 struct _EPosWidgetAdjustments {
 	GtkBox parent_instance;
 	EPosWidgetAdjustmentsPrivate * priv;
@@ -861,6 +838,29 @@ struct _EPosWidgetInventory {
 };
 
 struct _EPosWidgetInventoryClass {
+	GtkBoxClass parent_class;
+};
+
+struct _EPosWidgetItemTypes {
+	GtkBox parent_instance;
+	EPosWidgetItemTypesPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxItemTypes;
+	GtkImage* image1;
+	GtkButton* buttonAdd;
+	GtkButton* buttonEdit;
+	GtkButton* buttonDelete;
+	GtkScrolledWindow* scrolledwindow1;
+	SinticBoliviaGtkDbTableTreeView* treeview;
+	GtkDialog* dlg;
+	GtkEntry* entryCode;
+	GtkEntry* entryName;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSave;
+	gint itemTypeId;
+};
+
+struct _EPosWidgetItemTypesClass {
 	GtkBoxClass parent_class;
 };
 
@@ -1024,6 +1024,40 @@ typedef enum  {
 	EPOS_WIDGET_PRODUCTS_SEARCH_COLUMNS_N_COLS
 } EPosWidgetProductsSearchColumns;
 
+struct _EPosWidgetPurchaseOrders {
+	GtkBox parent_instance;
+	EPosWidgetPurchaseOrdersPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxPurchaseOrders;
+	GtkImage* image1;
+	GtkLabel* labelTitle;
+	GtkButton* buttonNew;
+	GtkButton* buttonEdit;
+	GtkButton* buttonReceive;
+	GtkButton* buttonCancel;
+	GtkButton* buttonPrint;
+	GtkButton* buttonPreview;
+	GtkComboBox* comboboxStores;
+	GtkComboBox* comboboxStatus;
+	GtkTreeView* treeviewOrders;
+};
+
+struct _EPosWidgetPurchaseOrdersClass {
+	GtkBoxClass parent_class;
+};
+
+typedef enum  {
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_COUNT,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_STORE,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_ITEMS,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_TOTAL,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_DELIVERY_DATE,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_STATUS,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_CREATION_DATE,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_ORDER_ID,
+	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_N_COLS
+} EPosWidgetPurchaseOrdersColumns;
+
 struct _EPosWidgetPurchaseOrder {
 	GtkBox parent_instance;
 	EPosWidgetPurchaseOrderPrivate * priv;
@@ -1069,40 +1103,6 @@ typedef enum  {
 	EPOS_WIDGET_PURCHASE_ORDER_COLUMNS_TAX_RATE,
 	EPOS_WIDGET_PURCHASE_ORDER_COLUMNS_N
 } EPosWidgetPurchaseOrderColumns;
-
-struct _EPosWidgetPurchaseOrders {
-	GtkBox parent_instance;
-	EPosWidgetPurchaseOrdersPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxPurchaseOrders;
-	GtkImage* image1;
-	GtkLabel* labelTitle;
-	GtkButton* buttonNew;
-	GtkButton* buttonEdit;
-	GtkButton* buttonReceive;
-	GtkButton* buttonCancel;
-	GtkButton* buttonPrint;
-	GtkButton* buttonPreview;
-	GtkComboBox* comboboxStores;
-	GtkComboBox* comboboxStatus;
-	GtkTreeView* treeviewOrders;
-};
-
-struct _EPosWidgetPurchaseOrdersClass {
-	GtkBoxClass parent_class;
-};
-
-typedef enum  {
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_COUNT,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_STORE,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_ITEMS,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_TOTAL,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_DELIVERY_DATE,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_STATUS,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_CREATION_DATE,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_ORDER_ID,
-	EPOS_WIDGET_PURCHASE_ORDERS_COLUMNS_N_COLS
-} EPosWidgetPurchaseOrdersColumns;
 
 struct _EPosWidgetReceivePurchaseOrder {
 	GtkBox parent_instance;
@@ -1201,30 +1201,6 @@ typedef enum  {
 	EPOS_WIDGET_SUPPLIERS_COLUMNS_N_COLS
 } EPosWidgetSuppliersColumns;
 
-struct _EPosWidgetTransactionTypes {
-	GtkBox parent_instance;
-	EPosWidgetTransactionTypesPrivate * priv;
-	GtkBuilder* ui;
-	GtkBox* boxTransactionTypes;
-	GtkImage* image1;
-	GtkLabel* labelTitle;
-	GtkButton* buttonNew;
-	GtkButton* buttonEdit;
-	GtkButton* buttonDelete;
-	GtkTreeView* treeview1;
-	GtkDialog* dlg;
-	GtkEntry* entryKey;
-	GtkEntry* entryName;
-	GtkComboBox* comboboxType;
-	GtkButton* buttonCancel;
-	GtkButton* buttonSave;
-	gint ttId;
-};
-
-struct _EPosWidgetTransactionTypesClass {
-	GtkBoxClass parent_class;
-};
-
 struct _EPosWidgetTransactions {
 	GtkBox parent_instance;
 	EPosWidgetTransactionsPrivate * priv;
@@ -1261,6 +1237,30 @@ typedef enum  {
 	EPOS_WIDGET_TRANSACTIONS_COLUMNS_G_TYPE,
 	EPOS_WIDGET_TRANSACTIONS_COLUMNS_N_COLS
 } EPosWidgetTransactionsColumns;
+
+struct _EPosWidgetTransactionTypes {
+	GtkBox parent_instance;
+	EPosWidgetTransactionTypesPrivate * priv;
+	GtkBuilder* ui;
+	GtkBox* boxTransactionTypes;
+	GtkImage* image1;
+	GtkLabel* labelTitle;
+	GtkButton* buttonNew;
+	GtkButton* buttonEdit;
+	GtkButton* buttonDelete;
+	GtkTreeView* treeview1;
+	GtkDialog* dlg;
+	GtkEntry* entryKey;
+	GtkEntry* entryName;
+	GtkComboBox* comboboxType;
+	GtkButton* buttonCancel;
+	GtkButton* buttonSave;
+	gint ttId;
+};
+
+struct _EPosWidgetTransactionTypesClass {
+	GtkBoxClass parent_class;
+};
 
 struct _EPosWidgetUnitOfMeasurement {
 	GtkBox parent_instance;
@@ -1558,17 +1558,6 @@ gchar* woocommerce_invoice_ticket_invoice_TextRight (WoocommerceInvoiceTicketInv
 gfloat woocommerce_invoice_ticket_invoice_Pixel2Mm (WoocommerceInvoiceTicketInvoice* self, gfloat _pix);
 gfloat woocommerce_invoice_ticket_invoice_Mm2Pixel (WoocommerceInvoiceTicketInvoice* self, gfloat _mm);
 void woocommerce_invoice_ticket_invoice_buildPageFrame (WoocommerceInvoiceTicketInvoice* self);
-GType epos_widget_item_types_get_type (void) G_GNUC_CONST;
-EPosWidgetItemTypes* epos_widget_item_types_new (void);
-EPosWidgetItemTypes* epos_widget_item_types_construct (GType object_type);
-void epos_widget_item_types_Build (EPosWidgetItemTypes* self);
-void epos_widget_item_types_SetEvents (EPosWidgetItemTypes* self);
-void epos_widget_item_types_Refresh (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonAddClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonEditClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonDeleteClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonCancelClicked (EPosWidgetItemTypes* self);
-void epos_widget_item_types_OnButtonSaveClicked (EPosWidgetItemTypes* self);
 GType epos_widget_adjustments_get_type (void) G_GNUC_CONST;
 GType epos_widget_adjustments_columns_get_type (void) G_GNUC_CONST;
 EPosWidgetAdjustments* epos_widget_adjustments_new (void);
@@ -1639,6 +1628,17 @@ void epos_widget_inventory_OnPrintCatalogActivated (EPosWidgetInventory* self);
 void epos_widget_inventory_OnPrintLabelsActivated (EPosWidgetInventory* self);
 gint epos_widget_inventory_get_productsPage (EPosWidgetInventory* self);
 void epos_widget_inventory_set_productsPage (EPosWidgetInventory* self, gint value);
+GType epos_widget_item_types_get_type (void) G_GNUC_CONST;
+EPosWidgetItemTypes* epos_widget_item_types_new (void);
+EPosWidgetItemTypes* epos_widget_item_types_construct (GType object_type);
+void epos_widget_item_types_Build (EPosWidgetItemTypes* self);
+void epos_widget_item_types_SetEvents (EPosWidgetItemTypes* self);
+void epos_widget_item_types_Refresh (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonAddClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonEditClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonDeleteClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonCancelClicked (EPosWidgetItemTypes* self);
+void epos_widget_item_types_OnButtonSaveClicked (EPosWidgetItemTypes* self);
 GType epos_window_new_assembly_get_type (void) G_GNUC_CONST;
 EPosWindowNewAssembly* epos_window_new_assembly_new (void);
 EPosWindowNewAssembly* epos_window_new_assembly_construct (GType object_type);
@@ -1711,6 +1711,22 @@ gboolean epos_widget_products_search_OnEntrySearchKeyReleaseEvent (EPosWidgetPro
 GtkListStore* epos_widget_products_search_get_Model (EPosWidgetProductsSearch* self);
 GtkButton* epos_widget_products_search_get_ButtonCancel (EPosWidgetProductsSearch* self);
 void epos_widget_products_search_set_ButtonCancel (EPosWidgetProductsSearch* self, GtkButton* value);
+GType epos_widget_purchase_orders_get_type (void) G_GNUC_CONST;
+GType epos_widget_purchase_orders_columns_get_type (void) G_GNUC_CONST;
+EPosWidgetPurchaseOrders* epos_widget_purchase_orders_new (void);
+EPosWidgetPurchaseOrders* epos_widget_purchase_orders_construct (GType object_type);
+void epos_widget_purchase_orders_Build (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_FillForm (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_SetEvents (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnComboBoxStoresChanged (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnComboBoxStatusChanged (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnButtonNewClicked (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnButtonEditClicked (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnButtonReceiveClicked (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnButtonCancelClicked (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_OnButtonPreviewClicked (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_RefreshOrders (EPosWidgetPurchaseOrders* self);
+void epos_widget_purchase_orders_GetOrders (EPosWidgetPurchaseOrders* self, gint store_id, const gchar* status, gint page, gint limit);
 GType epos_widget_purchase_order_get_type (void) G_GNUC_CONST;
 GType epos_widget_purchase_order_columns_get_type (void) G_GNUC_CONST;
 EPosWidgetPurchaseOrder* epos_widget_purchase_order_new (void);
@@ -1730,22 +1746,6 @@ void epos_widget_purchase_order_OnButtonCancelClicked (EPosWidgetPurchaseOrder* 
 void epos_widget_purchase_order_SetOrder (EPosWidgetPurchaseOrder* self, EPosPurchaseOrder* order);
 void epos_widget_purchase_order_OnButtonReceiveClicked (EPosWidgetPurchaseOrder* self);
 void epos_widget_purchase_order_set_Title (EPosWidgetPurchaseOrder* self, const gchar* value);
-GType epos_widget_purchase_orders_get_type (void) G_GNUC_CONST;
-GType epos_widget_purchase_orders_columns_get_type (void) G_GNUC_CONST;
-EPosWidgetPurchaseOrders* epos_widget_purchase_orders_new (void);
-EPosWidgetPurchaseOrders* epos_widget_purchase_orders_construct (GType object_type);
-void epos_widget_purchase_orders_Build (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_FillForm (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_SetEvents (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnComboBoxStoresChanged (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnComboBoxStatusChanged (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnButtonNewClicked (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnButtonEditClicked (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnButtonReceiveClicked (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnButtonCancelClicked (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_OnButtonPreviewClicked (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_RefreshOrders (EPosWidgetPurchaseOrders* self);
-void epos_widget_purchase_orders_GetOrders (EPosWidgetPurchaseOrders* self, gint store_id, const gchar* status, gint page, gint limit);
 GType epos_widget_receive_purchase_order_get_type (void) G_GNUC_CONST;
 EPosWidgetReceivePurchaseOrder* epos_widget_receive_purchase_order_new (EPosPurchaseOrder* order);
 EPosWidgetReceivePurchaseOrder* epos_widget_receive_purchase_order_construct (GType object_type, EPosPurchaseOrder* order);
@@ -1788,6 +1788,16 @@ void epos_widget_suppliers_SetEvents (EPosWidgetSuppliers* self);
 void epos_widget_suppliers_OnButtonNewClicked (EPosWidgetSuppliers* self);
 void epos_widget_suppliers_OnButtonEditClicked (EPosWidgetSuppliers* self);
 void epos_widget_suppliers_FillSuppliers (EPosWidgetSuppliers* self);
+GType epos_widget_transactions_get_type (void) G_GNUC_CONST;
+GType epos_widget_transactions_columns_get_type (void) G_GNUC_CONST;
+EPosWidgetTransactions* epos_widget_transactions_new (void);
+EPosWidgetTransactions* epos_widget_transactions_construct (GType object_type);
+void epos_widget_transactions_Build (EPosWidgetTransactions* self);
+void epos_widget_transactions_SetEvents (EPosWidgetTransactions* self);
+void epos_widget_transactions_OnComboBoxStoreChanged (EPosWidgetTransactions* self);
+void epos_widget_transactions_OnComboBoxTransactionTypeChanged (EPosWidgetTransactions* self);
+void epos_widget_transactions_FillTransactions (EPosWidgetTransactions* self, GeeArrayList* records);
+void epos_widget_transactions_OnButtonViewClicked (EPosWidgetTransactions* self);
 GType epos_widget_transaction_types_get_type (void) G_GNUC_CONST;
 EPosWidgetTransactionTypes* epos_widget_transaction_types_new (void);
 EPosWidgetTransactionTypes* epos_widget_transaction_types_construct (GType object_type);
@@ -1800,16 +1810,6 @@ void epos_widget_transaction_types_OnButtonEditClicked (EPosWidgetTransactionTyp
 void epos_widget_transaction_types_OnButtonDeleteClicked (EPosWidgetTransactionTypes* self);
 void epos_widget_transaction_types_OnButtonCancelClicked (EPosWidgetTransactionTypes* self);
 void epos_widget_transaction_types_OnButtonSaveClicked (EPosWidgetTransactionTypes* self);
-GType epos_widget_transactions_get_type (void) G_GNUC_CONST;
-GType epos_widget_transactions_columns_get_type (void) G_GNUC_CONST;
-EPosWidgetTransactions* epos_widget_transactions_new (void);
-EPosWidgetTransactions* epos_widget_transactions_construct (GType object_type);
-void epos_widget_transactions_Build (EPosWidgetTransactions* self);
-void epos_widget_transactions_SetEvents (EPosWidgetTransactions* self);
-void epos_widget_transactions_OnComboBoxStoreChanged (EPosWidgetTransactions* self);
-void epos_widget_transactions_OnComboBoxTransactionTypeChanged (EPosWidgetTransactions* self);
-void epos_widget_transactions_FillTransactions (EPosWidgetTransactions* self, GeeArrayList* records);
-void epos_widget_transactions_OnButtonViewClicked (EPosWidgetTransactions* self);
 GType epos_widget_unit_of_measurement_get_type (void) G_GNUC_CONST;
 EPosWidgetUnitOfMeasurement* epos_widget_unit_of_measurement_new (void);
 EPosWidgetUnitOfMeasurement* epos_widget_unit_of_measurement_construct (GType object_type);

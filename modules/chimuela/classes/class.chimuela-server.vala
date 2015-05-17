@@ -80,6 +80,9 @@ namespace EPos
 			stdout.printf("Remote address: %s\n", remote_address.address.to_string());
 			return true;
 		}
+		protected void HandleCommand()
+		{
+		}
 	}
 }
 public int main(string[] args)

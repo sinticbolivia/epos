@@ -15,7 +15,7 @@ namespace EPos.Woocommerce
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Woocommerce";}}
-		
+		public string	Dependencies{get{return "Pos";}}
 		construct
 		{
 			this._moduleId 		= "mod_woocommerce";

@@ -97,6 +97,7 @@ namespace EPos.Woocommerce
 		protected void SetEvents()
 		{
 			this.comboboxStore.changed.connect(this.OnCamboBoxStoreChanged);
+			this.buttonDetails.clicked.connect(this.OnButtonDetailsClicked);
 			this.buttonSync.clicked.connect(this.OnButtonSyncClicked);
 		}
 		protected void OnCamboBoxStoreChanged()
@@ -108,6 +109,24 @@ namespace EPos.Woocommerce
 			}
 			int store_id = int.parse(this.comboboxStore.active_id);
 			this.Refresh(store_id);
+		}
+		protected void OnButtonDetailsClicked()
+		{
+			TreeModel model;
+			TreeIter iter;
+			
+			if( !this.treeviewCustomers.get_selection().get_selected(out model, out iter) )
+			{
+				return;
+			}
+			Value customer_id;
+			model.get_value(iter, Columns.ID, out customer_id);
+			var dlg 	= new DialogCreateCustomer();
+			dlg.StoreId = 0;
+			//dlg.Dbh 	= this.Dbh;
+			dlg.ViewCustomer(new SBCustomer.from_id((int)customer_id), false);
+			dlg.modal 	= true;
+			dlg.show();
 		}
 		protected void OnButtonSyncClicked()
 		{

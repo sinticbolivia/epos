@@ -19,16 +19,14 @@ CFLAGS=-X -I. \
 		
 CLIBS=-X -lSinticBolivia \
 		-X -lGtkSinticBolivia
-SOURCES=module.customers.vala\
-		widgets/widget.customers.vala\
-		widgets/widget.new-customer.vala\
-		classes/class.customer.vala
+SOURCES=$(wildcard *.vala) $(wildcard widgets/*.vala) $(wildcard classes/*.vala)
 			
 MODULE_NAME=Customers
 LIB_NAME=libCustomers.so
 all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources customers.gresource.xml
+	cp $(LIB_NAME) customers.gresource ../../bin/modules
 install:
 	install $(LIB_NAME) ../../bin/modules/
 	install customers.gresource ../../bin/modules/

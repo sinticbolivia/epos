@@ -537,6 +537,9 @@ namespace EPos
 		public static void Start()
 		{
 			GLib.Environment.set_variable("LC_NUMERIC", "en_GB.UTF-8", true);
+			GLib.Environment.set_variable("LD_LIBRARY_PATH", "./modules", true);
+			string current_path = GLib.Environment.get_variable("PATH");
+			GLib.Environment.set_variable("PATH", current_path + ":.:./modules", true);
 			//##initialize config file
 			var cfg = new SBConfig("config.xml", "point_of_sale");
 			SBGlobals.SetVar("config", cfg);

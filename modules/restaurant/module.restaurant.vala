@@ -15,7 +15,7 @@ namespace Woocommerce
 		public string Author{get{return this._author;}}
 		public double Version{get{return this._version;}}
 		public string LibraryName{get{return "Restaurant";}}
-		
+		public string	Dependencies{get{return "";}}
 		protected string 	resourceFile = "./modules/restaurant.gresource";
 		protected string	resourceNs = "/net/sinticbolivia/Restaurant";
 		public	static	Resource	res_data;

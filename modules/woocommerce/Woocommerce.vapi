@@ -149,6 +149,7 @@ namespace EPos {
 			protected Gtk.Builder ui;
 			public WidgetWoocommerceCustomers ();
 			protected void Build ();
+			protected void OnButtonDetailsClicked ();
 			protected void OnButtonSyncClicked ();
 			protected void OnCamboBoxStoreChanged ();
 			protected void Refresh (int store_id);
@@ -249,6 +250,7 @@ namespace EPos {
 			protected Gtk.Builder ui;
 			public WidgetWoocommerceStores ();
 			protected void Build ();
+			protected void OnButtonDeleteClicked ();
 			protected void OnButtonEditClicked ();
 			protected void OnButtonNewClicked ();
 			protected void OnButtonSaveClicked ();

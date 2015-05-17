@@ -1,3 +1,4 @@
+include Makefile.in
 SB_LIBS=../SinticBolivia
 CFLAGS=-X -I/mingw/include \
 		-X -I/mingw/include/gee-1.0 \

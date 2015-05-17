@@ -19,6 +19,7 @@ LIB_NAME=libUsers.so
 all:
 	valac -o $(LIB_NAME) --library=$(MODULE_NAME) -H $(MODULE_NAME).h $(SOURCES) -X -fPIC -X -shared $(VFLAGS) $(CFLAGS) $(VLIBS) $(CLIBS)
 	glib-compile-resources users.gresource.xml
+	cp $(LIB_NAME) users.gresource ../../bin/modules
 install:
 	install $(LIB_NAME) ../../bin/modules/
 	install users.gresource ../../bin/modules/
