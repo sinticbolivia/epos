@@ -278,7 +278,10 @@ namespace Woocommerce
 			cfg.Save();
 			if( this.checkbuttonLaunch.active )
 			{
-				GLib.Process.spawn_command_line_async("./pos.sh");
+				if( SBOS.GetOS().IsLinux() )
+					GLib.Process.spawn_command_line_async("./run-ec-pos.sh");
+				else
+					GLib.Process.spawn_command_line_async("ec-pos.exe");
 			}
 			this.window.destroy();
 		}

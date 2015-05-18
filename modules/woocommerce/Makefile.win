@@ -1,3 +1,4 @@
+include ../../Makefile.in
 NO_COLOR=\033[0m
 OK_COLOR=\033[32m
 BLUE_COLOR=\033[34m
@@ -60,10 +61,10 @@ all:
 	@echo "==========================================$(NO_COLOR)\n\n"
 	valac -o $(LIB_NAME) -D GLIB_2_32 --library=$(MODULE_NAME) -H $(MODULE_NAME).h -X -fPIC -X -shared $(SRC) $(PKG) $(VAPI) $(CFLAGS) $(INCLUDE_DIR) $(LIB_DIR) $(CLIBS)
 	glib-compile-resources woocommerce.gresource.xml
-	@cp $(LIB_NAME) woocommerce.gresource ../../bin/modules
+	cp $(LIB_NAME) woocommerce.gresource $(INSTALL_DIR)/modules
 	@echo "\n$(OK_COLOR)Compilation completed!!!\n"
 install:
-	install $(LIB_NAME) /c/EPOS/modules
-	install woocommerce.gresource /c/EPOS/modules
+	install $(LIB_NAME) $(INSTALL_DIR)/modules
+	install woocommerce.gresource $(INSTALL_DIR)/modules
 clean:
 	rm $(LIB_NAME) woocommerce.gresource *.h *.vapi

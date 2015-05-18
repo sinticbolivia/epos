@@ -37,15 +37,15 @@ all: $(SOURCES) $(DEST_EXEC) resource config
 	
 #$(DEST_EXEC): $(OBJECTS)
 $(DEST_EXEC): $(SOURCES)
-	$(VC) -o bin/$@ -D __linux__ -D GLIB_2_32 --thread -X -s $(VFLAGS) $(VLIBS) $(SOURCES)
+	$(VC) -o $(INSTALL_DIR)/$@ -D __linux__ -D GLIB_2_32 --thread -X -s $(VFLAGS) $(VLIBS) $(SOURCES)
 	@#$(VC) classes/interface.module.vala -C -H includes/pos_module.h --vapi=includes/pos_module.vapi --library=PosModule
 	@#$(VC) classes/class.modules.vala -C -H includes/modules.h --vapi=includes/modules.vapi --library=PosModules --pkg gee-1.0 --pkg gmodule-2.0 includes/pos_module.vapi
 	@#strip bin/$@
 config:
-	valac -o bin/$@ -D __linux__ -D GLIB_2_32 $(VFLAGS) $(VLIBS) setup.vala
+	valac -o $(INSTALL_DIR)/$@ -D __linux__ -D GLIB_2_32 $(VFLAGS) $(VLIBS) setup.vala
 resource:
 	glib-compile-resources ec-pos.gresource.xml
-	mv ec-pos.gresource share/resources
+	mv ec-pos.gresource s(INSTALL_DIR)/share/resources
 	
 #$(OBJECTS): $(SOURCES)
 #	$(VC) -c $(VFLAGS) $(VLIBS) $^ -o $@
@@ -59,5 +59,4 @@ resource:
 #test: test.vala
 #	$(VC) -X -I. -X -L./bin $(VLIBS) -X -l$(LIBRARY_NAME) $(LIBRARY_NAME).vapi  test.vala -o bin/test 
 clean:
-	rm -fv bin/$(DEST_EXEC)
-	rm *.o
+	rm -fv *.h *.o *.vapi ec-pos.gresource

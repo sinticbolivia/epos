@@ -1,3 +1,4 @@
+include ../../Makefile.in
 NO_COLOR=\033[0m
 OK_COLOR=\033[32m
 BLUE_COLOR=\033[34m
@@ -36,9 +37,9 @@ all:
 	@echo "==========================================$(NO_COLOR)\n\n"
 	valac -o $(LIB_NAME) -D GLIB_2_32 --library=$(MODULE_NAME) -H $(MODULE_NAME).h -X -fPIC -X -shared $(SRC) $(PKG) $(VAPI) $(INCLUDE_DIR) $(LIB_DIR)
 	glib-compile-resources pos.gresource.xml
-	cp $(LIB_NAME) pos.gresource ../../bin/modules
+	cp $(LIB_NAME) pos.gresource $(INSTALL_DIR)/modules
 	@echo "\n$(OK_COLOR)Compilation completed!!!\n"
 install:
-	cp $(LIB_NAME) pos.gresource ../../bin/modules
+	cp $(LIB_NAME) pos.gresource $(INSTALL_DIR)/modules
 clean:
 	rm $(LIB_NAME) pos.gresource *.h *.vapi

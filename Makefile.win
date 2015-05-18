@@ -50,14 +50,13 @@ all: $(SOURCES) $(DEST_EXEC) config
 
 #$(DEST_EXEC): $(OBJECTS)
 $(DEST_EXEC): $(SOURCES)
-	install	-d bin
-	$(VC) -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) $(SOURCES) -X -L./../SinticBolivia/bin -o bin/$@
+	install	-d $(INSTALL_DIR)/bin
+	$(VC) -o $(INSTALL_DIR)/$@ -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) $(SOURCES) -X -L./../SinticBolivia/bin
 	@#strip bin/$@
 	glib-compile-resources ec-pos.gresource.xml
-	cp ec-pos.gresource bin/share/resources
-	mv ec-pos.gresource share/resources
+	cp ec-pos.gresource $(INSTALL_DIR)/share/resources
 config:
-	valac -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin -o bin/config.exe 
+	valac -o $(INSTALL_DIR)/config.exe -D __WIN32__ -D GLIB_2_32 $(CFLAGS) $(VFLAGS) $(CLIBS) $(VLIBS) setup.vala -X -L./../SinticBolivia/bin 
 #$(OBJECTS): $(SOURCES)
 #	$(VC) --define=__WIN32__ -c $(VFLAGS) $(VLIBS) $^ -o $@
 #	$(VC) $(VFLAGS) -c $(SOURCES)

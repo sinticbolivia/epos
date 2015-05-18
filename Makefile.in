@@ -1,4 +1,4 @@
-$(info Trying to detect the operating system, $(PATH))
+$(info Trying to detect the operating system)
 ifneq (, $(findstring /usr/bin, $(PATH)))
 OS=LINUX
 INSTALL_DIR=~/EPos
